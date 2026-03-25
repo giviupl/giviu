@@ -3055,6 +3055,10 @@ textarea,
   .subcategory-name {
     font-size: var(--font-size-2xs);
   }
+
+  .category-faq {
+    padding: 0 var(--spacing-md);
+  }
 }
 
 /* Category FAQ */
@@ -3098,12 +3102,6 @@ textarea,
   .category-faq .faq-header,
   .category-faq .faq-list {
     padding: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .category-faq {
-    padding: 0 var(--spacing-md);
   }
 }
 
@@ -3649,7 +3647,7 @@ textarea,
   margin-top: var(--spacing-md);
 }
 
-/* Empty State Mobile */
+/* Quote Mobile */
 @media (max-width: 768px) {
   .quote-empty {
     padding: 48px 16px;
@@ -3664,15 +3662,10 @@ textarea,
     box-sizing: border-box;
   }
 
-  @media (max-width: 768px) {
-    .quote-empty+.inspiration-wrapper {
-      margin-top: 80px;
-    }
+  .quote-empty+.inspiration-wrapper {
+    margin-top: 80px;
   }
-}
 
-/* Quote Mobile */
-@media (max-width: 768px) {
   .quote-page {
     padding: 0 0 60px;
   }
@@ -3707,30 +3700,28 @@ textarea,
     box-sizing: border-box;
   }
 
-  @media (max-width: 768px) {
-    .quote-copy-toggle-top .quote-toggle-label {
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      font-size: var(--font-size-small);
-    }
-  
-    .quote-copy-toggle-top .quote-toggle {
-      width: 48px;
-      height: 26px;
-      flex-shrink: 0;
-    }
-  
-    .quote-copy-toggle-top .quote-toggle-knob {
-      width: 20px;
-      height: 20px;
-      top: 3px;
-      left: 3px;
-    }
-  
-    .quote-copy-toggle-top .quote-toggle.active .quote-toggle-knob {
-      transform: translateX(22px);
-    }
+  .quote-copy-toggle-top .quote-toggle-label {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    font-size: var(--font-size-small);
+  }
+
+  .quote-copy-toggle-top .quote-toggle {
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .quote-copy-toggle-top .quote-toggle-knob {
+    width: 20px;
+    height: 20px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .quote-copy-toggle-top .quote-toggle.active .quote-toggle-knob {
+    transform: translateX(22px);
   }
 }
 
@@ -5223,21 +5214,6 @@ textarea,
   .o-giviu-facts-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-xl);
-  }
-}
-
-/* CTA Mobile */
-@media (max-width: 768px) {
-  .o-giviu-cta {
-    padding: 64px 24px;
-  }
-
-  .o-giviu-cta-title {
-    font-size: var(--font-size-2xl);
-  }
-
-  .o-giviu-cta-description {
-    font-size: var(--font-size-body);
   }
 }
 
@@ -6885,7 +6861,7 @@ textarea,
   margin-top: var(--spacing-2xl);
 }
 
-/* Thank You Mobile */
+/* Wycena Dane Mobile */
 @media (max-width: 768px) {
   .wycena-thankyou-wrapper {
     padding: 32px 16px;
@@ -6910,10 +6886,7 @@ textarea,
   .wycena-thankyou-step svg {
     flex-shrink: 0;
   }
-}
 
-/* Mobile */
-@media (max-width: 768px) {
   .wycena-dane-page {
     padding: 0 0 60px;
   }
