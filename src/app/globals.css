@@ -3806,7 +3806,6 @@ textarea,
 
 .recommendations-track-wrapper {
   overflow: hidden;
-  margin: 0 48px;
 }
 
 .recommendations-track {
@@ -3924,7 +3923,6 @@ textarea,
   }
 
   .recommendations-track-wrapper {
-    margin: 0 40px;
     padding: 0;
   }
 }
@@ -3948,7 +3946,6 @@ textarea,
   }
 
   .recommendations-track-wrapper {
-    margin: 0 40px;
     padding: 0;
     overflow: hidden;
   }
@@ -4316,7 +4313,6 @@ textarea,
 
 .inspiration-track-wrapper {
   overflow: hidden;
-  margin: 0 48px;
 }
 
 .inspiration-track {
@@ -4392,10 +4388,6 @@ textarea,
     max-width: 500px;
   }
 
-  .inspiration-track-wrapper {
-    margin: 0 40px;
-  }
-
   .inspiration-slide .article-card-image {
     min-height: 280px;
   }
@@ -4420,7 +4412,6 @@ textarea,
   }
 
   .inspiration-track-wrapper {
-    margin: 0 40px;
     overflow: hidden;
   }
 
@@ -4854,7 +4845,6 @@ textarea,
 
 .recently-viewed-track-wrapper {
   overflow: hidden;
-  margin: 0 48px;
 }
 
 .recently-viewed-track {
@@ -4892,10 +4882,6 @@ textarea,
   .recently-viewed-title {
     font-size: var(--font-size-xl);
     margin-bottom: var(--spacing-lg);
-  }
-
-  .recently-viewed-track-wrapper {
-    margin: 0 40px;
   }
 
   .recently-viewed-slide {
@@ -6985,7 +6971,6 @@ textarea,
 
 .inspiration-simple-track-wrapper {
   overflow: hidden;
-  margin: 0 48px;
 }
 
 .inspiration-simple-track {
@@ -7049,10 +7034,6 @@ textarea,
   .inspiration-simple-title {
     font-size: var(--font-size-xl);
     margin-bottom: var(--spacing-lg);
-  }
-
-  .inspiration-simple-track-wrapper {
-    margin: 0 40px;
   }
 
   .inspiration-simple-slide {
