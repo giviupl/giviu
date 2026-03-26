@@ -1,0 +1,238 @@
+/* ==================== NAVIGATION LINKS ==================== */
+.nav-link {
+  position: relative;
+  color: var(--color-text);
+  transition: color var(--transition-fast);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .nav-link:hover {
+    color: var(--color-primary);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+}
+
+.nav-link.active {
+  color: var(--color-primary);
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* ==================== HEADER ==================== */
+.header-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: var(--color-background);
+  overflow-x: hidden;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 var(--spacing-lg);
+}
+
+.header-logo {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.header-logo-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-accent-line {
+  height: 2px;
+  background-color: var(--color-primary);
+}
+
+/* Desktop nav */
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 32px;
+}
+
+.desktop-nav .nav-link {
+  text-decoration: none;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+}
+
+.desktop-nav :global(.quote-icon-wrapper) {
+  margin-left: var(--spacing-md);
+}
+
+/* Mobile controls */
+.mobile-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.mobile-quote-link {
+  padding: 8px;
+  color: var(--color-primary);
+}
+
+.burger-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Category bar */
+.category-bar {
+  display: none;
+  background-color: var(--color-background);
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.category-bar-inner {
+  padding: 0 var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  height: 48px;
+}
+
+.category-bar .nav-link {
+  text-decoration: none;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.nav-link-separator {
+  margin-left: 20px;
+}
+
+/* Mobile menu overlay */
+.header-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 30;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: 82px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-background);
+  z-index: 40;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobile-menu-hidden {
+  transform: translateX(100%);
+  visibility: hidden;
+}
+
+.mobile-menu-visible {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.mobile-menu-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.mobile-menu-label {
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mobile-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-menu-link {
+  display: block;
+  padding: 12px 0;
+  text-decoration: none;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.mobile-menu-link.active {
+  color: var(--color-primary);
+}
+
+/* Header spacer */
+.header-spacer {
+  height: 100px;
+}
+
+/* Desktop overrides */
+@media (min-width: 1025px) {
+  .desktop-nav {
+    display: flex;
+  }
+
+  .mobile-controls {
+    display: none;
+  }
+
+  .category-bar {
+    display: block;
+  }
+
+  .header-top {
+    padding: 0 120px;
+  }
+
+  .header-spacer {
+    height: 168px;
+  }
+}
+
+/* Safe area (notch devices) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-controls {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .mobile-menu {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

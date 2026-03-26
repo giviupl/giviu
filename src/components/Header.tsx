@@ -5,6 +5,7 @@ import { useState, useLayoutEffect, useMemo, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { CATEGORIES, NAV_LINKS } from '@/data/navigation';
 import { useQuoteStore } from '@/stores/quoteStore';
+import styles from './Header.module.css';
 
 function QuoteBadge() {
   const [count, setCount] = useState(0);
@@ -107,15 +108,15 @@ export default function Header() {
 
   return (
     <>
-      <header role="banner" className="header-wrapper">
+      <header role="banner" className={styles['header-wrapper']}>
         {/* Górny pasek */}
-        <div className="header-top">
+        <div className={styles['header-top']}>
           {/* Logo */}
-          <h1 className="header-logo">
+          <h1 className={styles['header-logo']}>
             <Link
               href="/"
               aria-label="Giviu - Strona główna"
-              className="header-logo-link"
+              className={styles['header-logo-link']}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Giviu
@@ -126,13 +127,13 @@ export default function Header() {
           <nav
             role="navigation"
             aria-label="Główna nawigacja"
-            className="desktop-nav"
+            className={styles['desktop-nav']}
           >
             {memoizedNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link ${link.isActive ? 'active' : ''}`}
+                className={`${styles['nav-link']} ${link.isActive ? styles.active : ''}`}
                 aria-current={link.isActive ? 'page' : undefined}
               >
                 {link.label}
@@ -142,7 +143,7 @@ export default function Header() {
             {/* Ikona listy wyceny - Desktop */}
             <Link
               href="/wycena"
-              className={`nav-link quote-icon-wrapper ${pathname === '/wycena' ? 'active' : ''}`}
+              className={`${styles['nav-link']} quote-icon-wrapper ${pathname === '/wycena' ? styles.active : ''}`}
               aria-label="Lista wyceny"
               aria-current={pathname === '/wycena' ? 'page' : undefined}
             >
@@ -166,11 +167,11 @@ export default function Header() {
           </nav>
 
           {/* Mobile: Ikona wyceny + Burger menu */}
-          <div className="mobile-controls">
+          <div className={styles['mobile-controls']}>
             <Link
               href="/wycena"
               aria-label="Lista wyceny"
-              className={`quote-icon-wrapper mobile-quote-link ${pathname === '/wycena' ? 'active' : ''}`}
+              className={`quote-icon-wrapper ${styles['mobile-quote-link']} ${pathname === '/wycena' ? styles.active : ''}`}
             >
               <svg
                 width="24"
@@ -195,7 +196,7 @@ export default function Header() {
               aria-label={mobileMenuOpen ? 'Zamknij menu' : 'Otwórz menu'}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
-              className="burger-button"
+              className={styles['burger-button']}
             >
               {mobileMenuOpen ? (
                 <svg
@@ -231,20 +232,20 @@ export default function Header() {
         </div>
 
         {/* Niebieska linia - dekoracyjna */}
-        <div className="header-accent-line" aria-hidden="true" />
+        <div className={styles['header-accent-line']} aria-hidden="true" />
 
         {/* Kategorie - tylko desktop */}
         <nav
           role="navigation"
           aria-label="Kategorie produktów"
-          className="category-bar"
+          className={styles['category-bar']}
         >
-          <div className="category-bar-inner">
+          <div className={styles['category-bar-inner']}>
             {memoizedCategories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/kategorie/${cat.slug}`}
-                className={`nav-link ${cat.isActive ? 'active' : ''}`}
+                className={`${styles['nav-link']} ${cat.isActive ? styles.active : ''}`}
                 aria-current={cat.isActive ? 'page' : undefined}
               >
                 {cat.name}
@@ -252,14 +253,14 @@ export default function Header() {
             ))}
             <Link
               href="/marki"
-              className={`nav-link nav-link-separator ${pathname === '/marki' ? 'active' : ''}`}
+              className={`${styles['nav-link']} ${styles['nav-link-separator']} ${pathname === '/marki' ? styles.active : ''}`}
               aria-current={pathname === '/marki' ? 'page' : undefined}
             >
               MARKI
             </Link>
             <Link
               href="/nowosci"
-              className={`nav-link ${pathname === '/nowosci' ? 'active' : ''}`}
+              className={`${styles['nav-link']} ${pathname === '/nowosci' ? styles.active : ''}`}
               aria-current={pathname === '/nowosci' ? 'page' : undefined}
             >
               NOWOŚCI
@@ -271,7 +272,7 @@ export default function Header() {
       {/* Overlay dla mobile menu */}
       {mobileMenuOpen && (
         <div
-          className="header-overlay"
+          className={styles['header-overlay']}
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
@@ -284,20 +285,20 @@ export default function Header() {
         aria-modal="true"
         aria-label="Menu mobilne"
         aria-hidden={!mobileMenuOpen}
-        className="mobile-menu"
+        className={`${styles['mobile-menu']} ${mobileMenuOpen ? styles['mobile-menu-visible'] : styles['mobile-menu-hidden']}`}
       >
-        <div className="mobile-menu-section">
-          <p id="mobile-categories-label" className="mobile-menu-label">
+        <div className={styles['mobile-menu-section']}>
+          <p id="mobile-categories-label" className={styles['mobile-menu-label']}>
             Kategorie
           </p>
-          <ul aria-labelledby="mobile-categories-label" className="mobile-menu-list">
+          <ul aria-labelledby="mobile-categories-label" className={styles['mobile-menu-list']}>
             {memoizedCategories.map((cat) => (
               <li key={cat.slug}>
                 <Link
                   href={`/kategorie/${cat.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
                   aria-current={cat.isActive ? 'page' : undefined}
-                  className={`mobile-menu-link ${cat.isActive ? 'active' : ''}`}
+                  className={`${styles['mobile-menu-link']} ${cat.isActive ? styles.active : ''}`}
                 >
                   {cat.name}
                 </Link>
@@ -308,7 +309,7 @@ export default function Header() {
                 href="/marki"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-current={pathname === '/marki' ? 'page' : undefined}
-                className={`mobile-menu-link ${pathname === '/marki' ? 'active' : ''}`}
+                className={`${styles['mobile-menu-link']} ${pathname === '/marki' ? styles.active : ''}`}
               >
                 MARKI
               </Link>
@@ -318,7 +319,7 @@ export default function Header() {
                 href="/nowosci"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-current={pathname === '/nowosci' ? 'page' : undefined}
-                className={`mobile-menu-link ${pathname === '/nowosci' ? 'active' : ''}`}
+                className={`${styles['mobile-menu-link']} ${pathname === '/nowosci' ? styles.active : ''}`}
               >
                 NOWOŚCI
               </Link>
@@ -327,17 +328,17 @@ export default function Header() {
         </div>
 
         <div>
-          <p id="mobile-menu-label" className="mobile-menu-label">
+          <p id="mobile-menu-label" className={styles['mobile-menu-label']}>
             Menu
           </p>
-          <ul aria-labelledby="mobile-menu-label" className="mobile-menu-list">
+          <ul aria-labelledby="mobile-menu-label" className={styles['mobile-menu-list']}>
             {memoizedNavLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   aria-current={link.isActive ? 'page' : undefined}
-                  className={`mobile-menu-link ${link.isActive ? 'active' : ''}`}
+                  className={`${styles['mobile-menu-link']} ${link.isActive ? styles.active : ''}`}
                 >
                   {link.label}
                 </Link>
@@ -348,7 +349,7 @@ export default function Header() {
       </nav>
 
       {/* Spacer */}
-      <div className="header-spacer" aria-hidden="true" />
+      <div className={styles['header-spacer']} aria-hidden="true" />
     </>
   );
 }
