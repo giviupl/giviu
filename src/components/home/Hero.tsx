@@ -3,11 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// ============================================
-// ZMIANA: Dodane zdjęcia w hero karuzeli
-// next/image automatycznie optymalizuje (WebP, lazy load, srcset)
-// ============================================
+import styles from './Hero.module.css';
 
 const HERO_SLIDES = [
   { brandName: 'The North Face', title: 'The North Face', subtitle: 'Odzież outdoorowa premium', color: '#1f2937', image: '/images/hero/the-north-face.jpg' },
@@ -30,6 +26,7 @@ export default function Hero() {
   // Swipe
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const hasMoved = useRef(false);
 
   // Timer logic
   useEffect(() => {
@@ -72,13 +69,18 @@ export default function Hero() {
   // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+    hasMoved.current = false;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
+    hasMoved.current = true;
   };
 
   const handleTouchEnd = () => {
+    if (!hasMoved.current) return; // tap, nie swipe
+    
     const diff = touchStartX.current - touchEndX.current;
     const threshold = 50;
 
@@ -87,94 +89,97 @@ export default function Hero() {
   };
 
   return (
-    <section className="hero-section" aria-labelledby="hero-heading">
-      <div className="hero-grid">
+    <section className={styles['hero-section']} aria-labelledby="hero-heading">
+      <div className={styles['hero-grid']}>
         
         {/* Lewy panel - tekst */}
-        <div className="hero-left">
-          <div className="hero-left-inner">
-            <div className="hero-spacer" />
+        <div className={styles['hero-left']}>
+          <div className={styles['hero-left-inner']}>
+            <div className={styles['hero-spacer']} />
             
-            <div className="hero-text-content">
-              <h1 id="hero-heading" className="hero-heading">
-                <span className="hero-heading-dark">
+            <div className={styles['hero-text-content']}>
+              <h1 id="hero-heading" className={styles['hero-heading']}>
+                <span className={styles['hero-heading-dark']}>
                   Prezenty biznesowe,<br />
                   z których Twoi klienci<br />
                 </span>
-                <span className="hero-heading-primary">będą korzystać<br />codziennie.</span>
+                <span className={styles['hero-heading-primary']}>będą korzystać<br />codziennie.</span>
               </h1>
-              <p className="hero-subtext">
+              <p className={styles['hero-subtext']}>
                 Markowa jakość, która przetrwa lata.
               </p>
-              <Link href="/kolekcje" className="hero-cta">
+              <Link href="/kolekcje" className={styles['hero-cta']}>
                 Zobacz kolekcje
               </Link>
             </div>
             
-            <div className="hero-spacer" />
+            <div className={styles['hero-spacer']} />
           </div>
         </div>
 
         {/* Prawy panel - slider ze zdjęciami */}
-        <div className="hero-right">
-          <Link 
-            href={`/marki/${HERO_SLIDES[currentSlide].brandName.toLowerCase().replace(/ /g, '-')}`}
-            className="hero-slider"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+        <div className={styles['hero-right']}>
+          <div 
+            className={styles['hero-slider']}
+            onPointerEnter={(e) => { if (e.pointerType === 'mouse') setIsPaused(true); }}
+            onPointerLeave={(e) => { if (e.pointerType === 'mouse') setIsPaused(false); }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Kolor tła jako fallback zanim zdjęcie się załaduje */}
-            <div 
-              className="hero-slide-bg"
-              style={{ backgroundColor: HERO_SLIDES[currentSlide].color }}
-            />
+            <Link 
+              href={`/marki/${HERO_SLIDES[currentSlide].brandName.toLowerCase().replace(/ /g, '-')}`}
+              className={styles['hero-slide-link']}
+              aria-label={`${HERO_SLIDES[currentSlide].brandName} — zobacz markę`}
+            >
+              {/* Kolor tła jako fallback zanim zdjęcie się załaduje */}
+              <div 
+                className={styles['hero-slide-bg']}
+                style={{ backgroundColor: HERO_SLIDES[currentSlide].color }}
+              />
 
-            {/* Zdjęcie — next/image z fill + object-fit cover */}
-            <Image
-              src={HERO_SLIDES[currentSlide].image}
-              alt={`${HERO_SLIDES[currentSlide].brandName} — prezenty firmowe premium`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority={currentSlide === 0}
-              className="hero-slide-image"
-            />
-            
-            {/* Overlay z tekstem */}
-            <div className="hero-slide-overlay">
-              <h2 className="hero-slide-title">{HERO_SLIDES[currentSlide].title}</h2>
-              <p className="hero-slide-subtitle">{HERO_SLIDES[currentSlide].subtitle}</p>
+              {/* Zdjęcie — next/image z fill + object-fit cover */}
+              <Image
+                src={HERO_SLIDES[currentSlide].image}
+                alt={`${HERO_SLIDES[currentSlide].brandName} — prezenty firmowe premium`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority={currentSlide === 0}
+                className={styles['hero-slide-image']}
+              />
               
-              <div className="hero-dots" role="tablist" aria-label="Nawigacja karuzeli">
-                {HERO_SLIDES.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      goToSlide(index);
-                    }}
-                    className="hero-dot-btn"
-                    aria-label={`Slajd ${index + 1}`}
-                    aria-selected={currentSlide === index}
-                    role="tab"
-                  >
-                    <span 
-                      className={`hero-dot ${currentSlide === index ? 'hero-dot-active' : ''}`}
-                    >
-                      {currentSlide === index && (
-                        <span 
-                          key={animationKey}
-                          className={`hero-dot-progress ${isPaused ? 'paused' : ''}`}
-                        />
-                      )}
-                    </span>
-                  </button>
-                ))}
+              {/* Overlay z tekstem */}
+              <div className={styles['hero-slide-overlay']}>
+                <h2 className={styles['hero-slide-title']}>{HERO_SLIDES[currentSlide].title}</h2>
+                <p className={styles['hero-slide-subtitle']}>{HERO_SLIDES[currentSlide].subtitle}</p>
               </div>
+            </Link>
+
+            {/* Dots — poza Link, nie triggerują nawigacji */}
+            <div className={styles['hero-dots']} role="tablist" aria-label="Nawigacja karuzeli">
+              {HERO_SLIDES.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={styles['hero-dot-btn']}
+                  aria-label={`Slajd ${index + 1}`}
+                  aria-selected={currentSlide === index}
+                  role="tab"
+                >
+                  <span 
+                    className={`${styles['hero-dot']} ${currentSlide === index ? styles['hero-dot-active'] : ''}`}
+                  >
+                    {currentSlide === index && (
+                      <span 
+                        key={animationKey}
+                        className={`${styles['hero-dot-progress']} ${isPaused ? styles.paused : ''}`}
+                      />
+                    )}
+                  </span>
+                </button>
+              ))}
             </div>
-          </Link>
+          </div>
         </div>
       </div>
     </section>
