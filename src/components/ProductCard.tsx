@@ -5,12 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useQuoteStore } from '@/stores/quoteStore';
 import ColorSwatch from './ColorSwatch';
-
-// ============================================
-// ZMIANA: next/image na kartach produktów
-// - Jeśli kolor ma images[] → wyświetla prawdziwe zdjęcie
-// - Jeśli nie → fallback na emoji/placeholder
-// ============================================
+import styles from './ProductCard.module.css';
 
 export interface ProductColor {
   name: string;
@@ -56,7 +51,6 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
   const views = product.views || [];
   const brandDisplay = product.brand_name || product.brand || '';
 
-  // Zdjęcia dla wybranego koloru
   const colorImages = selectedColor?.images ?? [];
   const hasRealImages = colorImages.length > 0;
   const galleryCount = hasRealImages ? colorImages.length : 0;
@@ -147,12 +141,18 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
     isDragging.current = false;
   };
 
+  const btnClass = [
+    styles['product-card-cart-btn'],
+    mounted && inQuote ? styles['in-quote'] : '',
+    animationState !== 'idle' ? styles[animationState] : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <div className="product-card-wrapper">
-      <Link href={`/produkty/${product.slug}${selectedColorIndex > 0 ? `?color=${selectedColor?.name?.toLowerCase().replace(/\s+/g, '-')}` : ''}`} className="product-card">
+      <Link href={`/produkty/${product.slug}${selectedColorIndex > 0 ? `?color=${selectedColor?.name?.toLowerCase().replace(/\s+/g, '-')}` : ''}`} className={styles['product-card']}>
         {/* Image */}
         <div
-          className="product-card-image"
+          className={styles['product-card-image']}
           style={{
             backgroundColor: hasRealImages ? '#ffffff' : (selectedColor?.hex ? `${selectedColor.hex}15` : '#f3f4f6'),
             touchAction: 'pan-y pinch-zoom'
@@ -161,18 +161,18 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <span className="product-card-badge">{brandDisplay}</span>
+          <span className={styles['product-card-badge']}>{brandDisplay}</span>
 
           <button
             onClick={handleToggleQuote}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            className={`product-card-cart-btn ${mounted && inQuote ? 'in-quote' : ''} ${animationState !== 'idle' ? animationState : ''}`}
+            className={btnClass}
             aria-label={mounted && inQuote ? `Usuń ${product.name} z wyceny` : `Dodaj ${product.name} do wyceny`}
             disabled={animationState !== 'idle'}
           >
-            <span className="product-card-cart-icon">+</span>
+            <span className={styles['product-card-cart-icon']}>+</span>
           </button>
 
           {/* Zdjęcie lub fallback */}
@@ -182,12 +182,12 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
               alt={`${product.name} ${selectedColor?.name ?? ''}`}
               fill
               sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 33vw"
-              className="product-card-photo"
+              className={styles['product-card-photo']}
             />
           ) : (
-            <div className="product-card-placeholder">
+            <div className={styles['product-card-placeholder']}>
               {views.length > 1 ? (
-                <span className="product-card-emoji">{views[currentImageIndex]}</span>
+                <span className={styles['product-card-emoji']}>{views[currentImageIndex]}</span>
               ) : (
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -201,15 +201,14 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
           {/* Dots + Desktop Arrows */}
           {galleryCount > 1 && (
             <>
-              <div className="product-card-dots">
+              <div className={styles['product-card-dots']}>
                 {Array.from({ length: galleryCount }).map((_, idx) => (
-                  <span key={idx} className={`product-card-dot ${idx === currentImageIndex ? 'active' : ''}`} />
+                  <span key={idx} className={`${styles['product-card-dot']} ${idx === currentImageIndex ? styles.active : ''}`} />
                 ))}
               </div>
 
-              {/* Strzałki desktop — widoczne na hover */}
               <button
-                className="product-card-arrow product-card-arrow-left"
+                className={`${styles['product-card-arrow']} ${styles['product-card-arrow-left']}`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -222,7 +221,7 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
                 </svg>
               </button>
               <button
-                className="product-card-arrow product-card-arrow-right"
+                className={`${styles['product-card-arrow']} ${styles['product-card-arrow-right']}`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -239,15 +238,15 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
         </div>
 
         {/* Info */}
-        <div className="product-card-info">
-          <p className="product-card-brand">{brandDisplay.toUpperCase()}</p>
-          <h3 className="product-card-name">{product.name}</h3>
-          <p className="product-card-price">{product.price}</p>
+        <div className={styles['product-card-info']}>
+          <p className={styles['product-card-brand']}>{brandDisplay.toUpperCase()}</p>
+          <h3 className={styles['product-card-name']}>{product.name}</h3>
+          <p className={styles['product-card-price']}>{product.price}</p>
         </div>
       </Link>
 
       {colors.length > 0 && (
-        <div className="product-card-colors">
+        <div className={styles['product-card-colors']}>
           <ColorSwatch
             colors={colors}
             selectedIndex={selectedColorIndex}
