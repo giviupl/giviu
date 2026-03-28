@@ -1,4 +1,5 @@
 'use client';
+import styles from "../QuotePage.module.css";
 
 import SectionLine from '@/components/SectionLine';
 import { useState, useEffect, useRef } from 'react';
@@ -174,9 +175,9 @@ export default function WycenaDanePage() {
 
   if (!isHydrated) {
     return (
-      <section className="wycena-dane-page">
-        <div className="wycena-dane-container">
-          <div className="wycena-dane-loading">
+      <section className={styles['wycena-dane-page']}>
+        <div className={styles['wycena-dane-container']}>
+          <div className={styles['wycena-dane-loading']}>
             <div className="spinner"></div>
           </div>
         </div>
@@ -186,57 +187,57 @@ export default function WycenaDanePage() {
 
   if (isSuccess) {
     return (
-      <section className="wycena-dane-page">
-        <div className="wycena-thankyou-wrapper">
-          <div className="wycena-thankyou">
-            <div className="wycena-thankyou-icon">
+      <section className={styles['wycena-dane-page']}>
+        <div className={styles['wycena-thankyou-wrapper']}>
+          <div className={styles['wycena-thankyou']}>
+            <div className={styles['wycena-thankyou-icon']}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
 
-            <h1 className="wycena-thankyou-title">
+            <h1 className={styles['wycena-thankyou-title']}>
               Dziękujemy za Twoje zapytanie!
             </h1>
 
-            <p className="wycena-thankyou-subtitle">
+            <p className={styles['wycena-thankyou-subtitle']}>
               Twoja wycena jest już w drodze do naszego zespołu
             </p>
 
-            <p className="wycena-thankyou-text">
+            <p className={styles['wycena-thankyou-text']}>
               Nasi eksperci przygotują dla Ciebie spersonalizowaną ofertę i skontaktują się
               z Tobą w ciągu <strong>24 godzin</strong>. Sprawdź swoją skrzynkę mailową –
               niedługo otrzymasz od nas wiadomość!
             </p>
 
-            <div className="wycena-thankyou-box">
-              <h2 className="wycena-thankyou-box-title">Co dalej?</h2>
-              <div className="wycena-thankyou-steps">
-                <div className="wycena-thankyou-step">
+            <div className={styles['wycena-thankyou-box']}>
+              <h2 className={styles['wycena-thankyou-box-title']}>Co dalej?</h2>
+              <div className={styles['wycena-thankyou-steps']}>
+                <div className={styles['wycena-thankyou-step']}>
                   <svg width="32" height="32" fill="none" stroke="#595d66" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                   </svg>
                   <div>
-                    <p className="wycena-thankyou-step-title">Otrzymasz e-mail</p>
-                    <p className="wycena-thankyou-step-desc">z potwierdzeniem zapytania</p>
+                    <p className={styles['wycena-thankyou-step-title']}>Otrzymasz e-mail</p>
+                    <p className={styles['wycena-thankyou-step-desc']}>z potwierdzeniem zapytania</p>
                   </div>
                 </div>
-                <div className="wycena-thankyou-step">
+                <div className={styles['wycena-thankyou-step']}>
                   <svg width="32" height="32" fill="none" stroke="#595d66" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                   </svg>
                   <div>
-                    <p className="wycena-thankyou-step-title">Skontaktujemy się</p>
-                    <p className="wycena-thankyou-step-desc">aby omówić szczegóły</p>
+                    <p className={styles['wycena-thankyou-step-title']}>Skontaktujemy się</p>
+                    <p className={styles['wycena-thankyou-step-desc']}>aby omówić szczegóły</p>
                   </div>
                 </div>
-                <div className="wycena-thankyou-step">
+                <div className={styles['wycena-thankyou-step']}>
                   <svg width="32" height="32" fill="none" stroke="#595d66" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
                   </svg>
                   <div>
-                    <p className="wycena-thankyou-step-title">Przygotujemy ofertę</p>
-                    <p className="wycena-thankyou-step-desc">dopasowaną do Twoich potrzeb</p>
+                    <p className={styles['wycena-thankyou-step-title']}>Przygotujemy ofertę</p>
+                    <p className={styles['wycena-thankyou-step-desc']}>dopasowaną do Twoich potrzeb</p>
                   </div>
                 </div>
               </div>
@@ -247,8 +248,8 @@ export default function WycenaDanePage() {
             <InspirationCarouselSimple />
           </div>
 
-          <div className="wycena-thankyou-footer">
-            <Link href="/" className="wycena-thankyou-btn">
+          <div className={styles['wycena-thankyou-footer']}>
+            <Link href="/" className={styles['wycena-thankyou-btn']}>
               Wróć na stronę główną
             </Link>
           </div>
@@ -259,11 +260,11 @@ export default function WycenaDanePage() {
 
   if (items.length === 0) {
     return (
-      <section className="wycena-dane-page">
-        <div className="wycena-dane-container">
-          <div className="wycena-dane-empty">
-            <p className="wycena-dane-empty-text">Twoja lista produktów jest pusta</p>
-            <Link href="/kolekcje" className="quote-btn-primary">
+      <section className={styles['wycena-dane-page']}>
+        <div className={styles['wycena-dane-container']}>
+          <div className={styles['wycena-dane-empty']}>
+            <p className={styles['wycena-dane-empty-text']}>Twoja lista produktów jest pusta</p>
+            <Link href="/kolekcje" className={styles['quote-btn-primary']}>
               Wróć do zakupów
             </Link>
           </div>
@@ -273,27 +274,27 @@ export default function WycenaDanePage() {
   }
 
   return (
-    <section className="wycena-dane-page">
+    <section className={styles['wycena-dane-page']}>
       <div className="wycena-dane-spacer"></div>
-      <div className="wycena-dane-container">
+      <div className={styles['wycena-dane-container']}>
 
-        <header className="wycena-dane-header">
-          <div className="wycena-dane-title-wrapper">
+        <header className={styles['wycena-dane-header']}>
+          <div className={styles['wycena-dane-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h1 className="wycena-dane-title">Dane kontaktowe</h1>
+            <h1 className={styles['wycena-dane-title']}>Dane kontaktowe</h1>
           </div>
-          <p className="wycena-dane-subtitle">
+          <p className={styles['wycena-dane-subtitle']}>
             Wypełnij formularz, abyśmy mogli przygotować dla Ciebie spersonalizowaną ofertę.
           </p>
         </header>
 
-        <div className="quote-progress">
-          <Link href="/wycena" className="quote-step quote-step-link">1. Zapytanie</Link>
-          <div className="quote-step-line"></div>
-          <span className="quote-step active">2. Dane</span>
+        <div className={styles['quote-progress']}>
+          <Link href="/wycena" className={`${styles['quote-step']} ${styles['quote-step-link']}`}>1. Zapytanie</Link>
+          <div className={styles['quote-step-line']}></div>
+          <span className={`${styles['quote-step']} ${styles.active}`}>2. Dane</span>
         </div>
 
-        <form className="wycena-dane-form" noValidate onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+        <form className={styles['wycena-dane-form']} noValidate onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <input
             type="text"
             name="website"
@@ -304,7 +305,7 @@ export default function WycenaDanePage() {
             autoComplete="off"
           />
 
-          <div className="wycena-dane-form-row">
+          <div className={styles['wycena-dane-form-row']}>
             <div className="kontakt-form-field">
               <label className="kontakt-label" htmlFor="firstName">Imię *</label>
               <input
@@ -334,7 +335,7 @@ export default function WycenaDanePage() {
             </div>
           </div>
 
-          <div className="wycena-dane-form-row">
+          <div className={styles['wycena-dane-form-row']}>
             <div className="kontakt-form-field">
               <label className="kontakt-label" htmlFor="company">Firma *</label>
               <input
@@ -363,7 +364,7 @@ export default function WycenaDanePage() {
             </div>
           </div>
 
-          <div className="wycena-dane-form-row">
+          <div className={styles['wycena-dane-form-row']}>
             <div className="kontakt-form-field">
               <label className="kontakt-label" htmlFor="email">E-mail *</label>
               <input
@@ -391,7 +392,7 @@ export default function WycenaDanePage() {
             </div>
           </div>
 
-          <div className="wycena-dane-form-row">
+          <div className={styles['wycena-dane-form-row']}>
             <div className="kontakt-form-field">
               <label className="kontakt-label" htmlFor="address">Adres</label>
               <input
@@ -405,8 +406,8 @@ export default function WycenaDanePage() {
                 className="kontakt-input"
               />
             </div>
-            <div className="wycena-dane-city-row">
-              <div className="kontakt-form-field wycena-dane-city-field">
+            <div className={styles['wycena-dane-city-row']}>
+              <div className={`kontakt-form-field ${styles['wycena-dane-city-field']}`}>
                 <label className="kontakt-label" htmlFor="city">Miasto</label>
                 <input
                   id="city"
@@ -419,7 +420,7 @@ export default function WycenaDanePage() {
                   className="kontakt-input"
                 />
               </div>
-              <div className="kontakt-form-field wycena-dane-postal-field">
+              <div className={`kontakt-form-field ${styles['wycena-dane-postal-field']}`}>
                 <label className="kontakt-label" htmlFor="postalCode">Kod pocztowy</label>
                 <input
                   id="postalCode"
@@ -448,9 +449,9 @@ export default function WycenaDanePage() {
             />
           </div>
 
-          <div className="wycena-dane-upload">
+          <div className={styles['wycena-dane-upload']}>
             <div
-              className={`wycena-dane-dropzone ${isDragging ? 'dragging' : ''}`}
+              className={`${styles['wycena-dane-dropzone']} ${isDragging ? styles.dragging : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -462,30 +463,30 @@ export default function WycenaDanePage() {
                 multiple
                 accept=".pdf,.ai,.eps,.cdr,.svg"
                 onChange={(e) => handleFileSelect(e.target.files)}
-                className="wycena-dane-file-input"
+                className={styles['wycena-dane-file-input']}
               />
 
-              <svg className="wycena-dane-upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg className={styles['wycena-dane-upload-icon']} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
               </svg>
 
-              <h2 className="wycena-dane-upload-title">
+              <h2 className={styles['wycena-dane-upload-title']}>
                 Załącz logotyp – przygotujemy darmową wizualizację
-                <span className="wycena-dane-upload-optional">(Opcjonalnie)</span>
+                <span className={styles['wycena-dane-upload-optional']}>(Opcjonalnie)</span>
               </h2>
-              <p className="wycena-dane-upload-desc">Przeciągnij plik tutaj lub kliknij, aby wybrać.</p>
-              <p className="wycena-dane-upload-formats">Formaty: .pdf, .ai, .eps, .cdr, .svg</p>
+              <p className={styles['wycena-dane-upload-desc']}>Przeciągnij plik tutaj lub kliknij, aby wybrać.</p>
+              <p className={styles['wycena-dane-upload-formats']}>Formaty: .pdf, .ai, .eps, .cdr, .svg</p>
             </div>
 
             {fileFormatError && (
-              <div className="wycena-dane-upload-error">
+              <div className={styles['wycena-dane-upload-error']}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
                 <p>{fileFormatError}</p>
-                <button type="button" onClick={() => setFileFormatError(null)} className="wycena-dane-upload-error-close">
+                <button type="button" onClick={() => setFileFormatError(null)} className={styles['wycena-dane-upload-error-close']}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
                     <path d="M18 6L6 18M6 6l12 12" />
                   </svg>
@@ -494,20 +495,20 @@ export default function WycenaDanePage() {
             )}
 
             {uploadedFiles.length > 0 && (
-              <div className="wycena-dane-files">
+              <div className={styles['wycena-dane-files']}>
                 {uploadedFiles.map(file => (
-                  <div key={file.id} className="wycena-dane-file">
-                    <div className="wycena-dane-file-info">
+                  <div key={file.id} className={styles['wycena-dane-file']}>
+                    <div className={styles['wycena-dane-file-info']}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
                         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                         <polyline points="14,2 14,8 20,8" />
                       </svg>
                       <div>
-                        <p className="wycena-dane-file-name">{file.name}</p>
-                        <p className="wycena-dane-file-size">{formatFileSize(file.size)}</p>
+                        <p className={styles['wycena-dane-file-name']}>{file.name}</p>
+                        <p className={styles['wycena-dane-file-size']}>{formatFileSize(file.size)}</p>
                       </div>
                     </div>
-                    <button type="button" onClick={() => removeFile(file.id)} className="wycena-dane-file-remove">
+                    <button type="button" onClick={() => removeFile(file.id)} className={styles['wycena-dane-file-remove']}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
                         <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
                       </svg>
@@ -519,8 +520,8 @@ export default function WycenaDanePage() {
           </div>
         </form>
 
-        <div className="quote-actions">
-          <Link href="/wycena" className="quote-btn-secondary">
+        <div className={styles['quote-actions']}>
+          <Link href="/wycena" className={styles['quote-btn-secondary']}>
             ← Wróć do zapytania
           </Link>
 
@@ -528,14 +529,14 @@ export default function WycenaDanePage() {
             type="submit"
             onClick={handleSubmit}
             disabled={isLoading}
-            className={`quote-btn-primary ${submitted && !isFormValid() ? 'error' : ''}`}
+            className={`${styles['quote-btn-primary']} ${submitted && !isFormValid() ? styles.error : ''}`}
           >
             {isLoading ? 'Wysyłanie...' : 'Wyślij zapytanie →'}
           </button>
         </div>
 
         {submitted && !isFormValid() && (
-          <p className="quote-error-message">
+          <p className={styles['quote-error-message']}>
             {getErrorMessage()}
           </p>
         )}

@@ -1,5 +1,6 @@
 'use client';
 
+import styles from './QuotePage.module.css';
 import SectionLine from '@/components/SectionLine';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -133,10 +134,10 @@ export default function WycenaPage() {
 
   if (!isHydrated) {
     return (
-      <section className="quote-page">
+      <section className={styles['quote-page']}>
         <div className="quote-spacer"></div>
-        <div className="quote-container">
-          <div className="quote-loading">
+        <div className={styles['quote-container']}>
+          <div className={styles['quote-loading']}>
             <div className="spinner"></div>
           </div>
         </div>
@@ -145,30 +146,30 @@ export default function WycenaPage() {
   }
 
   return (
-    <section className="quote-page">
+    <section className={styles['quote-page']}>
       <div className="quote-spacer"></div>
-      <div className="quote-container">
+      <div className={styles['quote-container']}>
 
-        <header className="quote-header">
-          <div className="quote-title-wrapper">
+        <header className={styles['quote-header']}>
+          <div className={styles['quote-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h1 className="quote-title">Zapytanie</h1>
+            <h1 className={styles['quote-title']}>Zapytanie</h1>
           </div>
-          <p className="quote-subtitle">
+          <p className={styles['quote-subtitle']}>
             Przejrzyj listę produktów, dostosuj ilości i wyślij formularz, aby otrzymać dedykowaną ofertę.
           </p>
         </header>
 
-        <div className="quote-progress">
-          <span className="quote-step active">1. Zapytanie</span>
-          <div className="quote-step-line"></div>
-          <span className="quote-step">2. Dane</span>
+        <div className={styles['quote-progress']}>
+          <span className={`${styles['quote-step']} ${styles.active}`}>1. Zapytanie</span>
+          <div className={styles['quote-step-line']}></div>
+          <span className={styles['quote-step']}>2. Dane</span>
         </div>
 
         {items.length === 0 && (
-          <div className="quote-empty">
-            <p className="quote-empty-text">Twoja lista produktów jest pusta</p>
-            <Link href="/kolekcje" className="quote-btn-primary">
+          <div className={styles['quote-empty']}>
+            <p className={styles['quote-empty-text']}>Twoja lista produktów jest pusta</p>
+            <Link href="/kolekcje" className={styles['quote-btn-primary']}>
               Wróć do zakupów
             </Link>
           </div>
@@ -176,34 +177,32 @@ export default function WycenaPage() {
 
 {items.length > 0 && (
   <>
-    {/* Toggle na górze - tylko gdy więcej niż 1 produkt */}
     {items.length > 1 && (
-      <div className="quote-copy-toggle-top">
-        <label className="quote-toggle-label">
+      <div className={styles['quote-copy-toggle-top']}>
+        <label className={styles['quote-toggle-label']}>
           <div
-            className={`quote-toggle ${copyToAll ? 'active' : ''}`}
+            className={`${styles['quote-toggle']} ${copyToAll ? styles.active : ''}`}
             onClick={toggleCopyToAll}
           >
-            <div className="quote-toggle-knob"></div>
+            <div className={styles['quote-toggle-knob']}></div>
           </div>
           <span>Jednakowa ilość dla wszystkich produktów</span>
         </label>
       </div>
     )}
 
-    <div className="quote-items">
+    <div className={styles['quote-items']}>
       {items.map((item, itemIndex) => {
         const key = getKey(item.id, item.colorIndex);
         const qtys = getQuantities(key);
         const isFirst = itemIndex === 0;
 
         return (
-          <div key={key} className="quote-item">
-            <div className="quote-item-row">
+          <div key={key} className={styles['quote-item']}>
+            <div className={styles['quote-item-row']}>
 
-              {/* Zdjęcie produktu — next/image jeśli jest, fallback na emoji */}
               <div
-                className="quote-item-image"
+                className={styles['quote-item-image']}
                 style={{ backgroundColor: item.colorImage ? '#ffffff' : (item.colorHex || '#e5e7eb') }}
               >
                 {item.colorImage ? (
@@ -212,27 +211,27 @@ export default function WycenaPage() {
                     alt={`${item.name} ${item.colorName ?? ''}`}
                     width={80}
                     height={80}
-                    className="quote-item-photo"
+                    className={styles['quote-item-photo']}
                   />
                 ) : (
-                  <span className="quote-item-emoji">{item.emoji || '📦'}</span>
+                  <span className={styles['quote-item-emoji']}>{item.emoji || '📦'}</span>
                 )}
               </div>
 
-              <div className="quote-item-info">
-                <h2 className="quote-item-name">{item.name}</h2>
-                <p className="quote-item-brand">{item.brand}</p>
+              <div className={styles['quote-item-info']}>
+                <h2 className={styles['quote-item-name']}>{item.name}</h2>
+                <p className={styles['quote-item-brand']}>{item.brand}</p>
                 {item.colorName && (
-                  <p className="quote-item-color">
+                  <p className={styles['quote-item-color']}>
                     Kolor: <strong>{item.colorName}</strong>
                   </p>
                 )}
-                <p className="quote-item-price">{item.price}</p>
+                <p className={styles['quote-item-price']}>{item.price}</p>
               </div>
 
               <button
                 onClick={() => removeItem(item.id, item.colorIndex)}
-                className="quote-item-delete"
+                className={styles['quote-item-delete']}
                 title="Usuń produkt"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -241,11 +240,11 @@ export default function WycenaPage() {
               </button>
             </div>
 
-            <div className="quote-quantities">
-              <span className="quote-quantities-label">Ilość:</span>
+            <div className={styles['quote-quantities']}>
+              <span className={styles['quote-quantities-label']}>Ilość:</span>
 
               {qtys.map((qty, qtyIndex) => (
-                <div key={qtyIndex} className="quote-quantity-row">
+                <div key={qtyIndex} className={styles['quote-quantity-row']}>
                   <input
                     ref={itemIndex === 0 && qtyIndex === 0 ? firstQuantityRef : undefined}
                     type="number"
@@ -253,7 +252,7 @@ export default function WycenaPage() {
                     value={qty}
                     onChange={(e) => updateQuantity(key, qtyIndex, e.target.value, isFirst)}
                     placeholder="Wpisz ilość"
-                    className={`quote-quantity-input ${showError && (!qty || qty.trim() === '') ? 'error' : ''}`}
+                    className={`${styles['quote-quantity-input']} ${showError && (!qty || qty.trim() === '') ? styles.error : ''}`}
                     onKeyDown={(e) => {
                       if (['e', 'E', '+', '-', '.', ','].includes(e.key)) {
                         e.preventDefault();
@@ -264,7 +263,7 @@ export default function WycenaPage() {
                   {qtys.length > 1 && (
                     <button
                       onClick={() => removeQuantity(key, qtyIndex, isFirst)}
-                      className="quote-quantity-remove"
+                      className={styles['quote-quantity-remove']}
                       title="Usuń ilość"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -276,7 +275,7 @@ export default function WycenaPage() {
                   {qtyIndex === qtys.length - 1 && (
                     <button
                       onClick={() => addQuantity(key, isFirst)}
-                      className="quote-quantity-add"
+                      className={styles['quote-quantity-add']}
                     >
                       + Ilość
                     </button>
@@ -289,21 +288,21 @@ export default function WycenaPage() {
       })}
     </div>
 
-    <div className="quote-actions">
-      <Link href="/kolekcje" className="quote-btn-secondary">
+    <div className={styles['quote-actions']}>
+      <Link href="/kolekcje" className={styles['quote-btn-secondary']}>
         Kontynuuj zakupy
       </Link>
 
       <button
         onClick={validateAndProceed}
-        className={`quote-btn-primary ${showError ? 'error' : ''}`}
+        className={`${styles['quote-btn-primary']} ${showError ? styles.error : ''}`}
       >
         {showError ? 'Wypełnij ilości →' : 'Dalej →'}
       </button>
     </div>
 
     {showError && (
-      <p className="quote-error-message">
+      <p className={styles['quote-error-message']}>
         * Uzupełnij wszystkie pola ilości, aby kontynuować
       </p>
     )}
