@@ -1,4 +1,5 @@
 'use client';
+import styles from "./FilterPanel.module.css";
 
 import { useState, useEffect, useRef } from 'react';
 
@@ -59,9 +60,9 @@ export default function FilterPanel({
 
   return (
     <div className="filter-panel-wrapper" ref={panelRef}>
-      <div className="filter-header">
+      <div className={styles['filter-header']}>
         <button 
-          className={`filter-toggle-btn ${isOpen ? 'active' : ''}`}
+          className={`${styles['filter-toggle-btn']} ${isOpen ? styles.active : ''}`}
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-controls="filter-panel"
@@ -76,12 +77,12 @@ export default function FilterPanel({
           </svg>
           Filtry
           {activeFiltersCount > 0 && (
-            <span className="filter-count-badge" aria-label={`${activeFiltersCount} aktywnych filtrów`}>
+            <span className={styles['filter-count-badge']} aria-label={`${activeFiltersCount} aktywnych filtrów`}>
               {activeFiltersCount}
             </span>
           )}
           <svg 
-            className={`filter-chevron ${isOpen ? 'open' : ''}`} 
+            className={`${styles['filter-chevron']} ${isOpen ? styles.open : ''}`} 
             width="16" 
             height="16" 
             viewBox="0 0 24 24" 
@@ -95,11 +96,11 @@ export default function FilterPanel({
         </button>
 
         {hasActiveFilters && (
-          <div className="filter-chips" role="list" aria-label="Aktywne filtry">
+          <div className={styles['filter-chips']} role="list" aria-label="Aktywne filtry">
             {selectedBrands.map(brand => (
               <button
                 key={brand}
-                className="filter-chip"
+                className={styles['filter-chip']}
                 onClick={() => onBrandToggle(brand)}
                 aria-label={`Usuń filtr: ${brand}`}
               >
@@ -115,12 +116,12 @@ export default function FilterPanel({
               return (
                 <button
                   key={color}
-                  className="filter-chip"
+                  className={styles['filter-chip']}
                   onClick={() => onColorToggle(color)}
                   aria-label={`Usuń filtr: ${color}`}
                 >
                   <span 
-                    className="filter-chip-color" 
+                    className={styles['filter-chip-color']} 
                     style={{ backgroundColor: colorData?.hex }}
                     aria-hidden="true"
                   />
@@ -133,7 +134,7 @@ export default function FilterPanel({
               );
             })}
             <button 
-              className="filter-clear-all" 
+              className={styles['filter-clear-all']} 
               onClick={onClearAll}
               aria-label="Wyczyść wszystkie filtry"
             >
@@ -145,26 +146,26 @@ export default function FilterPanel({
 
       <div 
         id="filter-panel"
-        className={`filter-panel ${isOpen ? 'open' : ''}`}
+        className={`${styles['filter-panel']} ${isOpen ? styles.open : ''}`}
         role="region"
         aria-label="Panel filtrów"
       >
-        <div className="filter-panel-content">
-          <div className="filter-panel-inner">
+        <div className={styles['filter-panel-content']}>
+          <div className={styles['filter-panel-inner']}>
             
             {brands.length > 0 && (
-              <div className="filter-column">
-                <h4 className="filter-column-title">Marka</h4>
-                <div className="filter-options" role="group" aria-label="Filtruj po marce">
+              <div className={styles['filter-column']}>
+                <h4 className={styles['filter-column-title']}>Marka</h4>
+                <div className={styles['filter-options']} role="group" aria-label="Filtruj po marce">
                   {brands.map(({ name, count }) => (
-                    <label key={name} className="filter-checkbox-label">
+                    <label key={name} className={styles['filter-checkbox-label']}>
                       <input
                         type="checkbox"
                         checked={selectedBrands.includes(name)}
                         onChange={() => onBrandToggle(name)}
                       />
-                      <span className="filter-checkbox-text">{name}</span>
-                      <span className="filter-checkbox-count">({count})</span>
+                      <span className={styles['filter-checkbox-text']}>{name}</span>
+                      <span className={styles['filter-checkbox-count']}>({count})</span>
                     </label>
                   ))}
                 </div>
@@ -172,20 +173,20 @@ export default function FilterPanel({
             )}
 
             {colors.length > 0 && (
-              <div className="filter-column">
-                <h4 className="filter-column-title">Kolor</h4>
-                <div className="filter-color-options" role="group" aria-label="Filtruj po kolorze">
+              <div className={styles['filter-column']}>
+                <h4 className={styles['filter-column-title']}>Kolor</h4>
+                <div className={styles['filter-color-options']} role="group" aria-label="Filtruj po kolorze">
                   {colors.map(({ name, hex, count }) => (
                     <button
                       key={name}
-                      className={`filter-color-btn ${selectedColors.includes(name) ? 'active' : ''}`}
+                      className={`${styles['filter-color-btn']} ${selectedColors.includes(name) ? styles.active : ''}`}
                       onClick={() => onColorToggle(name)}
                       title={`${name} (${count})`}
                       aria-label={`${name} (${count} produktów)`}
                       aria-pressed={selectedColors.includes(name)}
                     >
                       <span 
-                        className="filter-color-swatch" 
+                        className={styles['filter-color-swatch']} 
                         style={{ backgroundColor: hex }}
                         aria-hidden="true"
                       />
