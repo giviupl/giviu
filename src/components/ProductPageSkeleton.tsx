@@ -1,6 +1,8 @@
+import styles from '@/app/produkty/[slug]/ProductClient.module.css';
+
 export default function ProductPageSkeleton() {
   return (
-    <main className="product-page">
+    <main className={styles['product-page']}>
       <div className="product-spacer"></div>
       
       {/* Breadcrumb skeleton */}
@@ -10,7 +12,7 @@ export default function ProductPageSkeleton() {
         </nav>
       </div>
 
-      <div className="product-container">
+      <div className={styles['product-container']}>
         <div className="product-page-skeleton-hero">
           
           {/* Gallery skeleton */}

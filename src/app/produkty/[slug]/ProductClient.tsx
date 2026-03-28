@@ -10,6 +10,7 @@ import ColorSwatch from '@/components/ColorSwatch';
 import ProductCard from '@/components/ProductCard';
 import ProductLightbox from '@/components/ProductLightbox';
 import type { Product } from '@/types';
+import styles from './ProductClient.module.css';
 
 // ============================================
 // ZMIANA: next/image galeria zdjęć per kolor
@@ -206,7 +207,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   const markingMethods = getMarkingMethods();
 
   return (
-    <main className="product-page">
+    <main className={styles['product-page']}>
       <div className="product-spacer"></div>
 
       {/* Breadcrumb */}
@@ -226,20 +227,20 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         </nav>
       </div>
 
-      <div className="product-container">
+      <div className={styles['product-container']}>
 
         {/* Hero Section */}
-        <div className="product-hero">
+        <div className={styles['product-hero']}>
 
           {/* Left - Thumbnails */}
-          <div className="product-thumbnails" role="group" aria-label="Widoki produktu">
+          <div className={styles['product-thumbnails']} role="group" aria-label="Widoki produktu">
             {hasRealImages ? (
               // Prawdziwe zdjęcia jako thumbnails
               currentColorImages.map((imgSrc, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`product-thumbnail ${selectedImageIndex === idx ? 'active' : ''}`}
+                  className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
                   aria-label={`Zdjęcie ${idx + 1}${selectedImageIndex === idx ? ' (aktywne)' : ''}`}
                   aria-pressed={selectedImageIndex === idx}
                 >
@@ -248,7 +249,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     alt={`${product.name} — widok ${idx + 1}`}
                     width={80}
                     height={80}
-                    className="product-thumbnail-image"
+                    className={styles['product-thumbnail-image']}
                   />
                 </button>
               ))
@@ -258,41 +259,41 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`product-thumbnail ${selectedImageIndex === idx ? 'active' : ''}`}
+                  className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
                   style={{ backgroundColor: product.colors[selectedColor]?.hex ? `${product.colors[selectedColor].hex}20` : '#f3f4f6' }}
                   aria-label={`Widok ${idx + 1}${selectedImageIndex === idx ? ' (aktywny)' : ''}`}
                   aria-pressed={selectedImageIndex === idx}
                 >
-                  <span className="product-thumbnail-emoji">{emoji}</span>
+                  <span className={styles['product-thumbnail-emoji']}>{emoji}</span>
                 </button>
               ))
             )}
           </div>
 
           {/* Center - Main Image */}
-          <div className="product-main-image-wrapper">
+          <div className={styles['product-main-image-wrapper']}>
             <div
               ref={imageRef}
-              className="product-main-image"
+              className={styles['product-main-image']}
               style={{ backgroundColor: hasRealImages ? '#ffffff' : (product.colors[selectedColor]?.hex ? `${product.colors[selectedColor].hex}15` : '#f3f4f6') }}
               onTouchStart={handleImageTouchStart}
               onTouchMove={handleImageTouchMove}
               onTouchEnd={handleImageTouchEnd}
             >
-              <span className="product-image-badge">{product.brand_name}</span>
+              <span className={styles['product-image-badge']}>{product.brand_name}</span>
 
               <button
                 onClick={handleToggleQuote}
-                className={`product-image-cart-btn ${mounted && inQuote ? 'in-quote' : ''}`}
+                className={`${styles['product-image-cart-btn']} ${mounted && inQuote ? styles['in-quote'] : ''}`}
                 aria-label={mounted && inQuote ? 'Usuń z wyceny' : 'Dodaj do wyceny'}
               >
-                <span className="product-image-cart-icon">+</span>
+                <span className={styles['product-image-cart-icon']}>+</span>
               </button>
 
               {hasRealImages ? (
                 // Prawdziwe zdjęcie — kliknięcie otwiera lightbox
                 <div
-                  className="product-main-photo-wrapper"
+                  className={styles['product-main-photo-wrapper']}
                   onClick={() => setLightboxOpen(true)}
                   style={{ cursor: 'zoom-in' }}
                 >
@@ -302,12 +303,12 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     priority={selectedImageIndex === 0}
-                    className="product-main-photo"
+                    className={styles['product-main-photo']}
                   />
                 </div>
               ) : (
                 // Fallback: placeholder SVG
-                <div className="product-main-placeholder">
+                <div className={styles['product-main-placeholder']}>
                   <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
@@ -321,17 +322,17 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           </div>
 
           {/* Right - Product Info */}
-          <div className="product-info">
-            <div className="product-info-content">
-              <p className="product-brand">{product.brand_name.toUpperCase()}</p>
-              <h1 className="product-title">{product.name}</h1>
-              <p className="product-code">Kod: {product.code}</p>
+          <div className={styles['product-info']}>
+            <div className={styles['product-info-content']}>
+              <p className={styles['product-brand']}>{product.brand_name.toUpperCase()}</p>
+              <h1 className={styles['product-title']}>{product.name}</h1>
+              <p className={styles['product-code']}>Kod: {product.code}</p>
 
-              <p className="product-description">
+              <p className={styles['product-description']}>
                 {shortDescription}
                 {isLongDescription && (
                   <button
-                    className="product-description-more"
+                    className={styles['product-description-more']}
                     onClick={() => {
                       setActiveTab('opis');
                       setTimeout(() => {
@@ -351,8 +352,8 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
               {/* Colors */}
               {product.colors && product.colors.length > 0 && (
-                <div className="product-colors">
-                  <h2 className="product-colors-label">Dostępne kolory</h2>
+                <div className={styles['product-colors']}>
+                  <h2 className={styles['product-colors-label']}>Dostępne kolory</h2>
                   <ColorSwatch
                     colors={product.colors}
                     selectedIndex={selectedColor}
@@ -366,7 +367,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     size="lg"
                     shape="square"
                   />
-                  <p className="product-color-name" aria-live="polite">
+                  <p className={styles['product-color-name']} aria-live="polite">
                     Wybrany: <span>{product.colors[selectedColor]?.name}</span>
                   </p>
                 </div>
@@ -375,9 +376,9 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
             {/* Personalizacja — skrót nad ceną */}
             {product.marking && (
-              <div className="product-marking-summary">
-                <span className="product-marking-summary-label">Personalizacja: </span>
-                <span className="product-marking-summary-methods">
+              <div className={styles['product-marking-summary']}>
+                <span className={styles['product-marking-summary-label']}>Personalizacja: </span>
+                <span className={styles['product-marking-summary-methods']}>
                   {product.marking.split(',').map(code => {
                     const method: Record<string, string> = {
                       'N2': 'Nadruk', 'G5': 'Grawer', 'T1': 'Tłoczenie',
@@ -390,19 +391,19 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             )}
 
             {/* CTA Wrapper */}
-            <div className="product-cta-wrapper">
-              <div className="product-price-wrapper" aria-live="polite">
-                <span className="product-price">{product.price}</span>
-                <span className="product-price-note">netto / szt.</span>
+            <div className={styles['product-cta-wrapper']}>
+              <div className={styles['product-price-wrapper']} aria-live="polite">
+                <span className={styles['product-price']}>{product.price}</span>
+                <span className={styles['product-price-note']}>netto / szt.</span>
               </div>
 
               <button
                 onClick={handleToggleQuote}
-                className={`product-cta-btn ${mounted && inQuote ? 'in-quote' : ''} ${animationState !== 'idle' ? animationState : ''}`}
+                className={`${styles['product-cta-btn']} ${mounted && inQuote ? styles['in-quote'] : ''} ${animationState !== 'idle' ? styles[animationState] : ''}`}
                 disabled={animationState !== 'idle'}
               >
                 {mounted && inQuote && (
-                  <svg className="cta-checkmark" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={styles['cta-checkmark']} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="3,8 7,12 13,4" />
                   </svg>
                 )}
@@ -414,64 +415,64 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         </div>
 
         {/* Tabs Section */}
-        <div className="product-tabs-section" ref={tabsRef}>
-          <div className="product-tabs" role="tablist" aria-label="Informacje o produkcie" onKeyDown={handleTabKeyDown}>
+        <div className={styles['product-tabs-section']} ref={tabsRef}>
+          <div className={styles['product-tabs']} role="tablist" aria-label="Informacje o produkcie" onKeyDown={handleTabKeyDown}>
             {isLongDescription && (
-              <button role="tab" id="tab-opis" aria-selected={activeTab === 'opis'} aria-controls="tabpanel-opis" className={`product-tab ${activeTab === 'opis' ? 'active' : ''}`} onClick={() => setActiveTab('opis')} tabIndex={activeTab === 'opis' ? 0 : -1}>Opis</button>
+              <button role="tab" id="tab-opis" aria-selected={activeTab === 'opis'} aria-controls="tabpanel-opis" className={`${styles['product-tab']} ${activeTab === 'opis' ? styles.active : ''}`} onClick={() => setActiveTab('opis')} tabIndex={activeTab === 'opis' ? 0 : -1}>Opis</button>
             )}
-            <button role="tab" id="tab-specyfikacja" aria-selected={activeTab === 'specyfikacja'} aria-controls="tabpanel-specyfikacja" className={`product-tab ${activeTab === 'specyfikacja' ? 'active' : ''}`} onClick={() => setActiveTab('specyfikacja')} tabIndex={activeTab === 'specyfikacja' ? 0 : -1}>Specyfikacja</button>
-            <button role="tab" id="tab-personalizacja" aria-selected={activeTab === 'personalizacja'} aria-controls="tabpanel-personalizacja" className={`product-tab ${activeTab === 'personalizacja' ? 'active' : ''}`} onClick={() => setActiveTab('personalizacja')} tabIndex={activeTab === 'personalizacja' ? 0 : -1}>Personalizacja</button>
-            <button role="tab" id="tab-dostawa" aria-selected={activeTab === 'dostawa'} aria-controls="tabpanel-dostawa" className={`product-tab ${activeTab === 'dostawa' ? 'active' : ''}`} onClick={() => setActiveTab('dostawa')} tabIndex={activeTab === 'dostawa' ? 0 : -1}>Dostawa</button>
+            <button role="tab" id="tab-specyfikacja" aria-selected={activeTab === 'specyfikacja'} aria-controls="tabpanel-specyfikacja" className={`${styles['product-tab']} ${activeTab === 'specyfikacja' ? styles.active : ''}`} onClick={() => setActiveTab('specyfikacja')} tabIndex={activeTab === 'specyfikacja' ? 0 : -1}>Specyfikacja</button>
+            <button role="tab" id="tab-personalizacja" aria-selected={activeTab === 'personalizacja'} aria-controls="tabpanel-personalizacja" className={`${styles['product-tab']} ${activeTab === 'personalizacja' ? styles.active : ''}`} onClick={() => setActiveTab('personalizacja')} tabIndex={activeTab === 'personalizacja' ? 0 : -1}>Personalizacja</button>
+            <button role="tab" id="tab-dostawa" aria-selected={activeTab === 'dostawa'} aria-controls="tabpanel-dostawa" className={`${styles['product-tab']} ${activeTab === 'dostawa' ? styles.active : ''}`} onClick={() => setActiveTab('dostawa')} tabIndex={activeTab === 'dostawa' ? 0 : -1}>Dostawa</button>
           </div>
 
-          <div className="product-tab-content">
+          <div className={styles['product-tab-content']}>
             {activeTab === 'opis' && (
-              <div role="tabpanel" id="tabpanel-opis" aria-labelledby="tab-opis" className="product-full-description">
+              <div role="tabpanel" id="tabpanel-opis" aria-labelledby="tab-opis" className={styles['product-full-description']}>
                 <p>{product.description}</p>
               </div>
             )}
             {activeTab === 'specyfikacja' && (
-              <div role="tabpanel" id="tabpanel-specyfikacja" aria-labelledby="tab-specyfikacja" className="product-spec">
-                <div className="product-spec-grid">
-                  {product.material && (<div className="product-spec-item"><span className="product-spec-label">Materiał</span><span className="product-spec-value">{product.material}</span></div>)}
-                  {product.dimensions && (<div className="product-spec-item"><span className="product-spec-label">Wymiary</span><span className="product-spec-value">{product.dimensions}</span></div>)}
-                  {product.weight && (<div className="product-spec-item"><span className="product-spec-label">Waga</span><span className="product-spec-value">{product.weight}</span></div>)}
-                  {product.moq && (<div className="product-spec-item"><span className="product-spec-label">Min. zamówienie</span><span className="product-spec-value">{product.moq} szt.</span></div>)}
-                  {product.colors && (<div className="product-spec-item"><span className="product-spec-label">Warianty kolorów</span><span className="product-spec-value">{product.colors.length}</span></div>)}
-                  {product.origin && (<div className="product-spec-item"><span className="product-spec-label">Pochodzenie</span><span className="product-spec-value">{product.origin}</span></div>)}
+              <div role="tabpanel" id="tabpanel-specyfikacja" aria-labelledby="tab-specyfikacja" className={styles['product-spec']}>
+                <div className={styles['product-spec-grid']}>
+                  {product.material && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Materiał</span><span className={styles['product-spec-value']}>{product.material}</span></div>)}
+                  {product.dimensions && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Wymiary</span><span className={styles['product-spec-value']}>{product.dimensions}</span></div>)}
+                  {product.weight && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Waga</span><span className={styles['product-spec-value']}>{product.weight}</span></div>)}
+                  {product.moq && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Min. zamówienie</span><span className={styles['product-spec-value']}>{product.moq} szt.</span></div>)}
+                  {product.colors && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Warianty kolorów</span><span className={styles['product-spec-value']}>{product.colors.length}</span></div>)}
+                  {product.origin && (<div className={styles['product-spec-item']}><span className={styles['product-spec-label']}>Pochodzenie</span><span className={styles['product-spec-value']}>{product.origin}</span></div>)}
                 </div>
               </div>
             )}
             {activeTab === 'personalizacja' && (
-              <div role="tabpanel" id="tabpanel-personalizacja" aria-labelledby="tab-personalizacja" className="product-personalization">
+              <div role="tabpanel" id="tabpanel-personalizacja" aria-labelledby="tab-personalizacja" className={styles['product-personalization']}>
                 {markingMethods.length > 0 ? (
                   <>
-                    <div className="product-marking-grid">
+                    <div className={styles['product-marking-grid']}>
                       {markingMethods.map(method => (
-                        <div key={method.code} className="product-marking-card">
-                          <span className="product-marking-icon">{method.icon}</span>
-                          <h3 className="product-marking-name">{method.name}</h3>
-                          <p className="product-marking-desc">{method.description}</p>
+                        <div key={method.code} className={styles['product-marking-card']}>
+                          <span className={styles['product-marking-icon']}>{method.icon}</span>
+                          <h3 className={styles['product-marking-name']}>{method.name}</h3>
+                          <p className={styles['product-marking-desc']}>{method.description}</p>
                         </div>
                       ))}
                     </div>
-                    <div className="product-personalization-note">
+                    <div className={styles['product-personalization-note']}>
                       <span>Potrzebujesz pomocy w wyborze metody znakowania?<Link href="/kontakt"> Skontaktuj się z nami</Link></span>
                     </div>
                   </>
                 ) : (
-                  <p className="product-no-marking">Informacje o metodach znakowania dostępne na zapytanie.</p>
+                  <p className={styles['product-no-marking']}>Informacje o metodach znakowania dostępne na zapytanie.</p>
                 )}
               </div>
             )}
             {activeTab === 'dostawa' && (
-              <div role="tabpanel" id="tabpanel-dostawa" aria-labelledby="tab-dostawa" className="product-delivery">
-                <div className="product-delivery-grid">
-                  <div className="product-delivery-card"><div className="product-delivery-icon">📦</div><strong className="product-info-label">Czas realizacji</strong><p>Standard: <strong>10-14 dni roboczych</strong></p><p className="product-delivery-note">Od zatwierdzenia projektu</p></div>
-                  <div className="product-delivery-card"><div className="product-delivery-icon">🚚</div><strong className="product-info-label">Wysyłka</strong><p>Kurier: <strong>DPD / DHL</strong></p><p className="product-delivery-note">Darmowa dostawa od 500 zł</p></div>
-                  <div className="product-delivery-card"><div className="product-delivery-icon">⚡</div><strong className="product-info-label">Ekspres</strong><p>Dostępna opcja: <strong>5-7 dni</strong></p><p className="product-delivery-note">Dodatkowa opłata</p></div>
+              <div role="tabpanel" id="tabpanel-dostawa" aria-labelledby="tab-dostawa" className={styles['product-delivery']}>
+                <div className={styles['product-delivery-grid']}>
+                  <div className={styles['product-delivery-card']}><div className={styles['product-delivery-icon']}>📦</div><strong className={styles['product-info-label']}>Czas realizacji</strong><p>Standard: <strong>10-14 dni roboczych</strong></p><p className={styles['product-delivery-note']}>Od zatwierdzenia projektu</p></div>
+                  <div className={styles['product-delivery-card']}><div className={styles['product-delivery-icon']}>🚚</div><strong className={styles['product-info-label']}>Wysyłka</strong><p>Kurier: <strong>DPD / DHL</strong></p><p className={styles['product-delivery-note']}>Darmowa dostawa od 500 zł</p></div>
+                  <div className={styles['product-delivery-card']}><div className={styles['product-delivery-icon']}>⚡</div><strong className={styles['product-info-label']}>Ekspres</strong><p>Dostępna opcja: <strong>5-7 dni</strong></p><p className={styles['product-delivery-note']}>Dodatkowa opłata</p></div>
                 </div>
-                <div className="product-delivery-info"><p>Dokładny termin realizacji zależy od nakładu, metody znakowania oraz dostępności produktu. Szczegóły uzgadniamy indywidualnie po otrzymaniu zapytania.</p></div>
+                <div className={styles['product-delivery-info']}><p>Dokładny termin realizacji zależy od nakładu, metody znakowania oraz dostępności produktu. Szczegóły uzgadniamy indywidualnie po otrzymaniu zapytania.</p></div>
               </div>
             )}
           </div>
@@ -494,14 +495,14 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
       </div>
 
       {/* Sticky CTA - mobile only */}
-      <div className="product-sticky-cta">
+      <div className={styles['product-sticky-cta']}>
         <button
           onClick={handleToggleQuote}
-          className={`product-sticky-btn ${mounted && inQuote ? 'in-quote' : ''} ${animationState !== 'idle' ? animationState : ''}`}
+          className={`${styles['product-sticky-btn']} ${mounted && inQuote ? styles['in-quote'] : ''} ${animationState !== 'idle' ? styles[animationState] : ''}`}
           disabled={animationState !== 'idle'}
         >
           {mounted && inQuote && (
-            <svg className="cta-checkmark" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className={styles['cta-checkmark']} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3,8 7,12 13,4" />
             </svg>
           )}
