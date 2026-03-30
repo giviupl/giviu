@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ContentBlock from '@/components/ContentBlock';
 import SectionLine from '@/components/SectionLine';
 import InspirationCarouselSimple from '@/components/InspirationCarouselSimple';
+import styles from '@/styles/ContentPages.module.css';
 
 import type { Metadata } from 'next';
 
@@ -128,12 +129,10 @@ const COOPERATION_TILES = [
 
 export default function JakDzialamyPage() {
   return (
-    <main className="jak-dzialamy-page">
+    <main className={styles['jak-dzialamy-page']}>
 
-      {/* Spacer */}
       <div className="jak-dzialamy-spacer"></div>
 
-      {/* Hero Section */}
       <ContentBlock headingAs="h1"
         layout="text-right"
         title="Obsługa tej samej klasy co nasze produkty"
@@ -144,56 +143,54 @@ export default function JakDzialamyPage() {
         ]}
       />
 
-      {/* Section 2: Proces realizacji */}
-      <section className="jak-dzialamy-process">
-        <div className="jak-dzialamy-process-header">
-          <div className="jak-dzialamy-process-title-wrapper">
+      <section className={styles['jak-dzialamy-process']}>
+        <div className={styles['jak-dzialamy-process-header']}>
+          <div className={styles['jak-dzialamy-process-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h2 className="jak-dzialamy-process-title">Proces realizacji</h2>
+            <h2 className={styles['jak-dzialamy-process-title']}>Proces realizacji</h2>
           </div>
         </div>
 
-        <div className="jak-dzialamy-process-grid">
+        <div className={styles['jak-dzialamy-process-grid']}>
           {PROCESS_STEPS.map((step) => (
-            <div key={step.id} className="jak-dzialamy-process-card">
-              <div className="jak-dzialamy-process-card-header">
-                <span className="jak-dzialamy-process-number">0{step.id}</span>
-                <span className="jak-dzialamy-process-icon">{step.icon}</span>
+            <div key={step.id} className={styles['jak-dzialamy-process-card']}>
+              <div className={styles['jak-dzialamy-process-card-header']}>
+                <span className={styles['jak-dzialamy-process-number']}>0{step.id}</span>
+                <span className={styles['jak-dzialamy-process-icon']}>{step.icon}</span>
               </div>
-              <h3 className="jak-dzialamy-process-card-title">{step.title}</h3>
-              <p className="jak-dzialamy-process-card-desc">{step.description}</p>
+              <h3 className={styles['jak-dzialamy-process-card-title']}>{step.title}</h3>
+              <p className={styles['jak-dzialamy-process-card-desc']}>{step.description}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Section 3: Znakowanie */}
-      <section className="jak-dzialamy-branding">
-        <div className="jak-dzialamy-branding-header">
-          <div className="jak-dzialamy-branding-title-wrapper">
+      <section className={styles['jak-dzialamy-branding']}>
+        <div className={styles['jak-dzialamy-branding-header']}>
+          <div className={styles['jak-dzialamy-branding-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h2 className="jak-dzialamy-branding-title">Znakowanie, które uszlachetnia produkt.</h2>
+            <h2 className={styles['jak-dzialamy-branding-title']}>Znakowanie, które uszlachetnia produkt.</h2>
           </div>
-          <p className="jak-dzialamy-branding-description">
+          <p className={styles['jak-dzialamy-branding-description']}>
             Wierzymy, że branding powinien być dyskretny i elegancki. Korzystamy z technologii, które pozwalają zachować unikalny charakter materiałów, jednocześnie trwale eksponując Twoją markę.
           </p>
         </div>
 
-        <div className="jak-dzialamy-branding-grid">
+        <div className={styles['jak-dzialamy-branding-grid']}>
           {BRANDING_METHODS.map((method, index) => (
-            <div key={index} className="jak-dzialamy-branding-item">
-              <div className="jak-dzialamy-branding-placeholder">
-                <svg className="jak-dzialamy-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <div key={index} className={styles['jak-dzialamy-branding-item']}>
+              <div className={styles['jak-dzialamy-branding-placeholder']}>
+                <svg className={styles['jak-dzialamy-placeholder-icon']} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="jak-dzialamy-branding-content">
-                <h3 className="jak-dzialamy-branding-method-title">{method.title}</h3>
-                <p className="jak-dzialamy-branding-method-desc">{method.description}</p>
-                <p className="jak-dzialamy-branding-method-info">
+              <div className={styles['jak-dzialamy-branding-content']}>
+                <h3 className={styles['jak-dzialamy-branding-method-title']}>{method.title}</h3>
+                <p className={styles['jak-dzialamy-branding-method-desc']}>{method.description}</p>
+                <p className={styles['jak-dzialamy-branding-method-info']}>
                   <strong>Zastosowanie:</strong> {method.application}
                 </p>
-                <p className="jak-dzialamy-branding-method-info">
+                <p className={styles['jak-dzialamy-branding-method-info']}>
                   <strong>Efekt:</strong> {method.effect}
                 </p>
               </div>
@@ -202,46 +199,43 @@ export default function JakDzialamyPage() {
         </div>
       </section>
 
-      {/* Section 4: Bezpieczeństwo i łatwość współpracy */}
-      <section className="jak-dzialamy-cooperation">
-        <div className="jak-dzialamy-cooperation-header">
-          <div className="jak-dzialamy-cooperation-title-wrapper">
+      <section className={styles['jak-dzialamy-cooperation']}>
+        <div className={styles['jak-dzialamy-cooperation-header']}>
+          <div className={styles['jak-dzialamy-cooperation-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h2 className="jak-dzialamy-cooperation-title">Bezpieczeństwo i łatwość współpracy</h2>
+            <h2 className={styles['jak-dzialamy-cooperation-title']}>Bezpieczeństwo i łatwość współpracy</h2>
           </div>
         </div>
 
-        <div className="jak-dzialamy-cooperation-grid">
+        <div className={styles['jak-dzialamy-cooperation-grid']}>
           {COOPERATION_TILES.map((tile, index) => (
-            <div key={index} className="jak-dzialamy-cooperation-tile">
+            <div key={index} className={styles['jak-dzialamy-cooperation-tile']}>
               <SectionLine vertical />
-              <div className="jak-dzialamy-cooperation-content">
-                <h3 className="jak-dzialamy-cooperation-tile-title">{tile.title}</h3>
-                <p className="jak-dzialamy-cooperation-tile-desc">{tile.description}</p>
+              <div className={styles['jak-dzialamy-cooperation-content']}>
+                <h3 className={styles['jak-dzialamy-cooperation-tile-title']}>{tile.title}</h3>
+                <p className={styles['jak-dzialamy-cooperation-tile-desc']}>{tile.description}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="jak-dzialamy-cta">
-        <div className="jak-dzialamy-cta-container">
-          <h2 className="jak-dzialamy-cta-title">
+      <section className={styles['jak-dzialamy-cta']}>
+        <div className={styles['jak-dzialamy-cta-container']}>
+          <h2 className={styles['jak-dzialamy-cta-title']}>
             Czas wybrać produkt godny Twojej marki.
           </h2>
-          <p className="jak-dzialamy-cta-description">
+          <p className={styles['jak-dzialamy-cta-description']}>
             Znasz nasze standardy logistyki i znakowania.<br />
             Zobacz, jak łączymy je z ofertą premium.<br />
             Zainspiruj się, skompletuj listę faworytów i wyślij jedno, zbiorcze zapytanie do wyceny.
           </p>
-          <Link href="/kolekcje" className="jak-dzialamy-cta-button">
+          <Link href="/kolekcje" className={styles['jak-dzialamy-cta-button']}>
             ZOBACZ KOLEKCJE
           </Link>
         </div>
       </section>
 
-      {/* Inspiracje */}
       <div className="inspiration-wrapper">
         <InspirationCarouselSimple />
       </div>

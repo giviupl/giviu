@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ContentBlock from '@/components/ContentBlock';
 import SectionLine from '@/components/SectionLine';
 import InspirationCarouselSimple from '@/components/InspirationCarouselSimple';
+import styles from '@/styles/ContentPages.module.css';
 
 import type { Metadata } from 'next';
 
@@ -33,14 +34,10 @@ const MATERIALS = [
 
 export default function EkologiaPage() {
   return (
-    <main className="ekologia-page">
+    <main className={styles['ekologia-page']}>
 
-      {/* Spacer */}
       <div className="ekologia-spacer"></div>
 
-
-
-      {/* Hero Section */}
       <ContentBlock headingAs="h1"
         layout="text-left"
         title="Najbardziej ekologiczny produkt to ten, który służy latami."
@@ -51,7 +48,6 @@ export default function EkologiaPage() {
         ]}
       />
 
-      {/* Section 2 */}
       <ContentBlock
         layout="text-right"
         title="Odpowiedzialność mierzona w latach, nie w sztukach."
@@ -62,25 +58,23 @@ export default function EkologiaPage() {
         ]}
       />
 
-      {/* Section 3: Odpowiedzialność, którą można zweryfikować */}
-      <section className="ekologia-verify">
-        <div className="ekologia-verify-header">
-          <div className="ekologia-verify-title-wrapper">
+      <section className={styles['ekologia-verify']}>
+        <div className={styles['ekologia-verify-header']}>
+          <div className={styles['ekologia-verify-title-wrapper']}>
             <SectionLine spacing="sm" />
-            <h2 className="ekologia-verify-title">Odpowiedzialność, którą można zweryfikować.</h2>
+            <h2 className={styles['ekologia-verify-title']}>Odpowiedzialność, którą można zweryfikować.</h2>
           </div>
-          <p className="ekologia-verify-description">
+          <p className={styles['ekologia-verify-description']}>
             W ekologii nie uznajemy półśrodków ani marketingu bez pokrycia. Zamiast wierzyć na słowo, wymagamy dowodów. Prześwietlamy certyfikaty i pochodzenie materiałów, by dać Ci pewność, że wybierasz produkty, które są odpowiedzialne naprawdę, a nie tylko z nazwy.
           </p>
         </div>
 
-        {/* Certyfikaty */}
-        <div className="ekologia-certificates">
-          <h3 className="ekologia-certificates-title">Certyfikaty i standardy obecne w naszej ofercie</h3>
-          <div className="ekologia-certificates-grid">
+        <div className={styles['ekologia-certificates']}>
+          <h3 className={styles['ekologia-certificates-title']}>Certyfikaty i standardy obecne w naszej ofercie</h3>
+          <div className={styles['ekologia-certificates-grid']}>
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="ekologia-certificate-placeholder">
-                <svg className="ekologia-placeholder-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <div key={i} className={styles['ekologia-certificate-placeholder']}>
+                <svg className={styles['ekologia-placeholder-icon-sm']} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -88,20 +82,19 @@ export default function EkologiaPage() {
           </div>
         </div>
 
-        {/* Świadomy dobór surowców */}
-        <div className="ekologia-materials">
-          <h3 className="ekologia-materials-title">Świadomy dobór surowców</h3>
-          <div className="ekologia-materials-list">
+        <div className={styles['ekologia-materials']}>
+          <h3 className={styles['ekologia-materials-title']}>Świadomy dobór surowców</h3>
+          <div className={styles['ekologia-materials-list']}>
             {MATERIALS.map((material, index) => (
-              <div key={index} className="ekologia-material-item">
-                <div className="ekologia-material-placeholder">
-                  <svg className="ekologia-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <div key={index} className={styles['ekologia-material-item']}>
+                <div className={styles['ekologia-material-placeholder']}>
+                  <svg className={styles['ekologia-placeholder-icon']} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <div className="ekologia-material-content">
-                  <h4 className="ekologia-material-title">{material.title}</h4>
-                  <p className="ekologia-material-description">{material.description}</p>
+                <div className={styles['ekologia-material-content']}>
+                  <h4 className={styles['ekologia-material-title']}>{material.title}</h4>
+                  <p className={styles['ekologia-material-description']}>{material.description}</p>
                 </div>
               </div>
             ))}
@@ -109,7 +102,6 @@ export default function EkologiaPage() {
         </div>
       </section>
 
-      {/* Section 4 */}
       <ContentBlock
         layout="text-left"
         title="Odpowiedzialna logistyka i optymalizacja opakowań."
@@ -120,20 +112,18 @@ export default function EkologiaPage() {
         ]}
       />
 
-      {/* CTA Section */}
-      <section className="ekologia-cta">
-        <div className="ekologia-cta-container">
-          <h2 className="ekologia-cta-title">
+      <section className={styles['ekologia-cta']}>
+        <div className={styles['ekologia-cta-container']}>
+          <h2 className={styles['ekologia-cta-title']}>
             Odpowiedzialność się opłaca.<br />
             Postaw na produkty, które budują wizerunek Twojej marki.
           </h2>
-          <Link href="/kolekcje" className="ekologia-cta-button">
+          <Link href="/kolekcje" className={styles['ekologia-cta-button']}>
             ODKRYJ NASZE KOLEKCJE
           </Link>
         </div>
       </section>
 
-      {/* Inspiracje */}
       <div className="inspiration-wrapper">
         <InspirationCarouselSimple />
       </div>
