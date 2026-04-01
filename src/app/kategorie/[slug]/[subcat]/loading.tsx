@@ -1,8 +1,9 @@
 import { ProductGridSkeleton } from '@/components/ProductCardSkeleton';
+import styles from '@/styles/CategoryPages.module.css';
 
 export default function Loading() {
   return (
-    <main className="subcategory-page">
+    <main className={styles['subcategory-page']}>
       <div className="subcategory-spacer"></div>
       
       {/* Banner skeleton */}
@@ -13,7 +14,7 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="subcategory-container">
+      <div className={styles['subcategory-container']}>
         {/* Breadcrumb skeleton */}
         <div className="breadcrumb-wrapper">
           <div className="skeleton subcategory-skeleton-breadcrumb" />
