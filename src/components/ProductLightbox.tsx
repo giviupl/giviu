@@ -3,13 +3,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 
-// ============================================
-// Lightbox — pełnoekranowa galeria zdjęć produktu
-// Otwiera się po kliknięciu w główne zdjęcie
-// Keyboard: strzałki lewo/prawo, Escape zamyka
-// Mobile: swipe lewo/prawo
-// ============================================
-
 interface ProductLightboxProps {
   images: string[];
   currentIndex: number;
@@ -60,6 +53,18 @@ export default function ProductLightbox({
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {
       onClose();
+    }
+  };
+
+  // Click on image — left half = prev, right half = next
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (images.length <= 1) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    if (clickX < rect.width / 2) {
+      handlePrev();
+    } else {
+      handleNext();
     }
   };
 
@@ -119,15 +124,21 @@ export default function ProductLightbox({
         </button>
       )}
 
-      {/* Main image */}
+      {/* Main image — left half = prev, right half = next */}
       <div
         className="lightbox-image-wrapper"
-        onClick={handleNext}
-        style={{ cursor: 'pointer' }}
+        onClick={handleImageClick}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Left/right cursor zones */}
+        {images.length > 1 && (
+          <>
+            <div className="lightbox-zone-left" />
+            <div className="lightbox-zone-right" />
+          </>
+        )}
         <Image
           src={images[currentIndex]}
           alt={`${productName} ${colorName ?? ''} — zdjęcie ${currentIndex + 1}`}

@@ -1,3 +1,4 @@
+import '@/styles/Carousels.module.css';
 import Link from 'next/link';
 
 const BRANDS = [

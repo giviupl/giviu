@@ -1,4 +1,5 @@
 'use client';
+import '@/styles/Carousels.module.css';
 
 import { useState, useEffect, useRef } from 'react';
 import ProductCard from '@/components/ProductCard';
