@@ -363,6 +363,9 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                       if (colorSlug) {
                         router.replace(`/produkty/${product.slug}?color=${colorSlug}`, { scroll: false });
                       }
+                      if (window.innerWidth < 768) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
                     }}
                     size="lg"
                     shape="square"
