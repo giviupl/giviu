@@ -517,6 +517,7 @@ textarea,
   align-items: center;
   justify-content: center;
   animation: lightbox-fade-in 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes lightbox-fade-in {
@@ -540,6 +541,7 @@ textarea,
   cursor: pointer;
   transition: opacity var(--transition-fast);
   z-index: 10;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .lightbox-close:hover {
@@ -552,6 +554,7 @@ textarea,
 
 .lightbox-image-wrapper {
   cursor: default;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Left half — left arrow cursor */
@@ -562,6 +565,7 @@ textarea,
   bottom: 0;
   width: 50%;
   z-index: 2;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .lightbox-zone-left {
@@ -601,6 +605,7 @@ textarea,
   cursor: pointer;
   transition: opacity var(--transition-fast);
   z-index: 10;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .lightbox-arrow:hover {
@@ -675,6 +680,11 @@ textarea,
   .lightbox-counter {
     top: 20px;
     left: 20px;
+  }
+
+  .lightbox-zone-left,
+  .lightbox-zone-right {
+    display: none;
   }
 }
 /* ==================== PRODUCTS GRID ==================== */
