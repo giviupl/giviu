@@ -204,7 +204,7 @@
   font-size: var(--font-size-body);
   line-height: 1.7;
   color: var(--color-gray);
-  margin: 0 0 32px 0;
+  margin: 0 0 20px 0;
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -246,7 +246,7 @@
 
 /* Colors */
 .product-colors {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
 }
 
 .product-colors-label {
@@ -267,20 +267,134 @@
   color: var(--color-text);
 }
 
+/* Availability */
+.product-availability {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .product-availability {
+    justify-content: center;
+  }
+}
+
+.product-availability-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  flex-shrink: 0;
+}
+
+.product-availability-text {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
 /* Personalization summary */
 .product-marking-summary {
-  font-size: var(--font-size-small);
-  color: var(--color-gray);
-  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .product-marking-summary-label {
+  font-size: var(--font-size-small);
   font-weight: 600;
   color: var(--color-text);
 }
 
-.product-marking-summary-methods {
-  font-weight: 400;
+.product-marking-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.marking-badge-wrapper {
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.marking-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+}
+
+@media (hover: hover) {
+  .marking-badge-wrapper:hover .marking-badge {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+}
+
+.marking-badge-active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.marking-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-text-dark);
+  color: var(--color-white);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+  z-index: 5;
+}
+
+.marking-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--color-text-dark);
+}
+
+@media (hover: hover) {
+  .marking-badge-wrapper:hover .marking-tooltip {
+    opacity: 1;
+  }
+}
+
+.marking-tooltip-visible {
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .product-marking-summary {
+    align-items: center;
+  }
+
+  .product-marking-badges {
+    justify-content: center;
+  }
 }
 
 /* Price */
@@ -851,3 +965,17 @@
   }
 }
 
+/* Mobile spacing — must be last to override base values */
+@media (max-width: 1024px) {
+  .product-colors {
+    margin-bottom: 24px;
+  }
+
+  .product-availability {
+    margin-bottom: 28px;
+  }
+
+  .product-marking-summary {
+    margin-bottom: 20px;
+  }
+}

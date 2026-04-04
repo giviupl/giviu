@@ -33,6 +33,10 @@ const MARKING_METHODS: Record<string, { name: string; description: string; icon:
   'H1': { name: 'Haft', description: 'Trwałe, eleganckie znakowanie na tkaninach', icon: '🧵' },
 };
 
+const MARKING_BADGES: Record<string, string> = {
+  'N2': 'N', 'G5': 'G', 'T1': 'T', 'U1': 'UV', 'S2': 'S', 'D1': 'DTF', 'H1': 'H',
+};
+
 const MAX_DESCRIPTION_LENGTH = 300;
 
 type TabType = 'opis' | 'specyfikacja' | 'personalizacja' | 'dostawa';
@@ -61,6 +65,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   const [inQuote, setInQuote] = useState(false);
   const [animationState, setAnimationState] = useState<AnimationState>('idle');
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   const tabsRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -375,21 +380,39 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   </p>
                 </div>
               )}
+
+              {/* Dostępność */}
+              <div className={styles['product-availability']}>
+                <span className={styles['product-availability-dot']} />
+                <span className={styles['product-availability-text']}>Dostępny</span>
+              </div>
             </div>
 
-            {/* Personalizacja — skrót nad ceną */}
+            {/* Personalizacja — ikony z tooltip */}
             {product.marking && (
               <div className={styles['product-marking-summary']}>
-                <span className={styles['product-marking-summary-label']}>Personalizacja: </span>
-                <span className={styles['product-marking-summary-methods']}>
+                <span className={styles['product-marking-summary-label']}>Personalizacja:</span>
+                <div className={styles['product-marking-badges']}>
                   {product.marking.split(',').map(code => {
-                    const method: Record<string, string> = {
-                      'N2': 'Nadruk', 'G5': 'Grawer', 'T1': 'Tłoczenie',
-                      'U1': 'Nadruk UV', 'S2': 'Sitodruk', 'D1': 'DTF', 'H1': 'Haft'
-                    };
-                    return method[code.trim()];
-                  }).filter(Boolean).join(' · ')}
-                </span>
+                    const c = code.trim();
+                    const method = MARKING_METHODS[c];
+                    const badge = MARKING_BADGES[c];
+                    if (!method || !badge) return null;
+                    return (
+                      <div
+                        key={c}
+                        className={styles['marking-badge-wrapper']}
+                        onClick={() => setActiveTooltip(activeTooltip === c ? null : c)}
+                        onMouseLeave={() => setActiveTooltip(null)}
+                      >
+                        <span className={`${styles['marking-badge']} ${activeTooltip === c ? styles['marking-badge-active'] : ''}`}>{badge}</span>
+                        <span className={`${styles['marking-tooltip']} ${activeTooltip === c ? styles['marking-tooltip-visible'] : ''}`}>
+                          {method.name}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
