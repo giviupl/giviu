@@ -1,5 +1,6 @@
 'use client';
 import styles from "../QuotePage.module.css";
+import '@/app/kontakt/Kontakt.module.css';
 
 import SectionLine from '@/components/SectionLine';
 import { useState, useEffect, useRef } from 'react';
