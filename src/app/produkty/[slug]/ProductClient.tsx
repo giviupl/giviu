@@ -37,7 +37,7 @@ const MARKING_BADGES: Record<string, string> = {
   'N2': 'N', 'G5': 'G', 'T1': 'T', 'U1': 'UV', 'S2': 'S', 'D1': 'DTF', 'H1': 'H',
 };
 
-const MAX_DESCRIPTION_LENGTH = 300;
+const MAX_DESCRIPTION_LENGTH = 200;
 
 type TabType = 'opis' | 'specyfikacja' | 'personalizacja' | 'dostawa';
 type AnimationState = 'idle' | 'adding' | 'just-added' | 'removing';

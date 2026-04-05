@@ -38,6 +38,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  align-self: start;
 }
 
 .product-thumbnail {
@@ -78,6 +79,7 @@
   width: 100%;
   margin: 0 auto;
   aspect-ratio: 1;
+  align-self: start;
 }
 
 .product-main-image {
@@ -172,10 +174,10 @@
   padding: 16px 0;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .product-info-content {
-  flex: 1;
 }
 
 .product-brand {
@@ -192,6 +194,13 @@
   color: var(--color-text);
   margin: 0 0 8px 0;
   line-height: 1.2;
+  min-height: 2.4em;
+}
+
+@media (max-width: 1024px) {
+  .product-title {
+    min-height: auto;
+  }
 }
 
 .product-code {
@@ -207,6 +216,13 @@
   margin: 0 0 20px 0;
   overflow-wrap: break-word;
   word-break: break-word;
+  min-height: 140px;
+}
+
+@media (max-width: 1024px) {
+  .product-description {
+    min-height: auto;
+  }
 }
 
 /* Opis - przycisk "więcej" */
@@ -272,7 +288,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 }
 
 @media (max-width: 1024px) {
@@ -298,15 +314,15 @@
 /* Personalization summary */
 .product-marking-summary {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: var(--spacing-sm);
+  align-items: center;
+  gap: 12px;
 }
 
 .product-marking-summary-label {
   font-size: var(--font-size-small);
   font-weight: 600;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
 .product-marking-badges {
@@ -325,12 +341,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1.5px solid var(--color-primary);
   color: var(--color-primary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.03em;
   transition: background-color var(--transition-fast), color var(--transition-fast);
@@ -389,7 +405,8 @@
 
 @media (max-width: 1024px) {
   .product-marking-summary {
-    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .product-marking-badges {
@@ -420,7 +437,6 @@
 .product-cta-wrapper {
   flex-shrink: 0;
   padding-bottom: 0;
-  margin-top: var(--spacing-lg);
 }
 
 /* CTA Button */
@@ -782,6 +798,7 @@
   .product-info {
     order: 3;
     text-align: center;
+    justify-content: flex-start;
   }
 
   .product-cta-wrapper {
@@ -972,7 +989,7 @@
   }
 
   .product-availability {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
 
   .product-marking-summary {
