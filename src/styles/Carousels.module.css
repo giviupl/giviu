@@ -545,9 +545,9 @@
 
 /* ==================== BRANDS CAROUSEL ==================== */
 :global(.brands-section) {
-  padding: 48px 0;
+  /* ↕ ODSTĘPY NAD/POD KARUZELĄ — zmień tutaj (np. 64px, 80px, 96px) */
+  padding: 96px 0;
   position: relative;
-  /* Tło usunięte zgodnie z życzeniem */
 }
 
 :global(.brands-wrapper) {
@@ -560,7 +560,8 @@
 :global(.brands-carousel) {
   display: flex;
   width: max-content;
-  animation: scrollBrands 60s linear infinite;
+  /* ⏩ PRĘDKOŚĆ KARUZELI — im większa liczba, tym wolniej (np. 60s=szybko, 120s=wolno) */
+  animation: scrollBrands 120s linear infinite;
 }
 
 @media (hover: hover) {
@@ -573,23 +574,36 @@
 :global(.brands-half) {
   display: flex;
   align-items: center;
-  gap: 4rem;
-  padding-right: 4rem;
+  gap: 7rem;
+  padding-right: 7rem;
   /* Zapewnia brak widocznego szwu na łączeniu */
 }
 
 :global(.brands-item) {
-  transition: opacity var(--transition-fast);
-  font-size: var(--font-size-xl);
-  font-weight: 500;
-  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  white-space: nowrap;
+  /* ↕ WYSOKOŚĆ LOGOTYPÓW — zmień tutaj (np. 36px, 40px, 44px) */
+  height: 40px;
+  flex-shrink: 0;
+}
+
+:global(.brands-logo) {
+  height: 100%;
+  width: auto;
+  /* ↔ MAX SZEROKOŚĆ — zapobiega rozciąganiu ultra-szerokich logotypów (Moleskine) */
+  max-width: 250px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0.4);
+  opacity: 0.6;
+  transition: filter var(--transition-fast), opacity var(--transition-fast);
 }
 
 @media (hover: hover) {
-  :global(.brands-item):hover {
-    opacity: 0.7;
+  :global(.brands-item):hover :global(.brands-logo) {
+    filter: grayscale(0) brightness(1);
+    opacity: 1;
   }
 }
 
@@ -625,7 +639,7 @@
 
 @media (max-width: 768px) {
   :global(.brands-section) {
-    padding: 32px 0;
+    padding: 48px 0;
   }
 
   :global(.brands-fade) {

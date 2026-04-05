@@ -4,17 +4,27 @@ import Link from 'next/link';
 const BRANDS = [
   { name: 'Stanley', slug: 'stanley' },
   { name: 'Moleskine', slug: 'moleskine' },
-  { name: 'The North Face', slug: 'the-north-face' },
-  { name: 'Rituals', slug: 'rituals' },
   { name: 'Thule', slug: 'thule' },
-  { name: 'Samsonite', slug: 'samsonite' },
   { name: 'Parker', slug: 'parker' },
-  { name: 'Victorinox', slug: 'victorinox' },
+  { name: 'Rituals', slug: 'rituals' },
+  { name: 'CamelBak', slug: 'camelbak' },
+  { name: 'Herschel', slug: 'herschel' },
+  { name: 'LARQ', slug: 'larq' },
+  { name: 'Ocean Bottle', slug: 'oceanbottle' },
+  { name: 'Doppler', slug: 'doppler' },
+  { name: 'Knirps', slug: 'knirps' },
+  { name: 'Waterman', slug: 'waterman' },
+  { name: 'Sagaform', slug: 'sagaform' },
+  { name: 'Xtorm', slug: 'xtorm' },
+  { name: 'SCX Design', slug: 'scx' },
+  { name: 'Cutter & Buck', slug: 'cutterandbuck' },
+  { name: 'Harvest & Frost', slug: 'harvestfrost' },
+  { name: 'James Harvest', slug: 'jamesharvest' },
+  { name: 'ID Identity', slug: 'id' },
+  { name: 'Tenson', slug: 'tenson' },
 ];
 
 export default function BrandsCarousel() {
-  // Generujemy listę marek podwójnie w jednym bloku, 
-  // żeby zagwarantować, że blok będzie szerszy niż 1600px
   const renderBrandsTrack = () => (
     <>
       {BRANDS.map((brand, index) => (
@@ -22,8 +32,14 @@ export default function BrandsCarousel() {
           key={`a-${brand.slug}-${index}`}
           href={`/marki/${brand.slug}`}
           className="brands-item"
+          title={brand.name}
         >
-          {brand.name}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/brands/${brand.slug}.svg`}
+            alt={brand.name}
+            className="brands-logo"
+          />
         </Link>
       ))}
       {BRANDS.map((brand, index) => (
@@ -31,8 +47,14 @@ export default function BrandsCarousel() {
           key={`b-${brand.slug}-${index}`}
           href={`/marki/${brand.slug}`}
           className="brands-item"
+          title={brand.name}
         >
-          {brand.name}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/brands/${brand.slug}.svg`}
+            alt={brand.name}
+            className="brands-logo"
+          />
         </Link>
       ))}
     </>
@@ -44,12 +66,10 @@ export default function BrandsCarousel() {
         <div className="brands-fade brands-fade-left"></div>
         
         <div className="brands-carousel">
-          {/* Połowa 1: Ma 16 elementów (2x lista), na pewno wystarczy na 1600px */}
           <div className="brands-half">
             {renderBrandsTrack()}
           </div>
           
-          {/* Połowa 2: Idealny klon, ładuje się bez szwu dzięki paddingowi */}
           <div className="brands-half">
             {renderBrandsTrack()}
           </div>
