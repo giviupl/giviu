@@ -24,58 +24,70 @@ const BRANDS = [
   { name: 'Tenson', slug: 'tenson' },
 ];
 
+/* JSON-LD: Organization + lista marek → Google widzi relację Giviu ↔ Brand */
+const brandsJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Giviu',
+  url: 'https://giviu.pl',
+  brand: BRANDS.map((b) => ({
+    '@type': 'Brand',
+    name: b.name,
+    url: `https://giviu.pl/marki/${b.slug}`,
+    logo: `https://giviu.pl/brands/${b.slug}.svg`,
+  })),
+};
+
 export default function BrandsCarousel() {
-  const renderBrandsTrack = () => (
-    <>
-      {BRANDS.map((brand, index) => (
-        <Link
-          key={`a-${brand.slug}-${index}`}
-          href={`/marki/${brand.slug}`}
-          className="brands-item"
-          title={brand.name}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/brands/${brand.slug}.svg`}
-            alt={brand.name}
-            className="brands-logo"
-          />
-        </Link>
-      ))}
-      {BRANDS.map((brand, index) => (
-        <Link
-          key={`b-${brand.slug}-${index}`}
-          href={`/marki/${brand.slug}`}
-          className="brands-item"
-          title={brand.name}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/brands/${brand.slug}.svg`}
-            alt={brand.name}
-            className="brands-logo"
-          />
-        </Link>
-      ))}
-    </>
-  );
+  /* Jeden zestaw 20 linków — prefix + czy ukryty dla SEO/a11y */
+  const renderBrands = (prefix: string, hidden: boolean) =>
+    BRANDS.map((brand, index) => (
+      <Link
+        key={`${prefix}-${brand.slug}-${index}`}
+        href={`/marki/${brand.slug}`}
+        className="brands-item"
+        title={brand.name}
+        {...(hidden ? { 'aria-hidden': true as const, tabIndex: -1 } : {})}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/brands/${brand.slug}.svg`}
+          alt={hidden ? '' : brand.name}
+          className="brands-logo"
+        />
+      </Link>
+    ));
 
   return (
-    <section className="brands-section">
-      <div className="brands-wrapper">
-        <div className="brands-fade brands-fade-left"></div>
-        
-        <div className="brands-carousel">
-          <div className="brands-half">
-            {renderBrandsTrack()}
-          </div>
-          
-          <div className="brands-half">
-            {renderBrandsTrack()}
-          </div>
-        </div>
+    <section className="brands-section" aria-label="Marki partnerskie">
+      {/* JSON-LD — widoczny tylko dla Google */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(brandsJsonLd) }}
+      />
 
-        <div className="brands-fade brands-fade-right"></div>
+      <div className="brands-wrapper">
+        <div className="brands-fade brands-fade-left" />
+
+        <nav aria-label="Marki partnerskie">
+          <div className="brands-carousel">
+            {/* ── Pierwsza połowa ── */}
+            <div className="brands-half">
+              {/* ✅ Jedyny zestaw widoczny dla SEO — 20 unikalnych linków */}
+              {renderBrands('seo', false)}
+              {/* Duplikat dla płynnej pętli — ukryty */}
+              {renderBrands('dup-a', true)}
+            </div>
+
+            {/* ── Druga połowa — cała ukryta ── */}
+            <div className="brands-half" aria-hidden="true">
+              {renderBrands('dup-b', true)}
+              {renderBrands('dup-c', true)}
+            </div>
+          </div>
+        </nav>
+
+        <div className="brands-fade brands-fade-right" />
       </div>
     </section>
   );
