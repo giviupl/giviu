@@ -6,7 +6,7 @@ import Image from 'next/image';
 import styles from './Hero.module.css';
 
 const HERO_SLIDES = [
-  { brandName: 'The North Face', title: 'The North Face', subtitle: 'Odzież outdoorowa premium', color: '#1f2937', image: '/images/hero/the-north-face.jpg' },
+  { brandName: 'Knirps', title: 'Knirps', subtitle: 'Parasole premium z personalizacją', color: '#1a1a1a', image: '/images/hero/knirps.jpg' },
   { brandName: 'Stanley', title: 'Stanley', subtitle: 'Termosy i kubki termiczne', color: '#166534', image: '/images/hero/stanley.jpg' },
   { brandName: 'Moleskine', title: 'Moleskine', subtitle: 'Notesy i akcesoria', color: '#374151', image: '/images/hero/moleskine.jpg' },
   { brandName: 'CamelBak', title: 'CamelBak', subtitle: 'Butelki i systemy nawadniania', color: '#2563eb', image: '/images/hero/camelbak.jpg' },
