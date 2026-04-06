@@ -12,6 +12,14 @@ const CATEGORY_NAMES = [
   'PARASOLE', 'DOM I WYPOCZYNEK', 'BIURO I NOTATNIKI',
 ];
 
+/* Tylko marki z karuzeli — reszta (stare) nie wyświetla się */
+const ACTIVE_SLUGS = new Set([
+  'stanley', 'moleskine', 'thule', 'parker', 'rituals', 'camelbak',
+  'herschel', 'larq', 'oceanbottle', 'doppler', 'knirps', 'waterman',
+  'sagaform', 'xtorm', 'scx', 'cutterandbuck', 'harvestfrost',
+  'jamesharvest', 'id', 'tenson',
+]);
+
 export default function MarkiPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +28,7 @@ export default function MarkiPage() {
   useEffect(() => {
     async function fetchBrands() {
       const { data, error } = await supabase.from('brands').select('*').order('name');
-      if (!error && data) setBrands(data);
+      if (!error && data) setBrands(data.filter((b) => ACTIVE_SLUGS.has(b.slug)));
       setLoading(false);
     }
     fetchBrands();
@@ -62,9 +70,14 @@ export default function MarkiPage() {
         {!loading && filteredBrands.length > 0 ? (
           <div className={styles['brands-grid']}>
             {filteredBrands.map((brand) => (
-              <Link key={brand.slug} href={`/marki/${brand.slug}`} className={styles['brand-tile']}>
-                <span className={styles['brand-tile-logo']}>{brand.emoji || '📦'}</span>
-                <span className={styles['brand-tile-name']}>{brand.name}</span>
+              <Link key={brand.slug} href={`/marki/${brand.slug}`} className={styles['brand-tile']} title={brand.name}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/brands/${brand.slug}.svg`}
+                  alt={brand.name}
+                  className={styles['brand-tile-logo']}
+                  loading="lazy"
+                />
               </Link>
             ))}
           </div>
