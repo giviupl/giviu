@@ -70,8 +70,13 @@ export default function BrandClient({ brand, products }: BrandClientProps) {
       <div className={styles['brand-container']}>
 
         <div className={styles['brand-hero']}>
-          <div className={styles['brand-logo']} style={{ backgroundColor: brand.color || '#1a1a1a' }}>
-            <span className={styles['brand-logo-text']}>{brand.name.toUpperCase()}</span>
+          <div className={styles['brand-logo']}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/brands/${brand.slug}.svg`}
+              alt={`Logo ${brand.name}`}
+              className={styles['brand-logo-img']}
+            />
           </div>
           <div className={styles['brand-hero-content']}>
             <h1 className={styles['brand-headline']}>{brand.headline || brand.name}</h1>
