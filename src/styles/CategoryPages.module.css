@@ -235,12 +235,10 @@
   flex-shrink: 0;
   width: 150px;
   height: 150px;
-  border-radius: var(--radius-lg);
-  background-color: var(--color-panel);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
 }
 
 .brand-logo-img {
