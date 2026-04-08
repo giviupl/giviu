@@ -153,10 +153,27 @@
 }
 
 /* Prawdziwe zdjęcie produktu — główne */
+.product-main-photo-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
 .product-main-photo {
   object-fit: contain;
   object-position: center center;
   padding: 8px;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+/* Hover zoom — tylko desktop */
+@media (hover: hover) {
+  .product-main-photo-wrapper.zooming .product-main-photo {
+    transform: scale(1.8);
+    padding: 0;
+  }
 }
 
 /* Prawdziwe zdjęcie w thumbnailach */

@@ -76,6 +76,8 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   const [animationState, setAnimationState] = useState<AnimationState>('idle');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [zoomOrigin, setZoomOrigin] = useState('center center');
+  const [isZooming, setIsZooming] = useState(false);
 
   const tabsRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -219,6 +221,14 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
     isDragging.current = false;
   };
 
+  /* Hover zoom — only desktop, only real images */
+  const handleZoomMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomOrigin(`${x}% ${y}%`);
+  };
+
   const markingMethods = getMarkingMethods();
 
   return (
@@ -313,10 +323,13 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               </button>
 
               {hasRealImages ? (
-                // Prawdziwe zdjęcie — kliknięcie otwiera lightbox
+                // Prawdziwe zdjęcie — hover zoom + kliknięcie otwiera lightbox
                 <div
-                  className={styles['product-main-photo-wrapper']}
+                  className={`${styles['product-main-photo-wrapper']} ${isZooming ? styles['zooming'] : ''}`}
                   onClick={() => setLightboxOpen(true)}
+                  onMouseEnter={() => setIsZooming(true)}
+                  onMouseMove={handleZoomMove}
+                  onMouseLeave={() => setIsZooming(false)}
                   style={{ cursor: 'zoom-in' }}
                 >
                   <Image
@@ -326,6 +339,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     sizes="(max-width: 768px) 100vw, 50vw"
                     priority={selectedImageIndex === 0}
                     className={styles['product-main-photo']}
+                    style={{ transformOrigin: zoomOrigin }}
                   />
                 </div>
               ) : (
