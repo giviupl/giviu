@@ -23,6 +23,16 @@ interface ProductClientProps {
   relatedProducts: Product[];
 }
 
+const BRAND_SLUG_MAP: Record<string, string> = {
+  'Stanley': 'stanley', 'Moleskine': 'moleskine', 'Thule': 'thule',
+  'Parker': 'parker', 'Rituals': 'rituals', 'CamelBak': 'camelbak',
+  'Herschel': 'herschel', 'LARQ': 'larq', 'Ocean Bottle': 'oceanbottle',
+  'Doppler': 'doppler', 'Knirps': 'knirps', 'Waterman': 'waterman',
+  'Sagaform': 'sagaform', 'Xtorm': 'xtorm', 'SCX Design': 'scx',
+  'Cutter & Buck': 'cutterandbuck', 'Harvest & Frost': 'harvestfrost',
+  'James Harvest': 'jamesharvest', 'ID Identity': 'id', 'Tenson': 'tenson',
+};
+
 const MARKING_METHODS: Record<string, { name: string; description: string; icon: string }> = {
   'N2': { name: 'Nadruk', description: 'Tampodruk lub sitodruk — idealne dla wielokolorowych logo', icon: '🖨️' },
   'G5': { name: 'Grawer laserowy', description: 'Trwałe, eleganckie znakowanie na metalach i skórze', icon: '✨' },
@@ -285,7 +295,14 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               onTouchMove={handleImageTouchMove}
               onTouchEnd={handleImageTouchEnd}
             >
-              <span className={styles['product-image-badge']}>{product.brand_name}</span>
+              {BRAND_SLUG_MAP[product.brand_name] && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`/brands/${BRAND_SLUG_MAP[product.brand_name]}.svg`}
+                  alt={product.brand_name}
+                  className={styles['product-image-brand-logo']}
+                />
+              )}
 
               <button
                 onClick={handleToggleQuote}

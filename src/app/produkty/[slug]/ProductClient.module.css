@@ -95,18 +95,23 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-.product-image-badge {
+.product-image-brand-logo {
   position: absolute;
   top: 16px;
   left: 16px;
-  padding: 8px 16px;
-  background-color: var(--color-white);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-text-strong);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--color-border-medium);
+  height: 24px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  opacity: 0.35;
+  z-index: 2;
+  transition: opacity var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .product-main-image:hover .product-image-brand-logo {
+    opacity: 0.6;
+  }
 }
 
 .product-image-cart-btn {
@@ -163,8 +168,8 @@
   border-radius: var(--radius-xs);
 }
 
-/* Badge i przycisk + muszą być NAD zdjęciem */
-.product-image-badge,
+/* Logo marki i przycisk + muszą być NAD zdjęciem */
+.product-image-brand-logo,
 .product-image-cart-btn {
   z-index: 2;
 }

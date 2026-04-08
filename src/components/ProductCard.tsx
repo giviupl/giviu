@@ -34,6 +34,30 @@ interface ProductCardProps {
 
 type AnimationState = 'idle' | 'adding' | 'just-added' | 'removing';
 
+/* Mapowanie brand_name → slug pliku SVG w public/brands/ */
+const BRAND_SLUG_MAP: Record<string, string> = {
+  'Stanley': 'stanley',
+  'Moleskine': 'moleskine',
+  'Thule': 'thule',
+  'Parker': 'parker',
+  'Rituals': 'rituals',
+  'CamelBak': 'camelbak',
+  'Herschel': 'herschel',
+  'LARQ': 'larq',
+  'Ocean Bottle': 'oceanbottle',
+  'Doppler': 'doppler',
+  'Knirps': 'knirps',
+  'Waterman': 'waterman',
+  'Sagaform': 'sagaform',
+  'Xtorm': 'xtorm',
+  'SCX Design': 'scx',
+  'Cutter & Buck': 'cutterandbuck',
+  'Harvest & Frost': 'harvestfrost',
+  'James Harvest': 'jamesharvest',
+  'ID Identity': 'id',
+  'Tenson': 'tenson',
+};
+
 export default function ProductCard({ product, highlightColor }: ProductCardProps) {
   const { addItem, removeItem, isInQuote } = useQuoteStore();
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
@@ -50,6 +74,7 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
   const selectedColor = colors[selectedColorIndex];
   const views = product.views || [];
   const brandDisplay = product.brand_name || product.brand || '';
+  const brandSlug = BRAND_SLUG_MAP[brandDisplay] || '';
 
   const colorImages = selectedColor?.images ?? [];
   const hasRealImages = colorImages.length > 0;
@@ -161,7 +186,14 @@ export default function ProductCard({ product, highlightColor }: ProductCardProp
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <span className={styles['product-card-badge']}>{brandDisplay}</span>
+          {brandSlug && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/brands/${brandSlug}.svg`}
+              alt={brandDisplay}
+              className={styles['product-card-brand-logo']}
+            />
+          )}
 
           <button
             onClick={handleToggleQuote}
