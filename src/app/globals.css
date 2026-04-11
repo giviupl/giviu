@@ -115,12 +115,16 @@ ul[role="list"] > li {
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: top var(--transition-fast);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
 }
 
 .skip-to-content:focus {
   top: var(--spacing-md);
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
+  clip: auto;
+  overflow: visible;
 }
 
 /* Global focus styles - accessible focus indicators */
