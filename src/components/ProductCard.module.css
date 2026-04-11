@@ -229,6 +229,9 @@
 .product-card-photo {
   object-fit: contain;
   object-position: center center;
+  inset: 24px !important;
+  width: calc(100% - 48px) !important;
+  height: calc(100% - 48px) !important;
 }
 
 /* Product Card Hover */
@@ -242,7 +245,7 @@
   }
 
   .product-card:hover .product-card-photo {
-    transform: scale(1.05);
+    transform: scale(1.03);
     transition: transform 0.3s ease;
   }
 

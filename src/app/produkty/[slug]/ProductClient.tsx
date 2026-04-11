@@ -258,7 +258,11 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         <div className={styles['product-hero']}>
 
           {/* Left - Thumbnails */}
-          <div className={styles['product-thumbnails']} role="group" aria-label="Widoki produktu">
+          <div 
+            className={`${styles['product-thumbnails']} ${galleryCount > 5 ? styles['product-thumbnails-grid'] : ''}`}
+            role="group" 
+            aria-label="Widoki produktu"
+          >
             {hasRealImages ? (
               // Prawdziwe zdjęcia jako thumbnails
               currentColorImages.map((imgSrc, idx) => (
@@ -272,8 +276,8 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   <Image
                     src={imgSrc}
                     alt={`${product.name} — widok ${idx + 1}`}
-                    width={80}
-                    height={80}
+                    width={200}
+                    height={200}
                     className={styles['product-thumbnail-image']}
                   />
                 </button>

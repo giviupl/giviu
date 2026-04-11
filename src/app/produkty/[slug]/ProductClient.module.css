@@ -27,7 +27,7 @@
 /* Hero Section */
 .product-hero {
   display: grid;
-  grid-template-columns: 90px 1fr 400px;
+  grid-template-columns: auto 1fr 400px;
   gap: var(--spacing-2xl);
   margin-bottom: 64px;
   align-items: stretch;
@@ -37,8 +37,24 @@
 .product-thumbnails {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  align-self: start;
+  gap: 0;
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.product-thumbnails-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(5, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  align-self: stretch;
+}
+
+.product-thumbnails-grid .product-thumbnail {
+  width: 100px;
+  height: 100%;
+  aspect-ratio: unset;
 }
 
 .product-thumbnail {
@@ -163,9 +179,11 @@
 .product-main-photo {
   object-fit: contain;
   object-position: center center;
-  padding: 8px;
-  transition: transform 0.15s ease-out;
   will-change: transform;
+  inset: 32px !important;
+  width: calc(100% - 64px) !important;
+  height: calc(100% - 64px) !important;
+  transition: transform .15s ease-out;
 }
 
 /* Hover zoom — tylko desktop */
