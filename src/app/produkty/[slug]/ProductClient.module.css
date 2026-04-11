@@ -37,9 +37,8 @@
 .product-thumbnails {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  align-self: stretch;
-  justify-content: space-between;
+  gap: 8px;
+  align-self: start;
 }
 
 .product-thumbnails-grid {
