@@ -258,9 +258,9 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         <div className={styles['product-hero']}>
 
           {/* Left - Thumbnails */}
-          <div 
+          <div
             className={`${styles['product-thumbnails']} ${galleryCount > 5 ? styles['product-thumbnails-grid'] : ''}`}
-            role="group" 
+            role="group"
             aria-label="Widoki produktu"
           >
             {hasRealImages ? (
@@ -364,7 +364,9 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           {/* Right - Product Info */}
           <div className={styles['product-info']}>
             <div className={styles['product-info-content']}>
-              <p className={styles['product-brand']}>{product.brand_name.toUpperCase()}</p>
+            <Link href={`/marki/${BRAND_SLUG_MAP[product.brand_name] || product.brand_name.toLowerCase().replace(/ /g, '-')}`} className={styles['product-brand-link']}>
+  {product.brand_name.toUpperCase()}
+</Link>
               <h1 className={styles['product-title']}>{product.name}</h1>
               <p className={styles['product-code']}>Kod: {product.code}</p>
 

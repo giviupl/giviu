@@ -13,7 +13,7 @@ const HERO_SLIDES = [
   { brandName: 'Thule', title: 'Thule', subtitle: 'Torby i akcesoria podróżne', color: '#1d4ed8', image: '/images/hero/thule.jpg' },
 ];
 
-const SLIDE_DURATION = 5000;
+const SLIDE_DURATION = 3000;
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
