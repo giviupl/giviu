@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState, useLayoutEffect, useMemo, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { CATEGORIES, NAV_LINKS } from '@/data/navigation';
-import { useQuoteStore } from '@/stores/quoteStore';
-import styles from './Header.module.css';
+import Link from "next/link";
+import { useState, useLayoutEffect, useMemo, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { CATEGORIES, NAV_LINKS } from "@/data/navigation";
+import { useQuoteStore } from "@/stores/quoteStore";
+import styles from "./Header.module.css";
 
 function QuoteBadge() {
   const [count, setCount] = useState(0);
@@ -17,7 +17,7 @@ function QuoteBadge() {
     const unsubscribe = useQuoteStore.subscribe(() => {
       const newCount = useQuoteStore.getState().getItemCount();
       setCount(newCount);
-      setPulseKey(prev => prev + 1);
+      setPulseKey((prev) => prev + 1);
     });
 
     return () => unsubscribe();
@@ -25,12 +25,18 @@ function QuoteBadge() {
 
   if (count === 0) return null;
 
-  return <span key={pulseKey} className="quote-badge quote-badge-pulse">{count}</span>;
+  return (
+    <span key={pulseKey} className="quote-badge quote-badge-pulse">
+      {count}
+    </span>
+  );
 }
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [productCategorySlug, setProductCategorySlug] = useState<string | null>(null);
+  const [productCategorySlug, setProductCategorySlug] = useState<string | null>(
+    null,
+  );
   const pathname = usePathname();
 
   // Zamknij menu po zmianie strony
@@ -40,23 +46,29 @@ export default function Header() {
 
   // Odczytaj kategorię produktu po hydratacji (unika hydration mismatch)
   useEffect(() => {
-    if (pathname.startsWith('/produkty/')) {
-      setProductCategorySlug(sessionStorage.getItem('giviu-product-category'));
+    if (pathname.startsWith("/produkty/")) {
+      setProductCategorySlug(sessionStorage.getItem("giviu-product-category"));
     } else {
       setProductCategorySlug(null);
     }
   }, [pathname]);
 
   // Memoizuj nav links i kategorie dla performance
-  const memoizedNavLinks = useMemo(() => NAV_LINKS.map((link) => ({
-    ...link,
-    isActive: pathname === link.href,
-  })), [pathname]);
+  const memoizedNavLinks = useMemo(
+    () =>
+      NAV_LINKS.map((link) => ({
+        ...link,
+        isActive: pathname === link.href,
+      })),
+    [pathname],
+  );
 
   const memoizedCategories = useMemo(() => {
     return CATEGORIES.map((cat) => ({
       ...cat,
-      isActive: pathname.startsWith(`/kategorie/${cat.slug}`) || productCategorySlug === cat.slug,
+      isActive:
+        pathname.startsWith(`/kategorie/${cat.slug}`) ||
+        productCategorySlug === cat.slug,
     }));
   }, [pathname, productCategorySlug]);
 
@@ -64,11 +76,11 @@ export default function Header() {
   useLayoutEffect(() => {
     if (!mobileMenuOpen) return;
 
-    const menu = document.getElementById('mobile-menu');
+    const menu = document.getElementById("mobile-menu");
     if (!menu) return;
 
     const focusableElements = menu.querySelectorAll(
-      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
     ) as NodeListOf<HTMLElement>;
     const first = focusableElements[0];
     const last = focusableElements[focusableElements.length - 1];
@@ -76,7 +88,7 @@ export default function Header() {
     first?.focus();
 
     const trapFocus = (e: KeyboardEvent) => {
-      if (e.key === 'Tab') {
+      if (e.key === "Tab") {
         if (e.shiftKey && document.activeElement === first) {
           e.preventDefault();
           last.focus();
@@ -84,57 +96,71 @@ export default function Header() {
           e.preventDefault();
           first.focus();
         }
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         setMobileMenuOpen(false);
       }
     };
 
-    document.addEventListener('keydown', trapFocus);
-    return () => document.removeEventListener('keydown', trapFocus);
+    document.addEventListener("keydown", trapFocus);
+    return () => document.removeEventListener("keydown", trapFocus);
   }, [mobileMenuOpen]);
 
   // Blokuj scroll gdy menu jest otwarte
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
   return (
     <>
-      <header role="banner" className={styles['header-wrapper']}>
+      <header role="banner" className={styles["header-wrapper"]}>
         {/* Górny pasek */}
-        <div className={styles['header-top']}>
+        <div className={styles["header-top"]}>
           {/* Logo */}
-          <h1 className={styles['header-logo']}>
-            <Link
-              href="/"
-              aria-label="Giviu - Strona główna"
-              className={styles['header-logo-link']}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            >
-              Giviu
-            </Link>
+          <h1 className={styles["header-logo"]}>
+          <Link
+  href="/"
+  aria-label="Giviu - Strona główna"
+  className={styles['header-logo-link']}
+  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+>
+  <svg className={styles['header-logo-signet']} viewBox="0 0 500 500" aria-hidden="true">
+    <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M 182.85 140.57 C 187.98 98.49 235.46 60.48 250.00 45.00 C 264.54 60.48 312.02 98.49 317.15 140.57"/>
+      <path d="M 333.33 152.32 C 374.93 144.19 425.75 177.61 444.97 186.65 C 434.74 205.26 413.26 262.17 374.83 280.04"/>
+      <path d="M 368.65 299.06 C 389.23 336.12 373.16 394.78 370.50 415.85 C 349.63 411.87 288.88 409.03 260.00 378.00"/>
+      <path d="M 240.00 378.00 C 211.12 409.03 150.37 411.87 129.50 415.85 C 126.84 394.78 110.77 336.12 131.35 299.06"/>
+      <path d="M 125.17 280.04 C 86.74 262.17 65.26 205.26 55.03 186.65 C 74.25 177.61 125.07 144.19 166.67 152.32"/>
+      <path d="M 317.15 140.57 C 326.75 246.43 229.67 175.90 333.33 152.32"/>
+      <path d="M 374.83 280.04 C 277.11 321.90 314.19 207.77 368.65 299.06"/>
+      <path d="M 260.00 378.00 C 190.00 298.00 310.00 298.00 240.00 378.00"/>
+      <path d="M 131.35 299.06 C 185.81 207.77 222.89 321.90 125.17 280.04"/>
+      <path d="M 166.67 152.32 C 270.33 175.90 173.25 246.43 182.85 140.57"/>
+    </g>
+  </svg>
+  Giviu
+</Link>
           </h1>
 
           {/* Desktop Navigation */}
           <nav
             role="navigation"
             aria-label="Główna nawigacja"
-            className={styles['desktop-nav']}
+            className={styles["desktop-nav"]}
           >
             {memoizedNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`${styles['nav-link']} ${link.isActive ? styles.active : ''}`}
-                aria-current={link.isActive ? 'page' : undefined}
+                className={`${styles["nav-link"]} ${link.isActive ? styles.active : ""}`}
+                aria-current={link.isActive ? "page" : undefined}
               >
                 {link.label}
               </Link>
@@ -143,9 +169,9 @@ export default function Header() {
             {/* Ikona listy wyceny - Desktop */}
             <Link
               href="/wycena"
-              className={`${styles['nav-link']} quote-icon-wrapper ${pathname === '/wycena' ? styles.active : ''}`}
+              className={`${styles["nav-link"]} quote-icon-wrapper ${pathname === "/wycena" ? styles.active : ""}`}
               aria-label="Lista wyceny"
-              aria-current={pathname === '/wycena' ? 'page' : undefined}
+              aria-current={pathname === "/wycena" ? "page" : undefined}
             >
               <svg
                 width="22"
@@ -167,11 +193,11 @@ export default function Header() {
           </nav>
 
           {/* Mobile: Ikona wyceny + Burger menu */}
-          <div className={styles['mobile-controls']}>
+          <div className={styles["mobile-controls"]}>
             <Link
               href="/wycena"
               aria-label="Lista wyceny"
-              className={`quote-icon-wrapper ${styles['mobile-quote-link']} ${pathname === '/wycena' ? styles.active : ''}`}
+              className={`quote-icon-wrapper ${styles["mobile-quote-link"]} ${pathname === "/wycena" ? styles.active : ""}`}
             >
               <svg
                 width="24"
@@ -193,10 +219,10 @@ export default function Header() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Zamknij menu' : 'Otwórz menu'}
+              aria-label={mobileMenuOpen ? "Zamknij menu" : "Otwórz menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
-              className={styles['burger-button']}
+              className={styles["burger-button"]}
             >
               {mobileMenuOpen ? (
                 <svg
@@ -232,36 +258,36 @@ export default function Header() {
         </div>
 
         {/* Niebieska linia - dekoracyjna */}
-        <div className={styles['header-accent-line']} aria-hidden="true" />
+        <div className={styles["header-accent-line"]} aria-hidden="true" />
 
         {/* Kategorie - tylko desktop */}
         <nav
           role="navigation"
           aria-label="Kategorie produktów"
-          className={styles['category-bar']}
+          className={styles["category-bar"]}
         >
-          <div className={styles['category-bar-inner']}>
+          <div className={styles["category-bar-inner"]}>
             {memoizedCategories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/kategorie/${cat.slug}`}
-                className={`${styles['nav-link']} ${cat.isActive ? styles.active : ''}`}
-                aria-current={cat.isActive ? 'page' : undefined}
+                className={`${styles["nav-link"]} ${cat.isActive ? styles.active : ""}`}
+                aria-current={cat.isActive ? "page" : undefined}
               >
                 {cat.name}
               </Link>
             ))}
             <Link
               href="/marki"
-              className={`${styles['nav-link']} ${styles['nav-link-separator']} ${pathname === '/marki' ? styles.active : ''}`}
-              aria-current={pathname === '/marki' ? 'page' : undefined}
+              className={`${styles["nav-link"]} ${styles["nav-link-separator"]} ${pathname === "/marki" ? styles.active : ""}`}
+              aria-current={pathname === "/marki" ? "page" : undefined}
             >
               MARKI
             </Link>
             <Link
               href="/nowosci"
-              className={`${styles['nav-link']} ${pathname === '/nowosci' ? styles.active : ''}`}
-              aria-current={pathname === '/nowosci' ? 'page' : undefined}
+              className={`${styles["nav-link"]} ${pathname === "/nowosci" ? styles.active : ""}`}
+              aria-current={pathname === "/nowosci" ? "page" : undefined}
             >
               NOWOŚCI
             </Link>
@@ -272,7 +298,7 @@ export default function Header() {
       {/* Overlay dla mobile menu */}
       {mobileMenuOpen && (
         <div
-          className={styles['header-overlay']}
+          className={styles["header-overlay"]}
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
@@ -285,20 +311,26 @@ export default function Header() {
         aria-modal="true"
         aria-label="Menu mobilne"
         aria-hidden={!mobileMenuOpen}
-        className={`${styles['mobile-menu']} ${mobileMenuOpen ? styles['mobile-menu-visible'] : styles['mobile-menu-hidden']}`}
+        className={`${styles["mobile-menu"]} ${mobileMenuOpen ? styles["mobile-menu-visible"] : styles["mobile-menu-hidden"]}`}
       >
-        <div className={styles['mobile-menu-section']}>
-          <p id="mobile-categories-label" className={styles['mobile-menu-label']}>
+        <div className={styles["mobile-menu-section"]}>
+          <p
+            id="mobile-categories-label"
+            className={styles["mobile-menu-label"]}
+          >
             Kategorie
           </p>
-          <ul aria-labelledby="mobile-categories-label" className={styles['mobile-menu-list']}>
+          <ul
+            aria-labelledby="mobile-categories-label"
+            className={styles["mobile-menu-list"]}
+          >
             {memoizedCategories.map((cat) => (
               <li key={cat.slug}>
                 <Link
                   href={`/kategorie/${cat.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  aria-current={cat.isActive ? 'page' : undefined}
-                  className={`${styles['mobile-menu-link']} ${cat.isActive ? styles.active : ''}`}
+                  aria-current={cat.isActive ? "page" : undefined}
+                  className={`${styles["mobile-menu-link"]} ${cat.isActive ? styles.active : ""}`}
                 >
                   {cat.name}
                 </Link>
@@ -308,8 +340,8 @@ export default function Header() {
               <Link
                 href="/marki"
                 onClick={() => setMobileMenuOpen(false)}
-                aria-current={pathname === '/marki' ? 'page' : undefined}
-                className={`${styles['mobile-menu-link']} ${pathname === '/marki' ? styles.active : ''}`}
+                aria-current={pathname === "/marki" ? "page" : undefined}
+                className={`${styles["mobile-menu-link"]} ${pathname === "/marki" ? styles.active : ""}`}
               >
                 MARKI
               </Link>
@@ -318,8 +350,8 @@ export default function Header() {
               <Link
                 href="/nowosci"
                 onClick={() => setMobileMenuOpen(false)}
-                aria-current={pathname === '/nowosci' ? 'page' : undefined}
-                className={`${styles['mobile-menu-link']} ${pathname === '/nowosci' ? styles.active : ''}`}
+                aria-current={pathname === "/nowosci" ? "page" : undefined}
+                className={`${styles["mobile-menu-link"]} ${pathname === "/nowosci" ? styles.active : ""}`}
               >
                 NOWOŚCI
               </Link>
@@ -328,17 +360,20 @@ export default function Header() {
         </div>
 
         <div>
-          <p id="mobile-menu-label" className={styles['mobile-menu-label']}>
+          <p id="mobile-menu-label" className={styles["mobile-menu-label"]}>
             Menu
           </p>
-          <ul aria-labelledby="mobile-menu-label" className={styles['mobile-menu-list']}>
+          <ul
+            aria-labelledby="mobile-menu-label"
+            className={styles["mobile-menu-list"]}
+          >
             {memoizedNavLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  aria-current={link.isActive ? 'page' : undefined}
-                  className={`${styles['mobile-menu-link']} ${link.isActive ? styles.active : ''}`}
+                  aria-current={link.isActive ? "page" : undefined}
+                  className={`${styles["mobile-menu-link"]} ${link.isActive ? styles.active : ""}`}
                 >
                   {link.label}
                 </Link>
@@ -349,7 +384,7 @@ export default function Header() {
       </nav>
 
       {/* Spacer */}
-      <div className={styles['header-spacer']} aria-hidden="true" />
+      <div className={styles["header-spacer"]} aria-hidden="true" />
     </>
   );
 }

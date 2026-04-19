@@ -5,10 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/wycena/', '/wycena/dane/'],
+        disallow: '/',
       },
     ],
-    sitemap: 'https://giviu.pl/sitemap.xml',
   };
 }

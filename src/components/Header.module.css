@@ -60,9 +60,17 @@
   margin: 0;
 }
 
+.header-logo-signet {
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+}
+
 .header-logo-link {
   text-decoration: none;
   color: inherit;
+  display: flex;
+  align-items: center;
 }
 
 .header-accent-line {
