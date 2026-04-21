@@ -245,7 +245,7 @@ export default function WycenaDanePage() {
             </div>
           </div>
 
-          <div className="inspiration-wrapper">
+          <div className="inspiration-wrapper" style={{ minHeight: '500px' }}>
             <InspirationCarouselSimple />
           </div>
 

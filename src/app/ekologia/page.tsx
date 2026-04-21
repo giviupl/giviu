@@ -181,7 +181,7 @@ export default function EkologiaPage() {
         </div>
       </section>
 
-      <div className="inspiration-wrapper">
+      <div className="inspiration-wrapper" style={{ minHeight: '500px' }}>
         <InspirationCarouselSimple />
       </div>
     </main>
