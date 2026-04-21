@@ -8,8 +8,12 @@ import FAQSection from '@/components/FAQSection';
 import { FAQ_GENERAL } from '@/data/faq';
 
 // Lazy load below-fold components
-const BrandsCarousel = dynamic(() => import('@/components/BrandsCarousel'));
-const RecentlyViewedCarousel = dynamic(() => import('@/components/RecentlyViewedCarousel'));
+const BrandsCarousel = dynamic(() => import('@/components/BrandsCarousel'), {
+  loading: () => <div style={{ minHeight: '100px' }} />,
+});
+const RecentlyViewedCarousel = dynamic(() => import('@/components/RecentlyViewedCarousel'), {
+  loading: () => <div style={{ minHeight: '0px' }} />,
+});
 
 const organizationJsonLd = {
   '@context': 'https://schema.org',
