@@ -239,6 +239,25 @@
   color: var(--color-primary);
 }
 
+.product-brand-section {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e2dc;
+}
+
+.product-brand-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.product-brand-section-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #6b7280;
+}
+
 .product-title {
   font-size: var(--font-size-h3);
   font-weight: 700;
@@ -692,6 +711,10 @@
   border: 1px solid var(--color-border-medium);
   text-align: center;
   transition: color var(--transition-fast);
+}
+
+.product-marking-card .marking-badge {
+  margin: 0 auto 12px;
 }
 
 .product-marking-icon {

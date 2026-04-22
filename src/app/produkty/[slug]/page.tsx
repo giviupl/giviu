@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getProductBySlug, getRelatedProducts } from '@/lib/queries';
+import { getProductBySlug, getRelatedProducts, getBrandGiftDescription } from '@/lib/queries';
 import ProductClient from './ProductClient';
 
 type Props = {
@@ -41,6 +41,9 @@ export default async function ProductPage({ params }: Props) {
 
   // Pobierz powiązane produkty na serwerze — nie w kliencie
   const relatedProducts = await getRelatedProducts(product.id, product.category_slug, 4);
+
+  // Pobierz opis marki dla taba "O marce"
+  const brandGiftDescription = await getBrandGiftDescription(product.brand_name);
 
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -93,7 +96,7 @@ export default async function ProductPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <ProductClient product={product} relatedProducts={relatedProducts} />
+      <ProductClient product={product} relatedProducts={relatedProducts} brandGiftDescription={brandGiftDescription} />
     </>
   );
 }

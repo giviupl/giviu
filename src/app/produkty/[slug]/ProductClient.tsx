@@ -21,6 +21,7 @@ import styles from './ProductClient.module.css';
 interface ProductClientProps {
   product: Product;
   relatedProducts: Product[];
+  brandGiftDescription?: string | null;
 }
 
 const BRAND_SLUG_MAP: Record<string, string> = {
@@ -49,10 +50,10 @@ const MARKING_BADGES: Record<string, string> = {
 
 const MAX_DESCRIPTION_LENGTH = 200;
 
-type TabType = 'opis' | 'specyfikacja' | 'personalizacja' | 'dostawa';
+type TabType = 'opis' | 'specyfikacja' | 'personalizacja' | 'dostawa' | 'marka';
 type AnimationState = 'idle' | 'adding' | 'just-added' | 'removing';
 
-export default function ProductClient({ product, relatedProducts }: ProductClientProps) {
+export default function ProductClient({ product, relatedProducts, brandGiftDescription }: ProductClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -173,9 +174,13 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   };
 
   const handleTabKeyDown = (e: React.KeyboardEvent) => {
-    const tabs: TabType[] = isLongDescription
-      ? ['opis', 'specyfikacja', 'personalizacja', 'dostawa']
-      : ['specyfikacja', 'personalizacja', 'dostawa'];
+    const tabs: TabType[] = [
+      ...(isLongDescription ? ['opis' as TabType] : []),
+      'specyfikacja',
+      'personalizacja',
+      'dostawa',
+      ...(brandGiftDescription ? ['marka' as TabType] : []),
+    ];
     const currentIndex = tabs.indexOf(activeTab);
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -513,7 +518,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     <div className={styles['product-marking-grid']}>
                       {markingMethods.map(method => (
                         <div key={method.code} className={styles['product-marking-card']}>
-                          <span className={styles['product-marking-icon']}>{method.icon}</span>
+                          <span className={styles['marking-badge']}>{MARKING_BADGES[method.code]}</span>
                           <h3 className={styles['product-marking-name']}>{method.name}</h3>
                           <p className={styles['product-marking-desc']}>{method.description}</p>
                         </div>
@@ -540,6 +545,19 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             )}
           </div>
         </div>
+
+        {/* SEO: treść marki widoczna zawsze */}
+        {brandGiftDescription && (
+          <section className={styles['product-brand-section']}>
+            <h2 className={styles['product-brand-section-title']}>
+              Dlaczego {product.brand_name} jako prezent firmowy?
+            </h2>
+            <p className={styles['product-brand-section-text']}>{brandGiftDescription}</p>
+            <Link href={`/marki/${BRAND_SLUG_MAP[product.brand_name] || product.brand_name.toLowerCase().replace(/ /g, '-')}`} className={styles['product-brand-link']}>
+              Zobacz wszystkie produkty {product.brand_name} →
+            </Link>
+          </section>
+        )}
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

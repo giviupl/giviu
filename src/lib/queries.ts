@@ -234,3 +234,14 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   }
   return data;
 }
+
+export async function getBrandGiftDescription(brandName: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('brands')
+    .select('gift_description')
+    .eq('name', brandName)
+    .single();
+
+  if (error || !data) return null;
+  return data.gift_description;
+}
