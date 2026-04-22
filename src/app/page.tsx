@@ -95,9 +95,7 @@ export default function Home() {
       <Hero />
       <BrandsCarousel />
       <RecommendationsSection />
-      <div style={{ minHeight: "500px" }}>
-        <InspirationSection />
-      </div>
+      <InspirationSection />
       <QualitySection />
       <div className="home-faq">
         <FAQSection
