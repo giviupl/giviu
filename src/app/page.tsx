@@ -6,17 +6,12 @@ import CTASection from "@/components/home/CTASection";
 import dynamic from "next/dynamic";
 import FAQSection from "@/components/FAQSection";
 import { FAQ_GENERAL } from "@/data/faq";
+import RecentlyViewedCarousel from "@/components/RecentlyViewedCarousel";
 
 // Lazy load below-fold components
 const BrandsCarousel = dynamic(() => import("@/components/BrandsCarousel"), {
   loading: () => <div style={{ minHeight: "160px" }} />,
 });
-const RecentlyViewedCarousel = dynamic(
-  () => import("@/components/RecentlyViewedCarousel"),
-  {
-    loading: () => <div style={{ minHeight: "300px" }} />,
-  },
-);
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
