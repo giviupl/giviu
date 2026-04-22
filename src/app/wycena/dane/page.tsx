@@ -245,9 +245,7 @@ export default function WycenaDanePage() {
             </div>
           </div>
 
-          <div className="inspiration-wrapper" style={{ minHeight: '500px' }}>
             <InspirationCarouselSimple />
-          </div>
 
           <div className={styles['wycena-thankyou-footer']}>
             <Link href="/" className={styles['wycena-thankyou-btn']}>
@@ -545,3 +543,4 @@ export default function WycenaDanePage() {
     </section>
   );
 }
+

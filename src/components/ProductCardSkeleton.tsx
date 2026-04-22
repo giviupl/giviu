@@ -24,3 +24,4 @@ export function ProductGridSkeleton({ count = 4 }: { count?: number }) {
     </div>
   );
 }
+

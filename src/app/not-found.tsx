@@ -19,9 +19,8 @@ export default function NotFound() {
         </div>
       </div>
       
-      <div className="inspiration-wrapper" style={{ minHeight: '500px' }}>
         <InspirationCarouselSimple />
-      </div>
     </main>
   );
 }
+

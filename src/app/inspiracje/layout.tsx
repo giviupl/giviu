@@ -14,3 +14,4 @@ export const metadata: Metadata = {
 export default function InspiracjeLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
+

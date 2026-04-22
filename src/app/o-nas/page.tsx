@@ -54,9 +54,8 @@ export default function OGiviuPage() {
         </div>
       </section>
 
-      <div className="inspiration-wrapper" style={{ minHeight: '500px' }}>
         <InspirationCarouselSimple />
-      </div>
     </main>
   );
 }
+

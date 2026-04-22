@@ -158,3 +158,4 @@ export default function RecommendationsClient({ products }: Props) {
     </section>
   );
 }
+
