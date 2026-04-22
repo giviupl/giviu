@@ -9,12 +9,12 @@ import { FAQ_GENERAL } from "@/data/faq";
 
 // Lazy load below-fold components
 const BrandsCarousel = dynamic(() => import("@/components/BrandsCarousel"), {
-  loading: () => <div style={{ minHeight: "100px" }} />,
+  loading: () => <div style={{ minHeight: "160px" }} />,
 });
 const RecentlyViewedCarousel = dynamic(
   () => import("@/components/RecentlyViewedCarousel"),
   {
-    loading: () => <div style={{ minHeight: "0px" }} />,
+    loading: () => <div style={{ minHeight: "300px" }} />,
   },
 );
 
