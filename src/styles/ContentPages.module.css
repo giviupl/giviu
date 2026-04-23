@@ -749,25 +749,26 @@
 .ekologia-certificates-grid {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xl);
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .ekologia-certificate-placeholder {
-  width: 64px;
-  height: 64px;
-  background-color: var(--color-border-light);
-  border-radius: var(--radius-sm);
+  width: 120px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background-color: transparent;
+  border-radius: var(--radius-sm);
+  padding: 12px;
 }
 
-.ekologia-placeholder-icon-sm {
-  width: 24px;
-  height: 24px;
-  color: var(--color-muted);
+.ekologia-certificate-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 /* Materials */

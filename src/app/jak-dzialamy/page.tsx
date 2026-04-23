@@ -352,8 +352,9 @@ export default function JakDzialamyPage() {
         </div>
       </section>
 
+      <div className="inspiration-wrapper">
         <InspirationCarouselSimple />
+      </div>
     </main>
   );
 }
-
