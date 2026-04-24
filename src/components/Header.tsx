@@ -132,7 +132,7 @@ export default function Header() {
   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 >
   <svg className={styles['header-logo-signet']} viewBox="0 0 500 500" aria-hidden="true">
-    <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">
+    <g fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
       <path d="M 182.85 140.57 C 187.98 98.49 235.46 60.48 250.00 45.00 C 264.54 60.48 312.02 98.49 317.15 140.57"/>
       <path d="M 333.33 152.32 C 374.93 144.19 425.75 177.61 444.97 186.65 C 434.74 205.26 413.26 262.17 374.83 280.04"/>
       <path d="M 368.65 299.06 C 389.23 336.12 373.16 394.78 370.50 415.85 C 349.63 411.87 288.88 409.03 260.00 378.00"/>
@@ -145,7 +145,11 @@ export default function Header() {
       <path d="M 166.67 152.32 C 270.33 175.90 173.25 246.43 182.85 140.57"/>
     </g>
   </svg>
-  Giviu
+  <img
+    src="/giviu-logo.svg"
+    alt="Giviu"
+    className={styles['header-logo-img']}
+  />
 </Link>
           </h1>
 
