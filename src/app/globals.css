@@ -700,18 +700,8 @@ textarea,
 
 @media (max-width: 640px) {
   .products-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xl);
-  }
-  
-  .product-card-wrapper {
-    padding-bottom: var(--spacing-xl);
-    border-bottom: 1px solid var(--color-border-light);
-  }
-  
-  .product-card-wrapper:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
   }
 }
 

@@ -61,7 +61,9 @@
   background-color: transparent;
   color: var(--color-text);
   cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -96,7 +98,9 @@
   justify-content: center;
   text-decoration: none;
   padding: 24px;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 @media (hover: hover) {
@@ -117,7 +121,9 @@
   object-fit: contain;
   filter: grayscale(1) brightness(0.4);
   opacity: 0.6;
-  transition: filter var(--transition-fast), opacity var(--transition-fast);
+  transition:
+    filter var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
 .brands-empty {
@@ -204,7 +210,6 @@
     gap: 12px;
   }
 }
-
 
 /* ==================== BRAND PAGE ==================== */
 .brand-page {
@@ -343,7 +348,7 @@
   }
 
   .brand-features {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px;
   }
 
@@ -351,7 +356,7 @@
     text-align: center;
   }
 
-  .products-grid {
+  :global(.products-grid) {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-md);
   }
@@ -364,11 +369,10 @@
 }
 
 @media (max-width: 640px) {
-  .products-grid {
-    grid-template-columns: 1fr;
+  :global(.products-grid) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
-
 
 /* ==================== CATEGORY PAGE ==================== */
 .category-page {
@@ -445,7 +449,9 @@
   justify-content: center;
   gap: var(--spacing-md);
   text-decoration: none;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 @media (hover: hover) {
@@ -573,7 +579,6 @@
     padding: 0;
   }
 }
-
 
 /* ==================== COLLECTIONS PAGE ==================== */
 .collections-page {
@@ -710,7 +715,6 @@
   }
 }
 
-
 /* ==================== NOWOŚCI PAGE ==================== */
 .nowosci-page {
   background-color: var(--color-background);
@@ -824,11 +828,10 @@
 
 @media (max-width: 480px) {
   .nowosci-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
   }
 }
-
 
 /* ==================== SUBCATEGORY PAGE ==================== */
 .subcategory-page {
@@ -917,7 +920,9 @@
   border-radius: var(--radius-sm);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 @media (hover: hover) {
@@ -978,11 +983,10 @@
 
 @media (max-width: 480px) {
   .subcategory-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
   }
 }
-
 
 /* Touch targets */
 @media (max-width: 1024px) {

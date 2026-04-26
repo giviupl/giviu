@@ -276,8 +276,8 @@
 /* Touch targets */
 @media (max-width: 1024px) {
   .product-card-cart-btn {
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
   }
 
   .product-card-colors {
