@@ -41,6 +41,14 @@
   }
 }
 
+@media (max-width: 640px) {
+  .product-card-brand-logo {
+    height: 14px;
+    top: 8px;
+    left: 8px;
+  }
+}
+
 .product-card-cart-btn {
   position: absolute;
   bottom: 12px;
