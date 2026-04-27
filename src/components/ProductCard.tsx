@@ -355,15 +355,19 @@ export default function ProductCard({
       {colors.length > 0 && (
         <div className={styles["product-card-colors"]}>
           <ColorSwatch
-            colors={colors}
-            selectedIndex={selectedColorIndex}
+            colors={colors.slice(0, 4)}
+            selectedIndex={selectedColorIndex < 4 ? selectedColorIndex : -1}
             onSelect={setSelectedColorIndex}
             size="md"
             shape="square"
           />
+          {colors.length > 4 && (
+            <span className={styles["product-card-colors-more"]}>
+              +{colors.length - 4}
+            </span>
+          )}
         </div>
       )}
     </div>
   );
 }
-
