@@ -74,8 +74,8 @@ export default function ProductCard({
   useEffect(() => {
     const updateLimit = () => setColorLimit(window.innerWidth <= 640 ? 4 : 8);
     updateLimit();
-    window.addEventListener('resize', updateLimit);
-    return () => window.removeEventListener('resize', updateLimit);
+    window.addEventListener("resize", updateLimit);
+    return () => window.removeEventListener("resize", updateLimit);
   }, []);
 
   const touchStartX = useRef(0);
@@ -364,16 +364,22 @@ export default function ProductCard({
       {colors.length > 0 && (
         <div className={styles["product-card-colors"]}>
           <ColorSwatch
-colors={colors.slice(0, colorLimit)}
-selectedIndex={selectedColorIndex < colorLimit ? selectedColorIndex : -1}
+            colors={colors.slice(0, colorLimit)}
+            selectedIndex={
+              selectedColorIndex < colorLimit ? selectedColorIndex : -1
+            }
             onSelect={setSelectedColorIndex}
             size="md"
             shape="square"
           />
-{colors.length > colorLimit && (
-            <span className={styles["product-card-colors-more"]}>
+          {colors.length > colorLimit && (
+            <Link
+              href={`/produkty/${product.slug}`}
+              className={styles["product-card-colors-more"]}
+              onClick={(e) => e.stopPropagation()}
+            >
               +{colors.length - colorLimit}
-            </span>
+            </Link>
           )}
         </div>
       )}
