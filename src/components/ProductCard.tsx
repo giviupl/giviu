@@ -69,6 +69,15 @@ export default function ProductCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [animationState, setAnimationState] = useState<AnimationState>("idle");
 
+  const [colorLimit, setColorLimit] = useState(8);
+
+  useEffect(() => {
+    const updateLimit = () => setColorLimit(window.innerWidth <= 640 ? 4 : 8);
+    updateLimit();
+    window.addEventListener('resize', updateLimit);
+    return () => window.removeEventListener('resize', updateLimit);
+  }, []);
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const isDragging = useRef(false);
@@ -355,15 +364,15 @@ export default function ProductCard({
       {colors.length > 0 && (
         <div className={styles["product-card-colors"]}>
           <ColorSwatch
-            colors={colors.slice(0, 4)}
-            selectedIndex={selectedColorIndex < 4 ? selectedColorIndex : -1}
+colors={colors.slice(0, colorLimit)}
+selectedIndex={selectedColorIndex < colorLimit ? selectedColorIndex : -1}
             onSelect={setSelectedColorIndex}
             size="md"
             shape="square"
           />
-          {colors.length > 4 && (
+{colors.length > colorLimit && (
             <span className={styles["product-card-colors-more"]}>
-              +{colors.length - 4}
+              +{colors.length - colorLimit}
             </span>
           )}
         </div>
