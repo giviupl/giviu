@@ -116,12 +116,13 @@
 /* Content Block Mobile */
 @media (max-width: 1024px) {
   :global(.content-block) {
-    padding-bottom: var(--spacing-md);
+    padding: 32px 0;
   }
 
   :global(.content-block-grid) {
     grid-template-columns: 1fr;
     padding: 0 var(--spacing-lg);
+    gap: 24px;
   }
 
   :global(.content-block-text) {
@@ -144,13 +145,20 @@
   }
 
   :global(.content-block-image-wrapper) {
-    padding-bottom: 70%;
+    padding-bottom: 100%;
     order: 2 !important;
   }
 
   :global(.content-block-image) {
     left: 0;
     right: 0;
+  }
+
+  :global(.content-block-image) {
+    left: 0;
+    right: 0;
+    top: 0px;
+    bottom: 0px;
   }
 
   :global(.content-block-reversed .content-block-image) {
