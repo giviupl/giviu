@@ -78,7 +78,8 @@ export interface Article {
 export interface Subcategory {
   name: string;
   slug: string;
-  emoji: string;
+  emoji?: string;
+  image?: string;
 }
 
 export interface Category {
