@@ -447,9 +447,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
+  justify-content: flex-end;
+  gap: 0;
   text-decoration: none;
+  padding: 24px;
   transition:
     transform var(--transition-normal),
     box-shadow var(--transition-normal);
@@ -472,6 +473,7 @@
   color: var(--color-text);
   text-align: center;
   padding: 0 var(--spacing-md);
+  margin-top: auto;
 }
 
 /* Category Page Mobile */
@@ -902,6 +904,8 @@
   height: auto;
   max-height: 70%;
   object-fit: contain;
+  flex: 1;
+  margin-top: 12px;
 }
 
 /* Empty state */
