@@ -962,6 +962,54 @@ textarea,
 /* Content */
 .article-content {
   margin-bottom: 64px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+.article-content h2 {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 56px 0 20px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  line-height: 1.25;
+}
+.article-content h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.article-content h3 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 36px 0 14px;
+  line-height: 1.3;
+}
+.article-content p {
+  margin: 0 0 22px;
+}
+.article-content a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1.5px solid rgba(79, 103, 177, 0.3);
+  transition: border-color var(--transition-fast);
+}
+.article-content a:hover {
+  border-bottom-color: var(--color-primary);
+}
+.article-content strong {
+  font-weight: 700;
+  color: var(--color-text);
+}
+.article-content em {
+  font-style: italic;
 }
 
 .article-content-placeholder {
