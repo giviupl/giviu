@@ -1664,6 +1664,7 @@ textarea,
   justify-content: center;
   margin-bottom: var(--spacing-md);
   width: 100%;
+  overflow: hidden;
 }
 
 .article-card-content {
