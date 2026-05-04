@@ -951,6 +951,13 @@ textarea,
   line-height: 1.2;
 }
 
+.article-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
 .article-excerpt {
   font-size: var(--font-size-lg);
   font-weight: 400;

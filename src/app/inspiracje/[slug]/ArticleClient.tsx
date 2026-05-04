@@ -1,16 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import RecommendedCarousel from '@/components/RecommendedCarousel';
-import type { Article, Product } from '@/types';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import RecommendedCarousel from "@/components/RecommendedCarousel";
+import type { Article, Product } from "@/types";
 
 interface ArticleClientProps {
   article: Article;
   recommendedProducts: Product[];
 }
 
-export default function ArticleClient({ article, recommendedProducts }: ArticleClientProps) {
+export default function ArticleClient({
+  article,
+  recommendedProducts,
+}: ArticleClientProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,10 +23,10 @@ export default function ArticleClient({ article, recommendedProducts }: ArticleC
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return null;
     try {
-      return new Date(dateStr).toLocaleDateString('pl-PL', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+      return new Date(dateStr).toLocaleDateString("pl-PL", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
     } catch {
       return null;
@@ -54,29 +57,43 @@ export default function ArticleClient({ article, recommendedProducts }: ArticleC
             <img
               src={article.image_url}
               alt={article.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "12px",
+              }}
             />
           </div>
         ) : (
           <div className="article-hero-image">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth="1.5"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
             </svg>
           </div>
         )}
 
         {/* Article Header */}
         <div className="article-header">
-          <span className="article-category-badge">{article.category}</span>
+          <div className="article-meta-row">
+            <span className="article-category-badge">{article.category}</span>
+            {publishedDate && article.created_at && (
+              <time dateTime={article.created_at} className="article-date">
+                {publishedDate}
+              </time>
+            )}
+          </div>
           <h1 className="article-title">{article.title}</h1>
           <p className="article-excerpt">{article.excerpt}</p>
-          {publishedDate && article.created_at && (
-            <time dateTime={article.created_at} className="article-date">
-              {publishedDate}
-            </time>
-          )}
         </div>
 
         {/* Article Content — renderowany z HTML w Supabase */}
