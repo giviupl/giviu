@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import ArticleCard from '@/components/ArticleCard';
-import SectionLine from '@/components/SectionLine';
-import { INSPIRATION_CATEGORIES } from '@/types';
-import { supabase } from '@/lib/supabase';
-import type { Article } from '@/types';
+import { useState, useEffect } from "react";
+import ArticleCard from "@/components/ArticleCard";
+import SectionLine from "@/components/SectionLine";
+import { supabase } from "@/lib/supabase";
+import type { Article } from "@/types";
 
 // ============================================
 // ZMIANY:
@@ -17,14 +16,13 @@ import type { Article } from '@/types';
 export default function InspiracjePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     async function fetchArticles() {
       const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("articles")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (!error && data) {
         setArticles(data);
@@ -34,46 +32,23 @@ export default function InspiracjePage() {
     fetchArticles();
   }, []);
 
-  const filteredArticles = activeCategory === 'all'
-    ? articles
-    : articles.filter(article => article.category === activeCategory);
+  const filteredArticles = articles;
 
   return (
     <section className="inspiracje-page">
-      
       {/* Spacer */}
       <div className="inspiracje-spacer"></div>
 
       <div className="inspiracje-container">
-        
         {/* Header */}
         <div className="inspiracje-header">
           <div className="inspiracje-title-wrapper">
-            <SectionLine spacing="sm" /> 
+            <SectionLine spacing="sm" />
             <h1 className="inspiracje-title">Inspiracje</h1>
           </div>
           <p className="inspiracje-subtitle">
             Odkryj inspirujące pomysły na prezenty biznesowe
           </p>
-        </div>
-
-        {/* Category Filters */}
-        <div className="inspiracje-filters">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`inspiracje-filter-btn ${activeCategory === 'all' ? 'active' : ''}`}
-          >
-            Wszystkie
-          </button>
-          {INSPIRATION_CATEGORIES.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`inspiracje-filter-btn ${activeCategory === category ? 'active' : ''}`}
-            >
-              {category}
-            </button>
-          ))}
         </div>
 
         {/* Loading */}
@@ -102,4 +77,3 @@ export default function InspiracjePage() {
     </section>
   );
 }
-
