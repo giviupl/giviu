@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { Rubik } from 'next/font/google';
 
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import ConditionalFooter from '@/components/ConditionalFooter';
 import CookieBanner from '@/components/CookieBanner';
 import ScrollToTop from '@/components/ScrollToTop';
 
@@ -17,7 +17,7 @@ const rubik = Rubik({
 
 const SITE_URL = 'https://giviu.pl';
 const SITE_NAME = 'Giviu';
-const SITE_DESCRIPTION = 'Prezenty firmowe premium od najlepszych marek. Stanley, Moleskine, The North Face — z personalizacją i doradztwem. Dla firm, które chcą więcej niż gadżety.';
+const SITE_DESCRIPTION = 'Prezenty firmowe premium od najlepszych marek. Stanley, Moleskine, Thule — z personalizacją i doradztwem. Zamów bezpłatną wycenę.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -85,7 +85,7 @@ export default function RootLayout({
             </div>
           </Suspense>
         <CookieBanner />
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   );

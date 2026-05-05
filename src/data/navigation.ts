@@ -33,4 +33,5 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Ekologia', href: '/ekologia' },
   { label: 'FAQ', href: '/faq' },
   { label: 'Kontakt', href: '/kontakt' },
+  { href: '/asystent', label: 'Asystent AI' },
 ];
