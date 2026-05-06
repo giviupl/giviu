@@ -495,3 +495,12 @@
   .composerInner { padding: 6px 6px 6px 14px; }
   .avatar { width: 30px; height: 30px; font-size: 15px; }
 }
+
+.turnstileWrapper {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1;
+  }

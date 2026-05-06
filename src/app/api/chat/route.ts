@@ -1,6 +1,8 @@
 // src/app/api/chat/route.ts
 import Anthropic from '@anthropic-ai/sdk';
 import type { MessageParam, Tool, ToolUseBlock } from '@anthropic-ai/sdk/resources/messages';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 import { supabaseServer } from '@/lib/supabase-server';
 
 export const runtime = 'nodejs';
@@ -10,7 +12,80 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-// ---------- Quote item type (zgodny z src/stores/quoteStore.ts) ----------
+// ====================================================================
+// RATE LIMITING (Upstash Redis)
+// ====================================================================
+const redis = Redis.fromEnv();
+
+const ratelimitMinute = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '1 m'),
+  prefix: 'giviu:rl:min',
+  analytics: true,
+});
+
+const ratelimitHour = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(50, '1 h'),
+  prefix: 'giviu:rl:hour',
+  analytics: true,
+});
+
+const ratelimitDay = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(200, '24 h'),
+  prefix: 'giviu:rl:day',
+  analytics: true,
+});
+
+// ====================================================================
+// WALIDACJA LIMITY
+// ====================================================================
+const MAX_MESSAGES_PER_REQUEST = 30;
+const MAX_MESSAGE_CHAR_LENGTH = 2000;
+const MAX_QUOTE_ITEMS = 100;
+const MAX_TOTAL_CONTENT_BYTES = 50_000;
+
+// ====================================================================
+// CLOUDFLARE TURNSTILE
+// ====================================================================
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  // Dev fallback — gdy nie ma secret key, pomijamy weryfikację (lokalnie)
+  if (!process.env.TURNSTILE_SECRET_KEY) return true;
+  if (!token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: ip,
+      }),
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
+// ====================================================================
+// HELPER: JSON error response
+// ====================================================================
+function jsonError(message: string, status: number, headers?: Record<string, string>) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(headers ?? {}),
+    },
+  });
+}
+
+// ====================================================================
+// QUOTE ITEM TYPE (zgodny z src/stores/quoteStore.ts)
+// ====================================================================
 interface QuoteItem {
   id: string;
   name: string;
@@ -24,7 +99,9 @@ interface QuoteItem {
   colorImage?: string;
 }
 
-// ---------- System prompt (bazowy — kategorie doklejone runtime) ----------
+// ====================================================================
+// SYSTEM PROMPT
+// ====================================================================
 const BASE_SYSTEM_PROMPT = `Jesteś doświadczonym doradcą ds. upominków firmowych w Giviu — premium B2B platformie z prezentami dla firm.
 
 TWOJA ROLA:
@@ -77,14 +154,9 @@ W obu trybach: NIGDY nie wymyślaj produktów ani cen — zawsze search_products
 STRATEGIE WYSZUKIWANIA — KLUCZOWE:
 
 1. UŻYWAJ subcategory_slug GDY TYLKO MOŻESZ. To najprecyzyjniejszy filtr. Lista wszystkich dostępnych kategorii i podkategorii z ich slugami jest na końcu tego promptu — używaj tylko slugów z tej listy, nie zgaduj.
-   Przykłady:
-   - "kurtki" → subcategory_slug: "kurtki" (jeśli istnieje na liście)
-   - "polo" → subcategory_slug: "polo"
-   - "powerbanki" → subcategory_slug: "powerbanki"
-   - "kubki termiczne" → subcategory_slug: "kubki-termiczne"
 
-2. Gdy podkategoria nie pasuje 1:1 do zapytania klienta, użyj query z synonimami POLSKI + ANGIELSKI. Nazwy produktów w bazie są często po angielsku (Jacket, Tumbler, Bottle, Backpack, Notebook, Umbrella), opisy po polsku — query trafia w obu polach.
-   Przykłady (zasada uniwersalna, dotyczy WSZYSTKICH produktów):
+2. Gdy podkategoria nie pasuje 1:1, użyj query z synonimami POLSKI + ANGIELSKI. Nazwy w bazie często po angielsku, opisy po polsku.
+   Przykłady (zasada uniwersalna do WSZYSTKICH produktów):
    - "kurtka" → "kurtka jacket"
    - "torba/plecak" → "torba plecak bag backpack"
    - "kubek/butelka" → "kubek butelka tumbler bottle"
@@ -100,26 +172,26 @@ STRATEGIE WYSZUKIWANIA — KLUCZOWE:
    - "kalendarz" → "kalendarz calendar planner"
    - "świeca" → "świeca candle"
    - "kosmetyki" → "kosmetyki cosmetics balsam żel"
-   Stosuj tę samą zasadę (PL + EN) do każdej kategorii produktów, której tu nie wymieniłem.
 
-3. Jeśli pierwsze wyszukiwanie zwraca 0-2 wyniki, NIE tłumacz się — wykonaj drugie wyszukiwanie z szerszymi/innymi słowami albo bez query (z samym filtrem kategorii) zanim odpowiesz klientowi.
+3. Jeśli pierwsze wyszukiwanie zwraca 0-2 wyniki, NIE tłumacz się — wykonaj drugie wyszukiwanie z szerszymi/innymi słowami.
 
-4. Możesz łączyć filtry: np. only_new: true + subcategory_slug: "kurtki" + max_results: 12.
+4. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
 
-GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id. Jeśli klient wskazał konkretny kolor (np. "ten czarny") — przekaż color_index z listy colors danego produktu (0-indexed). Jeśli kolor nieokreślony — pomiń color_index.
-
-GDY KLIENT PYTA "co mam w wycenie", "podsumuj" — używasz get_quote.
+GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor).
+GDY KLIENT PYTA "co mam w wycenie" — używasz get_quote.
 
 CZEGO NIE ROBISZ:
 - Nie podajesz cen z głowy. Tylko te zwrócone przez search_products.
-- Nie pytasz o ilości — to ustala zespół Giviu po wysłaniu wyceny.
+- Nie pytasz o ilości — to ustala zespół Giviu.
 - Nie obiecujesz konkretnych terminów ani gwarancji.
 - Nie polecasz marek spoza listy aktywnych marek Giviu.
-- Nie prowadzisz off-topic — grzecznie wracasz do tematu prezentów.
+- Nie prowadzisz off-topic.
 
-Wiadomość powitalna była już pokazana użytkownikowi — nie powtarzaj jej.`;
+Wiadomość powitalna była już pokazana — nie powtarzaj jej.`;
 
-// ---------- Categories cache (do wstrzykiwania do prompta) ----------
+// ====================================================================
+// CATEGORIES CACHE (do wstrzykiwania do system prompt)
+// ====================================================================
 let categoriesCache: { text: string; loadedAt: number } | null = null;
 const CATEGORIES_TTL_MS = 5 * 60 * 1000;
 
@@ -133,14 +205,9 @@ async function loadCategoriesText(): Promise<string> {
     .select('category, category_slug, subcategory, subcategory_slug')
     .eq('active', true);
 
-  if (error || !data) {
-    return '';
-  }
+  if (error || !data) return '';
 
-  const map = new Map<
-    string,
-    { name: string; subs: Map<string, string> }
-  >();
+  const map = new Map<string, { name: string; subs: Map<string, string> }>();
 
   for (const row of data) {
     if (!row.category_slug) continue;
@@ -175,44 +242,43 @@ async function loadCategoriesText(): Promise<string> {
   return text;
 }
 
-// ---------- Tool definitions ----------
+// ====================================================================
+// TOOL DEFINITIONS
+// ====================================================================
 const TOOLS: Tool[] = [
   {
     name: 'search_products',
     description:
-      'Wyszukuje produkty w bazie Giviu. Używaj zawsze gdy chcesz pokazać konkretne propozycje — nigdy nie wymyślaj produktów. Zwraca maks. 12 produktów. W wyniku dla każdego: id, name, brand_name, price, moq, marking, emoji, opis, lista colors (z nazwami w kolejności 0-indexed do referencji w add_to_quote).',
+      'Wyszukuje produkty w bazie Giviu. Używaj zawsze gdy chcesz pokazać konkretne propozycje. Zwraca maks. 12 produktów.',
     input_schema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
           description:
-            'Słowa kluczowe w nazwie i opisie. Stosuj synonimy polski+angielski (np. "kurtka jacket", "torba plecak bag backpack"). Może być puste jeśli filtrujesz tylko po marce/kategorii/podkategorii lub po only_new.',
+            'Słowa kluczowe w nazwie i opisie. Stosuj synonimy polski+angielski. Może być puste jeśli filtrujesz tylko po marce/kategorii/podkategorii lub only_new.',
         },
         category_slug: {
           type: 'string',
-          description:
-            'Slug głównej kategorii — używaj TYLKO slugów z listy w system prompt. Opcjonalny.',
+          description: 'Slug głównej kategorii — TYLKO z listy w system prompt.',
         },
         subcategory_slug: {
           type: 'string',
           description:
-            'Slug podkategorii (najprecyzyjniejszy filtr) — używaj TYLKO slugów z listy w system prompt. Opcjonalny. Jeśli klient pyta o konkretny typ produktu (kurtki, polo, powerbanki, notesy), zacznij od subcategory_slug.',
+            'Slug podkategorii (najprecyzyjniejszy filtr) — TYLKO z listy w system prompt. Gdy klient pyta o konkretny typ produktu, zacznij od subcategory_slug.',
         },
         brand_slug: {
           type: 'string',
           description:
-            'Slug marki — opcjonalny filtr. Małe litery, np. "stanley", "moleskine", "parker", "thule", "rituals", "cutterandbuck", "harvestfrost", "jamesharvest".',
+            'Slug marki — np. "stanley", "moleskine", "parker", "thule", "rituals", "cutterandbuck", "harvestfrost", "jamesharvest".',
         },
         only_new: {
           type: 'boolean',
-          description:
-            'Filtruj tylko produkty oznaczone jako nowości (is_new = true). Używaj gdy klient pyta o "nowości", "nowe produkty", "co nowego".',
+          description: 'Filtruj tylko nowości (is_new = true).',
         },
         max_results: {
           type: 'number',
-          description:
-            'Maks. liczba wyników (1-12). Domyślnie 6. Dla zapytań eksploracyjnych ("co nowego", "co masz w X") używaj 12.',
+          description: 'Maks. liczba wyników (1-12). Domyślnie 6, dla "co nowego" używaj 12.',
         },
       },
       required: ['query'],
@@ -221,18 +287,17 @@ const TOOLS: Tool[] = [
   {
     name: 'add_to_quote',
     description:
-      'Dodaje produkt do wyceny (wishlist) klienta. Używaj gdy klient wyraźnie chce dodać produkt ("dodaj to", "weź ten", "zapisz na wycenę"). Wymaga product_id z wyników search_products. Jeśli klient wskazał konkretny kolor, przekaż color_index (0-indexed wg listy colors w wynikach search_products).',
+      'Dodaje produkt do wyceny (wishlist). Wymaga product_id z search_products. color_index opcjonalny.',
     input_schema: {
       type: 'object',
       properties: {
         product_id: {
           type: 'string',
-          description: 'UUID produktu z pola "id" w wynikach search_products.',
+          description: 'UUID produktu z pola "id" w search_products.',
         },
         color_index: {
           type: 'number',
-          description:
-            'Opcjonalny index koloru z listy "colors" produktu (0 = pierwszy kolor). Pomiń jeśli klient nie wskazał koloru.',
+          description: 'Opcjonalny index koloru z listy "colors" produktu (0-indexed).',
         },
       },
       required: ['product_id'],
@@ -240,13 +305,14 @@ const TOOLS: Tool[] = [
   },
   {
     name: 'get_quote',
-    description:
-      'Pobiera aktualną zawartość wyceny klienta. Używaj gdy klient pyta co ma w wycenie, prosi o podsumowanie, lub chce sprawdzić stan koszyka.',
+    description: 'Pobiera aktualną zawartość wyceny klienta.',
     input_schema: { type: 'object', properties: {} },
   },
 ];
 
-// ---------- Tool executors ----------
+// ====================================================================
+// TOOL EXECUTORS
+// ====================================================================
 interface RawColor {
   name?: string;
   hex?: string;
@@ -296,9 +362,7 @@ async function executeSearchProducts(input: {
     if (brand?.id) q = q.eq('brand_id', brand.id);
   }
 
-  if (input.only_new) {
-    q = q.eq('is_new', true);
-  }
+  if (input.only_new) q = q.eq('is_new', true);
 
   if (input.subcategory_slug) {
     q = q.eq('subcategory_slug', input.subcategory_slug);
@@ -313,9 +377,7 @@ async function executeSearchProducts(input: {
 
   const { data, error } = await q;
 
-  if (error) {
-    return { error: error.message, products: [], count: 0 };
-  }
+  if (error) return { error: error.message, products: [], count: 0 };
 
   const products: FullProduct[] = (data ?? []).map((p) => {
     const rawColors = Array.isArray(p.colors) ? (p.colors as RawColor[]) : [];
@@ -355,7 +417,7 @@ async function executeAddToQuote(input: { product_id: string; color_index?: numb
     .maybeSingle();
 
   if (error || !data) {
-    return { success: false as const, error: 'Produkt nie został znaleziony w bazie.' };
+    return { success: false as const, error: 'Produkt nie został znaleziony.' };
   }
 
   let colorVariant: {
@@ -410,30 +472,94 @@ function executeGetQuote(currentQuote: QuoteItem[]) {
   };
 }
 
-// ---------- POST handler ----------
+// ====================================================================
+// POST HANDLER
+// ====================================================================
 export async function POST(req: Request) {
+  // ----- 1. IP detection -----
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'anonymous';
+
+  // ----- 2. Rate limiting (3 poziomy) -----
+  try {
+    const [m, h, d] = await Promise.all([
+      ratelimitMinute.limit(ip),
+      ratelimitHour.limit(ip),
+      ratelimitDay.limit(ip),
+    ]);
+
+    if (!m.success) {
+      return jsonError('Za szybko. Poczekaj chwilę i spróbuj ponownie.', 429, {
+        'Retry-After': '60',
+      });
+    }
+    if (!h.success || !d.success) {
+      return jsonError(
+        'Przekroczono dzienny limit zapytań. Wróć jutro lub skontaktuj się z naszym zespołem bezpośrednio.',
+        429
+      );
+    }
+  } catch (e) {
+    // Redis padł — fail open (logujemy, ale przepuszczamy ruch). 
+    // Anthropic spend cap zapewnia ostateczny limit.
+    console.error('[ratelimit] Redis error:', e);
+  }
+
+  // ----- 3. Turnstile verification -----
+  const turnstileToken = req.headers.get('x-turnstile-token') ?? '';
+  const captchaOk = await verifyTurnstile(turnstileToken, ip);
+  if (!captchaOk) {
+    return jsonError(
+      'Weryfikacja nieudana. Odśwież stronę i spróbuj ponownie.',
+      401
+    );
+  }
+
+  // ----- 4. Body parsing -----
   let body: { messages?: MessageParam[]; currentQuote?: QuoteItem[] };
   try {
     body = await req.json();
   } catch {
-    return new Response('Invalid JSON', { status: 400 });
+    return jsonError('Invalid JSON', 400);
   }
 
   const messages = body.messages;
   const currentQuote = body.currentQuote ?? [];
 
+  // ----- 5. Walidacja -----
   if (!Array.isArray(messages) || messages.length === 0) {
-    return new Response('Missing messages', { status: 400 });
+    return jsonError('Missing messages', 400);
+  }
+  if (messages.length > MAX_MESSAGES_PER_REQUEST) {
+    return jsonError('Rozmowa zbyt długa. Zacznij nową.', 400);
+  }
+  for (const m of messages) {
+    if (typeof m.content === 'string') {
+      if (m.content.length > MAX_MESSAGE_CHAR_LENGTH) {
+        return jsonError('Wiadomość za długa (max 2000 znaków).', 400);
+      }
+    } else if (Array.isArray(m.content)) {
+      const totalLen = JSON.stringify(m.content).length;
+      if (totalLen > MAX_TOTAL_CONTENT_BYTES) {
+        return jsonError('Treść wiadomości zbyt duża.', 400);
+      }
+    }
+  }
+  if (Array.isArray(currentQuote) && currentQuote.length > MAX_QUOTE_ITEMS) {
+    return jsonError('Wycena zbyt duża.', 400);
   }
 
-  // Załaduj listę kategorii (z cache) i dorzuć do system prompta
+  // ----- 6. System prompt z dynamicznymi kategoriami -----
   const categoriesText = await loadCategoriesText();
   const systemPrompt =
     BASE_SYSTEM_PROMPT +
     (categoriesText
-      ? `\n\nDOSTĘPNE KATEGORIE I PODKATEGORIE (używaj WYŁĄCZNIE tych slugów, nigdy nie zgaduj):\n\n${categoriesText}`
+      ? `\n\nDOSTĘPNE KATEGORIE I PODKATEGORIE (używaj WYŁĄCZNIE tych slugów):\n\n${categoriesText}`
       : '');
 
+  // ----- 7. Stream response -----
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
