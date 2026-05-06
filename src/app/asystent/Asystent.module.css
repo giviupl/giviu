@@ -375,26 +375,28 @@
 /* ====================== Composer ====================== */
 .composer {
     flex-shrink: 0;
-    padding: 12px 16px 16px;
+    padding: 8px 16px 12px;
     background: linear-gradient(180deg, transparent 0%, var(--color-background, #f5f3ee) 30%);
   }
-
-.composerInner {
+  
+  .composerInner {
     max-width: 860px;
     margin: 0 auto;
     display: flex;
-    align-items: flex-end;
-    gap: 8px;
+    align-items: center;
+    gap: 6px;
     background: #fff;
-    border-radius: 16px;
-    padding: 8px 8px 8px 16px;
+    border-radius: 14px;
+    padding: 4px 12px 4px 18px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     border: 1px solid #ece9e1;
     transition: border-color 0.15s ease;
   }
+  
   .composerInner:focus-within {
     border-color: var(--color-primary, #4f67b1);
   }
+  
   .composerInput {
     flex: 1;
     border: none;
@@ -402,19 +404,66 @@
     resize: none;
     font-family: inherit;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 24px;
     background: transparent;
     color: var(--color-text, #2c2c2c);
-    padding: 8px 0;
+    padding: 0;
+    margin: 0;
+    height: 24px;
     min-height: 24px;
     max-height: 160px;
+    display: block;
   }
+  
   .composerInput:focus,
   .composerInput:focus-visible {
     outline: none !important;
     box-shadow: none !important;
   }
-  .composerInput:disabled { opacity: 0.6; }
+  
+  .composerInput:disabled {
+    opacity: 0.6;
+  }
+  
+  .composerSend {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-primary, #4f67b1);
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  
+  .composerSend:hover:not(:disabled) {
+    border-color: var(--color-primary, #4f67b1);
+  }
+  
+  .composerSend:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  
+  .disclaimer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--color-gray, #595d66);
+    padding: 8px 16px 0;
+    margin: 0 auto;
+    max-width: 860px;
+    opacity: 0.65;
+    line-height: 1.4;
+  }
+  
+  @media (max-width: 768px) {
+    .disclaimer { font-size: 11px; padding-top: 6px; }
+  }
 
 
 /* ====================== Disclaimer ====================== */

@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useQuoteStore } from '@/stores/quoteStore';
-import ChatMessage, { ChatMessageData, ChatBlock } from '@/components/asystent/ChatMessage';
-import { Product } from '@/components/ProductCard';
-import styles from './Asystent.module.css';
-
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useQuoteStore } from "@/stores/quoteStore";
+import ChatMessage, {
+  ChatMessageData,
+  ChatBlock,
+} from "@/components/asystent/ChatMessage";
+import { Product } from "@/components/ProductCard";
+import styles from "./Asystent.module.css";
 
 const WELCOME =
-  'Cześć! Jestem asystentem Giviu. Pomogę Ci dobrać idealne upominki firmowe. Powiedz mi, na jaką okazję szukasz, jaki masz budżet i ile osób chcesz obdarować, a zaproponuję najlepsze rozwiązanie.';
+  "Cześć! Jestem asystentem Giviu. Pomogę Ci dobrać idealne upominki firmowe. Powiedz mi, na jaką okazję szukasz, jaki masz budżet i ile osób chcesz obdarować, a zaproponuję najlepsze rozwiązanie.";
 
-const STORAGE_KEY = 'giviu-chat-history';
+const STORAGE_KEY = "giviu-chat-history";
 const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 dni
-
 
 function uid() {
   return `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -21,8 +22,8 @@ function uid() {
 function makeWelcomeMessage(): ChatMessageData {
   return {
     id: uid(),
-    role: 'assistant',
-    blocks: [{ kind: 'text', text: WELCOME }],
+    role: "assistant",
+    blocks: [{ kind: "text", text: WELCOME }],
   };
 }
 
@@ -30,7 +31,7 @@ export default function AsystentClient() {
   const [messages, setMessages] = useState<ChatMessageData[]>([
     makeWelcomeMessage(),
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -44,7 +45,7 @@ export default function AsystentClient() {
   const asystentRef = useRef<HTMLDivElement>(null);
 
   // Czy klient wysłał już jakąś wiadomość (do logiki placeholdera)
-  const hasUserSent = messages.some((m) => m.role === 'user');
+  const hasUserSent = messages.some((m) => m.role === "user");
 
   // ---------- Dynamiczny pomiar headera ----------
   useLayoutEffect(() => {
@@ -52,17 +53,20 @@ export default function AsystentClient() {
       const el = asystentRef.current;
       if (el) {
         const top = el.getBoundingClientRect().top;
-        document.documentElement.style.setProperty('--header-height', `${top}px`);
+        document.documentElement.style.setProperty(
+          "--header-height",
+          `${top}px`,
+        );
       }
     };
     updateOffset();
-    window.addEventListener('resize', updateOffset);
-    return () => window.removeEventListener('resize', updateOffset);
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
   }, []);
-  
+
   useEffect(() => {
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
@@ -97,12 +101,12 @@ export default function AsystentClient() {
   // ---------- Save history (gdy są wiadomości user, ładnie po hydration) ----------
   useEffect(() => {
     if (!historyLoaded) return;
-    if (!messages.some((m) => m.role === 'user')) return; // tylko welcome — nie zapisuj
+    if (!messages.some((m) => m.role === "user")) return; // tylko welcome — nie zapisuj
     try {
       const cleaned = messages.map((m) => ({ ...m, isStreaming: false }));
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ messages: cleaned, savedAt: Date.now() })
+        JSON.stringify({ messages: cleaned, savedAt: Date.now() }),
       );
     } catch {
       // localStorage może być pełny / wyłączony
@@ -120,18 +124,16 @@ export default function AsystentClient() {
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
-    el.style.height = 'auto';
+    el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [input]);
 
   // ---------- Helpers ----------
-  const updateLastAssistant = (
-    fn: (blocks: ChatBlock[]) => ChatBlock[]
-  ) => {
+  const updateLastAssistant = (fn: (blocks: ChatBlock[]) => ChatBlock[]) => {
     setMessages((prev) => {
       const next = [...prev];
       const last = next[next.length - 1];
-      if (!last || last.role !== 'assistant') return prev;
+      if (!last || last.role !== "assistant") return prev;
       const nextBlocks = fn(last.blocks ?? []);
       next[next.length - 1] = { ...last, blocks: nextBlocks };
       return next;
@@ -142,10 +144,10 @@ export default function AsystentClient() {
     updateLastAssistant((blocks) => {
       const out = [...blocks];
       const lastBlock = out[out.length - 1];
-      if (lastBlock && lastBlock.kind === 'text') {
-        out[out.length - 1] = { kind: 'text', text: lastBlock.text + text };
+      if (lastBlock && lastBlock.kind === "text") {
+        out[out.length - 1] = { kind: "text", text: lastBlock.text + text };
       } else {
-        out.push({ kind: 'text', text });
+        out.push({ kind: "text", text });
       }
       return out;
     });
@@ -158,8 +160,8 @@ export default function AsystentClient() {
   const turnSeparator = () => {
     updateLastAssistant((blocks) => {
       const last = blocks[blocks.length - 1];
-      if (last && last.kind === 'text' && last.text.length > 0) {
-        return [...blocks, { kind: 'text', text: '' }];
+      if (last && last.kind === "text" && last.text.length > 0) {
+        return [...blocks, { kind: "text", text: "" }];
       }
       return blocks;
     });
@@ -169,18 +171,18 @@ export default function AsystentClient() {
     return msgs
       .filter((m, idx) => {
         // pomijamy welcome (pierwsza assistant przed jakąkolwiek user)
-        if (idx === 0 && m.role === 'assistant') return false;
+        if (idx === 0 && m.role === "assistant") return false;
         return true;
       })
       .map((m) => {
-        if (m.role === 'user') {
-          return { role: 'user' as const, content: m.text ?? '' };
+        if (m.role === "user") {
+          return { role: "user" as const, content: m.text ?? "" };
         }
         const text = (m.blocks ?? [])
-          .filter((b): b is { kind: 'text'; text: string } => b.kind === 'text')
+          .filter((b): b is { kind: "text"; text: string } => b.kind === "text")
           .map((b) => b.text)
-          .join('');
-        return { role: 'assistant' as const, content: text };
+          .join("");
+        return { role: "assistant" as const, content: text };
       })
       .filter((m) => m.content.trim().length > 0);
   };
@@ -188,7 +190,10 @@ export default function AsystentClient() {
   // ---------- Reset ----------
   const handleReset = () => {
     if (isStreaming) return;
-    if (!confirm('Rozpocząć nową rozmowę? Aktualna historia zostanie usunięta.')) return;
+    if (
+      !confirm("Rozpocząć nową rozmowę? Aktualna historia zostanie usunięta.")
+    )
+      return;
     if (abortRef.current) {
       abortRef.current.abort();
       abortRef.current = null;
@@ -200,7 +205,7 @@ export default function AsystentClient() {
     }
     setMessages([makeWelcomeMessage()]);
     setError(null);
-    setInput('');
+    setInput("");
   };
 
   // ---------- Send ----------
@@ -212,19 +217,19 @@ export default function AsystentClient() {
 
     const userMsg: ChatMessageData = {
       id: uid(),
-      role: 'user',
+      role: "user",
       text: trimmed,
     };
     const assistantMsg: ChatMessageData = {
       id: uid(),
-      role: 'assistant',
+      role: "assistant",
       blocks: [],
       isStreaming: true,
     };
 
     const nextMessages = [...messages, userMsg, assistantMsg];
     setMessages(nextMessages);
-    setInput('');
+    setInput("");
     setIsStreaming(true);
 
     const apiMessages = toApiMessages([...messages, userMsg]);
@@ -233,9 +238,9 @@ export default function AsystentClient() {
     abortRef.current = ac;
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: apiMessages,
           currentQuote: items,
@@ -249,19 +254,19 @@ export default function AsystentClient() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
 
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop() ?? '';
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
 
         for (const part of parts) {
           const line = part.trim();
-          if (!line.startsWith('data:')) continue;
+          if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
 
@@ -272,14 +277,14 @@ export default function AsystentClient() {
             continue;
           }
 
-          if (event.type === 'text_delta') {
+          if (event.type === "text_delta") {
             appendTextDelta(event.text as string);
-          } else if (event.type === 'products') {
+          } else if (event.type === "products") {
             appendBlock({
-              kind: 'products',
+              kind: "products",
               products: (event.products as Product[]) ?? [],
             });
-          } else if (event.type === 'add_to_quote') {
+          } else if (event.type === "add_to_quote") {
             const product = event.product as {
               id: string;
               slug: string;
@@ -307,12 +312,12 @@ export default function AsystentClient() {
               colorHex: color?.hex,
               colorImage: color?.image ?? undefined,
             });
-            const colorTxt = color ? ` (${color.name})` : '';
+            const colorTxt = color ? ` (${color.name})` : "";
             appendBlock({
-              kind: 'notice',
+              kind: "notice",
               text: `Dodano do wyceny: ${product.name}${colorTxt}`,
             });
-          } else if (event.type === 'quote_summary') {
+          } else if (event.type === "quote_summary") {
             const q = event.quote as {
               items: Array<{
                 product_id: string;
@@ -324,28 +329,28 @@ export default function AsystentClient() {
               empty: boolean;
             };
             appendBlock({
-              kind: 'quote',
+              kind: "quote",
               items: q.items,
               empty: q.empty,
             });
-          } else if (event.type === 'turn_separator') {
+          } else if (event.type === "turn_separator") {
             turnSeparator();
-          } else if (event.type === 'error') {
-            setError((event.message as string) ?? 'Błąd');
-          } else if (event.type === 'done') {
+          } else if (event.type === "error") {
+            setError((event.message as string) ?? "Błąd");
+          } else if (event.type === "done") {
             // finish
           }
         }
       }
     } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
-      setError((e as Error).message ?? 'Błąd połączenia');
+      if ((e as Error).name === "AbortError") return;
+      setError((e as Error).message ?? "Błąd połączenia");
     } finally {
       setIsStreaming(false);
       setMessages((prev) => {
         const next = [...prev];
         const last = next[next.length - 1];
-        if (last && last.role === 'assistant') {
+        if (last && last.role === "assistant") {
           next[next.length - 1] = { ...last, isStreaming: false };
         }
         return next;
@@ -355,7 +360,7 @@ export default function AsystentClient() {
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
     }
@@ -372,7 +377,16 @@ export default function AsystentClient() {
           title="Nowa rozmowa"
           disabled={isStreaming}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
             <path d="M21 3v5h-5" />
             <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
@@ -380,20 +394,16 @@ export default function AsystentClient() {
           </svg>
         </button>
       ) : null}
-  
+
       <div ref={scrollRef} className={styles.messagesScroll}>
         <div className={styles.messagesContainer}>
           {messages.map((m) => (
             <ChatMessage key={m.id} message={m} />
           ))}
-          {error ? (
-            <div className={styles.errorBanner}>
-              {error}
-            </div>
-          ) : null}
+          {error ? <div className={styles.errorBanner}>{error}</div> : null}
         </div>
       </div>
-  
+
       <div className={styles.composer}>
         <div className={styles.composerInner}>
           <textarea
@@ -401,7 +411,7 @@ export default function AsystentClient() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder={hasUserSent ? '' : 'Napisz wiadomość...'}
+            placeholder={hasUserSent ? "" : "Napisz wiadomość..."}
             rows={1}
             disabled={isStreaming}
             className={styles.composerInput}
@@ -413,13 +423,24 @@ export default function AsystentClient() {
             className={styles.composerSend}
             aria-label="Wyślij"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2L11 13" />
+              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </button>
         </div>
         <p className={styles.disclaimer}>
-          Asystent AI może popełniać błędy. Ostateczne warunki ustala zespół Giviu.
+          Asystent AI może popełniać błędy. Ostateczne warunki ustala zespół
+          Giviu.
         </p>
       </div>
     </div>
