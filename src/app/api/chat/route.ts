@@ -8,8 +8,11 @@ import { supabaseServer } from '@/lib/supabase-server';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// SDK Anthropic ma wbudowany retry dla overloaded_error / 529 / connection_error.
+// Domyślnie 2 próby, zwiększamy do 4 (1s -> 2s -> 4s -> 8s exponential backoff).
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
+  maxRetries: 4,
 });
 
 // ====================================================================
@@ -81,6 +84,18 @@ function jsonError(message: string, status: number, headers?: Record<string, str
       ...(headers ?? {}),
     },
   });
+}
+
+// ====================================================================
+// HELPER: rozpoznawanie overloaded error
+// ====================================================================
+function isOverloadedError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const e = err as { status?: number; message?: string; error?: { error?: { type?: string } } };
+  if (e.status === 529) return true;
+  if (e.error?.error?.type === 'overloaded_error') return true;
+  if (typeof e.message === 'string' && /overload/i.test(e.message)) return true;
+  return false;
 }
 
 // ====================================================================
@@ -179,6 +194,43 @@ STRATEGIE WYSZUKIWANIA — KLUCZOWE:
 
 GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor).
 GDY KLIENT PYTA "co mam w wycenie" — używasz get_quote.
+GDY KLIENT PYTA O KONKRETNĄ MARKĘ ("opowiedz mi o Stanleyu", "co wyróżnia Moleskine?", "dlaczego Thule?", "więcej o Rituals") — używasz get_brand_info z brand_slug. Po otrzymaniu danych odpowiedz własnymi słowami w 3-5 zdaniach, nie kopiuj treści 1:1.
+
+PROACTIVE SELLING — DELIKATNIE, NIE NACHALNIE:
+
+Cienka linia: jesteś konsultantem który sygnalizuje sensowny następny krok, ale nie pcha. Reguły:
+
+- NIGDY nie zaczynaj odpowiedzi od "Może dodam X do wyceny?" ani od "A może też weźmiesz Y?". To brzmi jak akwizytor.
+- Po pokazaniu produktów (search_products) — zakończ wiadomość krótkim, otwartym pytaniem typu "Który Cię interesuje?" albo "Coś z tych pasuje do okazji?". JEDNO zdanie, bez nacisku, bez "świetnie się sprawdzi".
+- Po dodaniu 2-3 produktów do wyceny w jednej rozmowie — przy najbliższej naturalnej okazji wspomnij sygnał: "Masz już [N] propozycji w wycenie — chcesz żebym podsumował i przekazał zespołowi do wyceny, czy szukamy więcej?". JEDEN raz, nie powtarzaj co wiadomość.
+- Nie naciskaj na klienta który właśnie powiedział "muszę się zastanowić", "porozmawiam z zespołem", "zobaczę". Zostaw mu spokój.
+
+SYGNAŁY KOŃCZĄCE ROZMOWĘ:
+
+Gdy klient wyraźnie sygnalizuje koniec — wywołaj narzędzie prompt_go_to_quote (frontend pokaże mu wtedy kartę z przyciskiem "Przejdź do wyceny"). Sygnały kończące to m.in.:
+- "to wystarczy", "chyba mam wszystko", "wystarczy", "dziękuję, to mi wystarczy"
+- "wysyłam wycenę", "przejdę do wyceny", "podsumuj i wyślę"
+- "dziękuję za pomoc" (gdy w wycenie jest co najmniej 1 produkt)
+- bezpośrednia prośba o przejście dalej / wysłanie zapytania
+
+Wywołuj prompt_go_to_quote TYLKO gdy klient ma co najmniej 1 produkt w wycenie. Jeśli wycena jest pusta a klient kończy — zaproponuj normalnie tekstem dalsze możliwości, nie wywołuj narzędzia.
+
+Po wywołaniu prompt_go_to_quote nie pisz długiej odpowiedzi tekstowej — wystarczy 1-2 zdania potwierdzające ("Świetnie. W każdej chwili możesz przejść do wyceny." — ale BEZ "świetnie" 😉, więc np. "Dobrze. Karta z linkiem do wyceny pojawi się poniżej.").
+
+WIEDZA O GIVIU JAKO FIRMIE:
+
+Giviu to polska platforma B2B z premium upominkami firmowymi. Wyróżniki:
+- Kuratorowany dobór 20 globalnych marek premium (Stanley, Moleskine, Parker, Thule, Rituals, Herschel itd.) — koniec z generycznymi gadżetami z chińskich katalogów.
+- Pełna obsługa: doradztwo, personalizacja (grawer/haft/druk), logistyka, wysyłka. Klient nie szuka, my dobieramy i realizujemy.
+- Proces 4 kroków: (1) klient kompletuje wycenę / pisze do nas, (2) zespół przygotowuje ofertę z pełnymi cenami i wizualizacjami personalizacji, (3) zatwierdzenie + produkcja (2-4 tygodnie z brandingiem), (4) dostawa.
+- Realizujemy projekty od ~50 szt. (niektóre marki od 24).
+
+Filozofia ekologiczna Giviu (na podstawie strony /ekologia):
+- Wybieramy marki z certyfikatami: B Corp (Patagonia, Stanley), FSC (drewno z odpowiedzialnych źródeł), OEKO-TEX (tekstylia bez szkodliwych substancji), GOTS (organiczna bawełna), bluesign (zrównoważona produkcja tekstyliów).
+- Stawiamy na produkty trwałe które mają służyć latami, nie jednorazowe gadżety.
+- Rekomendujemy personalizacje subtelne (grawer, debossing) zamiast krzykliwych nadruków — produkt zostaje z odbiorcą dłużej.
+
+Te informacje używaj swobodnie gdy klient pyta o firmę, proces, podejście, ekologię. Nie kopiuj 1:1 — tłumacz własnymi słowami, krótko.
 
 CZEGO NIE ROBISZ:
 - Nie podajesz cen z głowy. Tylko te zwrócone przez search_products.
@@ -307,6 +359,31 @@ const TOOLS: Tool[] = [
     name: 'get_quote',
     description: 'Pobiera aktualną zawartość wyceny klienta.',
     input_schema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'get_brand_info',
+    description:
+      'Pobiera szczegółowe informacje o marce z bazy Giviu (opis "dlaczego ta marka jako prezent firmowy"). Używaj gdy klient pyta o konkretną markę albo prosi o porównanie marek.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        brand_slug: {
+          type: 'string',
+          description:
+            'Slug marki — np. "stanley", "moleskine", "thule", "rituals". Używaj tylko slugów z listy aktywnych marek.',
+        },
+      },
+      required: ['brand_slug'],
+    },
+  },
+  {
+    name: 'prompt_go_to_quote',
+    description:
+      'Wyświetla klientowi kartę z przyciskiem "Przejdź do wyceny" w czacie. Wywołuj TYLKO gdy klient sygnalizuje koniec rozmowy ("to wystarczy", "wysyłam wycenę", "dziękuję") I MA co najmniej 1 produkt w wycenie. Nigdy nie wywołuj proaktywnie ani gdy wycena jest pusta.',
+    input_schema: {
+      type: 'object',
+      properties: {},
+    },
   },
 ];
 
@@ -472,6 +549,30 @@ function executeGetQuote(currentQuote: QuoteItem[]) {
   };
 }
 
+async function executeGetBrandInfo(input: { brand_slug: string }) {
+  const slug = (input.brand_slug ?? '').trim().toLowerCase();
+  if (!slug) return { success: false as const, error: 'Brak brand_slug.' };
+
+  const { data, error } = await supabaseServer
+    .from('brands')
+    .select('slug, name, gift_description')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { success: false as const, error: `Marka "${slug}" nie znaleziona.` };
+  }
+
+  return {
+    success: true as const,
+    brand: {
+      slug: data.slug,
+      name: data.name,
+      gift_description: data.gift_description ?? null,
+    },
+  };
+}
+
 // ====================================================================
 // POST HANDLER
 // ====================================================================
@@ -575,6 +676,8 @@ export async function POST(req: Request) {
         while (safety < 6) {
           safety++;
 
+          // anthropic SDK z maxRetries: 4 obsłuży automatycznie 529/overloaded_error
+          // z exponential backoff (1s -> 2s -> 4s -> 8s).
           const llmStream = anthropic.messages.stream({
             model: 'claude-sonnet-4-6',
             max_tokens: 1500,
@@ -661,6 +764,28 @@ export async function POST(req: Request) {
                   tool_use_id: block.id,
                   content: JSON.stringify(result),
                 });
+              } else if (block.name === 'get_brand_info') {
+                const result = await executeGetBrandInfo(
+                  block.input as Parameters<typeof executeGetBrandInfo>[0]
+                );
+
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id,
+                  content: JSON.stringify(result),
+                });
+              } else if (block.name === 'prompt_go_to_quote') {
+                // Sygnał dla frontu — pokaż klientowi kartę z linkiem do wyceny
+                send({ type: 'go_to_quote_prompt' });
+
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id,
+                  content: JSON.stringify({
+                    success: true,
+                    message: 'Karta z linkiem do wyceny została pokazana klientowi.',
+                  }),
+                });
               } else {
                 toolResults.push({
                   type: 'tool_result',
@@ -681,9 +806,15 @@ export async function POST(req: Request) {
 
         send({ type: 'done' });
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
         console.error('[/api/chat] error:', err);
-        send({ type: 'error', message });
+
+        const friendly = isOverloadedError(err)
+          ? 'Asystent jest chwilowo przeciążony. Spróbuj ponownie za chwilę.'
+          : err instanceof Error && err.message
+          ? `Wystąpił błąd: ${err.message}`
+          : 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
+
+        send({ type: 'error', message: friendly });
       } finally {
         controller.close();
       }

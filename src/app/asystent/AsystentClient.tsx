@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useQuoteStore } from '@/stores/quoteStore';
 import ChatMessage, { ChatMessageData, ChatBlock } from '@/components/asystent/ChatMessage';
@@ -16,6 +16,9 @@ const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 dni
 // Frontendowe limity (mirror backendu — UX hint, nie zabezpieczenie)
 const FRONTEND_MAX_MESSAGE_LENGTH = 2000;
 const FRONTEND_MAX_MESSAGES = 60; // 60 widocznych wiadomości = ~30 rund
+
+// Threshold dla auto-scroll: jeśli klient jest <100px od dołu, scrollujemy automatycznie
+const SCROLL_THRESHOLD_PX = 100;
 
 function uid() {
   return `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -38,6 +41,7 @@ export default function AsystentClient() {
   const [error, setError] = useState<string | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [autoScroll, setAutoScroll] = useState(true);
 
   const items = useQuoteStore((s) => s.items);
   const addItem = useQuoteStore((s) => s.addItem);
@@ -116,12 +120,40 @@ export default function AsystentClient() {
     }
   }, [messages, historyLoaded]);
 
-  // ---------- Auto-scroll ----------
+  // ---------- Smart auto-scroll ----------
+  // Auto-scroll TYLKO gdy klient jest blisko dołu (<100px). 
+  // Jeśli sam scrollował w górę — nie wymuszamy zjazdu na dół.
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const nearBottom = distanceFromBottom < SCROLL_THRESHOLD_PX;
+    // Tylko jeśli stan się zmienia, żeby nie spamować re-renderami
+    setAutoScroll((prev) => (prev !== nearBottom ? nearBottom : prev));
+  }, []);
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (!autoScroll) return;
+    const el = scrollRef.current;
+    if (el) {
+      // requestAnimationFrame zapewnia że scrollujemy po faktycznym renderze
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight;
+      });
     }
-  }, [messages]);
+  }, [messages, autoScroll]);
+
+  // Po wysłaniu nowej wiadomości użytkownika — wymuszamy auto-scroll na ON
+  // (resetuje sytuację gdy klient sam scrollował, a teraz znów chce być u dołu)
+  const enableAutoScroll = useCallback(() => {
+    setAutoScroll(true);
+    const el = scrollRef.current;
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  }, []);
 
   // ---------- Auto-resize textarea ----------
   useEffect(() => {
@@ -207,6 +239,7 @@ export default function AsystentClient() {
     setMessages([makeWelcomeMessage()]);
     setError(null);
     setInput('');
+    setAutoScroll(true);
   };
 
   // ---------- Send message ----------
@@ -248,6 +281,8 @@ export default function AsystentClient() {
     setMessages(nextMessages);
     setInput('');
     setIsStreaming(true);
+    // Klient właśnie wysłał wiadomość — chce widzieć odpowiedź na dole
+    setAutoScroll(true);
 
     const apiMessages = toApiMessages([...messages, userMsg]);
 
@@ -369,6 +404,8 @@ export default function AsystentClient() {
               items: q.items,
               empty: q.empty,
             });
+          } else if (event.type === 'go_to_quote_prompt') {
+            appendBlock({ kind: 'go_to_quote_prompt' });
           } else if (event.type === 'turn_separator') {
             turnSeparator();
           } else if (event.type === 'error') {
@@ -407,6 +444,9 @@ export default function AsystentClient() {
       send();
     }
   };
+
+  // Floating "↓ Najnowsze" button — widoczny tylko gdy klient jest w górze a coś nowego się dzieje
+  const showScrollToBottomButton = !autoScroll && (isStreaming || messages.length > 1);
 
   return (
     <div ref={asystentRef} className={styles.asystent}>
@@ -455,7 +495,11 @@ export default function AsystentClient() {
         </button>
       ) : null}
 
-      <div ref={scrollRef} className={styles.messagesScroll}>
+      <div
+        ref={scrollRef}
+        className={styles.messagesScroll}
+        onScroll={handleScroll}
+      >
         <div className={styles.messagesContainer}>
           {messages.map((m) => (
             <ChatMessage key={m.id} message={m} />
@@ -463,6 +507,30 @@ export default function AsystentClient() {
           {error ? <div className={styles.errorBanner}>{error}</div> : null}
         </div>
       </div>
+
+      {showScrollToBottomButton ? (
+        <button
+          type="button"
+          onClick={enableAutoScroll}
+          className={styles.scrollToBottom}
+          aria-label="Przewiń na dół do najnowszych wiadomości"
+          title="Najnowsze"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14" />
+            <path d="m19 12-7 7-7-7" />
+          </svg>
+        </button>
+      ) : null}
 
       <div className={styles.composer}>
         <div className={styles.composerInner}>

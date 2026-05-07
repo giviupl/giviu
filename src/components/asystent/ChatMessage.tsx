@@ -16,7 +16,8 @@ export type ChatBlock =
       price: string;
       color_name?: string | null;
     }>; empty: boolean }
-  | { kind: 'notice'; text: string };
+  | { kind: 'notice'; text: string }
+  | { kind: 'go_to_quote_prompt' };
 
 export interface ChatMessageData {
   id: string;
@@ -79,6 +80,39 @@ export default function ChatMessage({ message }: Props) {
             return (
               <div key={idx} className={styles.notice}>
                 {block.text}
+              </div>
+            );
+          }
+          if (block.kind === 'go_to_quote_prompt') {
+            return (
+              <div key={idx} className={styles.goToQuotePrompt}>
+                <div className={styles.goToQuotePromptHeader}>
+                  Twoja wycena jest gotowa do przejrzenia
+                </div>
+                <p className={styles.goToQuotePromptText}>
+                  Możesz teraz przejść na stronę wyceny, sprawdzić wybrane produkty
+                  i wysłać zapytanie do naszego zespołu.
+                </p>
+                <div className={styles.goToQuotePromptButtons}>
+                  <a
+                    href="/wycena"
+                    className={styles.goToQuotePromptPrimary}
+                  >
+                    Przejdź do wyceny
+                  </a>
+                  <button
+                    type="button"
+                    className={styles.goToQuotePromptSecondary}
+                    onClick={(e) => {
+                      const card = (e.currentTarget as HTMLElement).closest(
+                        `.${styles.goToQuotePrompt}`
+                      ) as HTMLElement | null;
+                      if (card) card.style.display = 'none';
+                    }}
+                  >
+                    Jeszcze nie, kontynuuję
+                  </button>
+                </div>
               </div>
             );
           }
