@@ -243,8 +243,8 @@ export default function ProductCard({
             className={btnClass}
             aria-label={
               mounted && inQuote
-                ? `Usuń ${product.name} z wyceny`
-                : `Dodaj ${product.name} do wyceny`
+                ? `Usuń ${product.name} z zapytania`
+                : `Dodaj ${product.name} do zapytania`
             }
             disabled={animationState !== "idle"}
           >

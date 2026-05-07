@@ -87,18 +87,19 @@ export default function ChatMessage({ message }: Props) {
             return (
               <div key={idx} className={styles.goToQuotePrompt}>
                 <div className={styles.goToQuotePromptHeader}>
-                  Twoja wycena jest gotowa do przejrzenia
+                  Twoje zapytanie jest gotowe do przejrzenia
                 </div>
                 <p className={styles.goToQuotePromptText}>
-                  Możesz teraz przejść na stronę wyceny, sprawdzić wybrane produkty
-                  i wysłać zapytanie do naszego zespołu.
+                  Możesz teraz przejść na stronę zapytania, sprawdzić wybrane produkty
+                  i wysłać je do naszego zespołu, który przygotuje pełną ofertę z cenami
+                  i wizualizacjami personalizacji.
                 </p>
                 <div className={styles.goToQuotePromptButtons}>
                   <a
                     href="/wycena"
                     className={styles.goToQuotePromptPrimary}
                   >
-                    Przejdź do wyceny
+                    Przejdź do zapytania
                   </a>
                   <button
                     type="button"

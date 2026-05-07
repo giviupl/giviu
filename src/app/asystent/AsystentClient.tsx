@@ -378,7 +378,11 @@ export default function AsystentClient() {
               price: product.price,
               slug: product.slug,
               emoji: product.emoji ?? undefined,
-              colorIndex: color?.index,
+              // KRYTYCZNE: gdy AI nie poda color_index, ustawiamy 0 (nie undefined).
+              // ProductCard sprawdza isInQuote(id, selectedColorIndex) gdzie
+              // selectedColorIndex to liczba (default 0). Bez tego zielony stan
+              // toggla nie pokazałby się dla produktów dodanych przez AI.
+              colorIndex: color?.index ?? 0,
               colorName: color?.name,
               colorHex: color?.hex,
               colorImage: color?.image ?? undefined,
@@ -386,7 +390,7 @@ export default function AsystentClient() {
             const colorTxt = color ? ` (${color.name})` : '';
             appendBlock({
               kind: 'notice',
-              text: `Dodano do wyceny: ${product.name}${colorTxt}`,
+              text: `Dodano do zapytania: ${product.name}${colorTxt}`,
             });
           } else if (event.type === 'quote_summary') {
             const q = event.quote as {

@@ -19,7 +19,7 @@ export default function QuoteSummary({ items, empty }: Props) {
   if (empty) {
     return (
       <div className={styles.quoteSummary}>
-        <div className={styles.quoteSummaryEmpty}>Wycena jest pusta.</div>
+        <div className={styles.quoteSummaryEmpty}>Zapytanie jest puste.</div>
       </div>
     );
   }
@@ -27,9 +27,9 @@ export default function QuoteSummary({ items, empty }: Props) {
   return (
     <div className={styles.quoteSummary}>
       <div className={styles.quoteSummaryHeader}>
-        <span>📋 W wycenie ({items.length})</span>
+        <span>📋 W zapytaniu ({items.length})</span>
         <a href="/wycena" className={styles.quoteSummaryLink}>
-          Przejdź do wyceny →
+          Przejdź do zapytania →
         </a>
       </div>
       <ul className={styles.quoteSummaryList}>

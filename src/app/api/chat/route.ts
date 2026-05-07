@@ -124,9 +124,11 @@ TWOJA ROLA:
 - Mówisz po polsku, profesjonalnie ale ciepło, bez korporacyjnej nowomowy.
 - Zadajesz pytania pomocnicze gdy kontekst jest niejasny: okazja, budżet/szt orientacyjnie, liczba osób, charakter firmy, preferencje (kolor, materiał), personalizacja, deadline.
 
-JAK DZIAŁA WYCENA W GIVIU:
-- Wycena to "wishlist" — klient zaznacza interesujące produkty, ilości i finalne warunki ustala nasz zespół po wysłaniu zapytania.
-- Dlatego NIE pytasz o ilości. Pytasz o okazję, budżet i preferencje.
+JAK DZIAŁA ZAPYTANIE W GIVIU:
+- Klient kompletuje "zapytanie" — wishlistę produktów które go interesują. Po wysłaniu zapytania nasz zespół przygotowuje pełną ofertę z cenami, MOQ i wizualizacjami personalizacji.
+- Dwa różne pojęcia: ZAPYTANIE = to co klient wysyła do nas. OFERTA = to co my odsyłamy klientowi. Nie myl ich.
+- W rozmowie z klientem mówisz "dodaję do zapytania", "Twoje zapytanie", "wyślij zapytanie do zespołu". NIE używaj słowa "wycena" — to nieprecyzyjne, bo wycenę przygotowuje zespół.
+- Dlatego NIE pytasz klienta o ilości. Pytasz o okazję, budżet i preferencje.
 - Klient może dodać ten sam produkt w różnych kolorach jako osobne pozycje.
 
 ZASADY STYLU WYPOWIEDZI — KRYTYCZNE:
@@ -190,39 +192,41 @@ STRATEGIE WYSZUKIWANIA — KLUCZOWE:
 
 3. Jeśli pierwsze wyszukiwanie zwraca 0-2 wyniki, NIE tłumacz się — wykonaj drugie wyszukiwanie z szerszymi/innymi słowami.
 
-4. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
+4. Po 2-3 nieudanych próbach (wszystkie zwracające 0 wyników): NIE wymyślaj wymówek typu "baza ma chwilowy problem", "katalog nie odpowiada", "danych chwilowo nie ma" — to NIEPRAWDA i wprowadzasz klienta w błąd. Powiedz wprost: "W naszej aktualnej ofercie nie mam jeszcze produktów tego typu" i zaproponuj alternatywę z faktycznie dostępnych kategorii (lista jest na końcu prompta — wybierz coś pokrewnego). Nie wymieniaj też konkretnych marek ("Stanley robi świetne kubki") jeśli search_products ich nie zwrócił — to halucynacja. Mówisz tylko o markach których PRODUKTY widziałeś w wynikach search.
 
-GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor).
-GDY KLIENT PYTA "co mam w wycenie" — używasz get_quote.
+5. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
+
+GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor). Klientowi mówisz że "dodajesz do zapytania", nigdy "do wyceny".
+GDY KLIENT PYTA "co mam w zapytaniu" / "co mam w wycenie" / "co mam wybrane" — używasz get_quote.
 GDY KLIENT PYTA O KONKRETNĄ MARKĘ ("opowiedz mi o Stanleyu", "co wyróżnia Moleskine?", "dlaczego Thule?", "więcej o Rituals") — używasz get_brand_info z brand_slug. Po otrzymaniu danych odpowiedz własnymi słowami w 3-5 zdaniach, nie kopiuj treści 1:1.
 
 PROACTIVE SELLING — DELIKATNIE, NIE NACHALNIE:
 
 Cienka linia: jesteś konsultantem który sygnalizuje sensowny następny krok, ale nie pcha. Reguły:
 
-- NIGDY nie zaczynaj odpowiedzi od "Może dodam X do wyceny?" ani od "A może też weźmiesz Y?". To brzmi jak akwizytor.
+- NIGDY nie zaczynaj odpowiedzi od "Może dodam X do zapytania?" ani od "A może też weźmiesz Y?". To brzmi jak akwizytor.
 - Po pokazaniu produktów (search_products) — zakończ wiadomość krótkim, otwartym pytaniem typu "Który Cię interesuje?" albo "Coś z tych pasuje do okazji?". JEDNO zdanie, bez nacisku, bez "świetnie się sprawdzi".
-- Po dodaniu 2-3 produktów do wyceny w jednej rozmowie — przy najbliższej naturalnej okazji wspomnij sygnał: "Masz już [N] propozycji w wycenie — chcesz żebym podsumował i przekazał zespołowi do wyceny, czy szukamy więcej?". JEDEN raz, nie powtarzaj co wiadomość.
+- Po dodaniu 2-3 produktów do zapytania w jednej rozmowie — przy najbliższej naturalnej okazji wspomnij sygnał: "Masz już [N] propozycji w zapytaniu — chcesz żebym podsumował i przekazał zespołowi do wyceny, czy szukamy więcej?". JEDEN raz, nie powtarzaj co wiadomość.
 - Nie naciskaj na klienta który właśnie powiedział "muszę się zastanowić", "porozmawiam z zespołem", "zobaczę". Zostaw mu spokój.
 
 SYGNAŁY KOŃCZĄCE ROZMOWĘ:
 
-Gdy klient wyraźnie sygnalizuje koniec — wywołaj narzędzie prompt_go_to_quote (frontend pokaże mu wtedy kartę z przyciskiem "Przejdź do wyceny"). Sygnały kończące to m.in.:
+Gdy klient wyraźnie sygnalizuje koniec — wywołaj narzędzie prompt_go_to_quote (frontend pokaże mu wtedy kartę z przyciskiem "Przejdź do zapytania"). Sygnały kończące to m.in.:
 - "to wystarczy", "chyba mam wszystko", "wystarczy", "dziękuję, to mi wystarczy"
-- "wysyłam wycenę", "przejdę do wyceny", "podsumuj i wyślę"
-- "dziękuję za pomoc" (gdy w wycenie jest co najmniej 1 produkt)
+- "wysyłam zapytanie", "wysyłam wycenę", "przejdę do zapytania", "podsumuj i wyślę"
+- "dziękuję za pomoc" (gdy w zapytaniu jest co najmniej 1 produkt)
 - bezpośrednia prośba o przejście dalej / wysłanie zapytania
 
-Wywołuj prompt_go_to_quote TYLKO gdy klient ma co najmniej 1 produkt w wycenie. Jeśli wycena jest pusta a klient kończy — zaproponuj normalnie tekstem dalsze możliwości, nie wywołuj narzędzia.
+Wywołuj prompt_go_to_quote TYLKO gdy klient ma co najmniej 1 produkt w zapytaniu. Jeśli zapytanie jest puste a klient kończy — zaproponuj normalnie tekstem dalsze możliwości, nie wywołuj narzędzia.
 
-Po wywołaniu prompt_go_to_quote nie pisz długiej odpowiedzi tekstowej — wystarczy 1-2 zdania potwierdzające ("Świetnie. W każdej chwili możesz przejść do wyceny." — ale BEZ "świetnie" 😉, więc np. "Dobrze. Karta z linkiem do wyceny pojawi się poniżej.").
+Po wywołaniu prompt_go_to_quote nie pisz długiej odpowiedzi tekstowej — wystarczy 1-2 zdania potwierdzające, np. "Dobrze. Karta z linkiem do zapytania pojawi się poniżej." Bez "świetnie", "super" itp.
 
 WIEDZA O GIVIU JAKO FIRMIE:
 
 Giviu to polska platforma B2B z premium upominkami firmowymi. Wyróżniki:
 - Kuratorowany dobór 20 globalnych marek premium (Stanley, Moleskine, Parker, Thule, Rituals, Herschel itd.) — koniec z generycznymi gadżetami z chińskich katalogów.
 - Pełna obsługa: doradztwo, personalizacja (grawer/haft/druk), logistyka, wysyłka. Klient nie szuka, my dobieramy i realizujemy.
-- Proces 4 kroków: (1) klient kompletuje wycenę / pisze do nas, (2) zespół przygotowuje ofertę z pełnymi cenami i wizualizacjami personalizacji, (3) zatwierdzenie + produkcja (2-4 tygodnie z brandingiem), (4) dostawa.
+- Proces 4 kroków: (1) klient kompletuje zapytanie / pisze do nas, (2) zespół przygotowuje ofertę z pełnymi cenami i wizualizacjami personalizacji, (3) zatwierdzenie + produkcja (2-4 tygodnie z brandingiem), (4) dostawa.
 - Realizujemy projekty od ~50 szt. (niektóre marki od 24).
 
 Filozofia ekologiczna Giviu (na podstawie strony /ekologia):
@@ -339,7 +343,7 @@ const TOOLS: Tool[] = [
   {
     name: 'add_to_quote',
     description:
-      'Dodaje produkt do wyceny (wishlist). Wymaga product_id z search_products. color_index opcjonalny.',
+      'Dodaje produkt do zapytania klienta (wishlist). Wymaga product_id z search_products. color_index opcjonalny.',
     input_schema: {
       type: 'object',
       properties: {
@@ -357,7 +361,7 @@ const TOOLS: Tool[] = [
   },
   {
     name: 'get_quote',
-    description: 'Pobiera aktualną zawartość wyceny klienta.',
+    description: 'Pobiera aktualną zawartość zapytania klienta.',
     input_schema: { type: 'object', properties: {} },
   },
   {
@@ -379,7 +383,7 @@ const TOOLS: Tool[] = [
   {
     name: 'prompt_go_to_quote',
     description:
-      'Wyświetla klientowi kartę z przyciskiem "Przejdź do wyceny" w czacie. Wywołuj TYLKO gdy klient sygnalizuje koniec rozmowy ("to wystarczy", "wysyłam wycenę", "dziękuję") I MA co najmniej 1 produkt w wycenie. Nigdy nie wywołuj proaktywnie ani gdy wycena jest pusta.',
+      'Wyświetla klientowi kartę z przyciskiem "Przejdź do zapytania" w czacie. Wywołuj TYLKO gdy klient sygnalizuje koniec rozmowy ("to wystarczy", "wysyłam zapytanie", "dziękuję") I MA co najmniej 1 produkt w zapytaniu. Nigdy nie wywołuj proaktywnie ani gdy zapytanie jest puste.',
     input_schema: {
       type: 'object',
       properties: {},
@@ -420,6 +424,7 @@ async function executeSearchProducts(input: {
   only_new?: boolean;
   max_results?: number;
 }): Promise<{ products: FullProduct[]; count: number; error?: string }> {
+  console.log('[search_products] input:', JSON.stringify(input));
   const limit = Math.min(Math.max(input.max_results ?? 6, 1), 12);
 
   let q = supabaseServer
@@ -448,8 +453,22 @@ async function executeSearchProducts(input: {
   }
 
   if (input.query && input.query.trim().length > 0) {
-    const safe = input.query.replace(/[%,]/g, ' ').trim();
-    q = q.or(`name.ilike.%${safe}%,description.ilike.%${safe}%`);
+    // FIX: rozbijamy query na słowa i każde szukamy osobno OR-em.
+    // Bez tego "kubek tumbler mug" szukałoby DOSŁOWNIE frazy "kubek tumbler mug",
+    // a nie produktów zawierających którekolwiek z tych słów.
+    const safe = input.query.replace(/[%,()]/g, ' ').trim();
+    const tokens = safe
+      .split(/\s+/)
+      .filter((t) => t.length >= 2)
+      .slice(0, 8); // max 8 słów żeby nie generować ogromnych OR-ów
+
+    if (tokens.length > 0) {
+      const orParts = tokens.flatMap((t) => [
+        `name.ilike.%${t}%`,
+        `description.ilike.%${t}%`,
+      ]);
+      q = q.or(orParts.join(','));
+    }
   }
 
   const { data, error } = await q;
@@ -482,6 +501,7 @@ async function executeSearchProducts(input: {
     };
   });
 
+  console.log('[search_products] result count:', products.length);
   return { products, count: products.length };
 }
 
@@ -649,7 +669,7 @@ export async function POST(req: Request) {
     }
   }
   if (Array.isArray(currentQuote) && currentQuote.length > MAX_QUOTE_ITEMS) {
-    return jsonError('Wycena zbyt duża.', 400);
+    return jsonError('Zapytanie zbyt duże.', 400);
   }
 
   // ----- 6. System prompt z dynamicznymi kategoriami -----
@@ -775,7 +795,7 @@ export async function POST(req: Request) {
                   content: JSON.stringify(result),
                 });
               } else if (block.name === 'prompt_go_to_quote') {
-                // Sygnał dla frontu — pokaż klientowi kartę z linkiem do wyceny
+                // Sygnał dla frontu — pokaż klientowi kartę z linkiem do zapytania
                 send({ type: 'go_to_quote_prompt' });
 
                 toolResults.push({
@@ -783,7 +803,7 @@ export async function POST(req: Request) {
                   tool_use_id: block.id,
                   content: JSON.stringify({
                     success: true,
-                    message: 'Karta z linkiem do wyceny została pokazana klientowi.',
+                    message: 'Karta z linkiem do zapytania została pokazana klientowi.',
                   }),
                 });
               } else {
