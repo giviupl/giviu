@@ -194,7 +194,9 @@ STRATEGIE WYSZUKIWANIA — KLUCZOWE:
 
 4. Po 2-3 nieudanych próbach (wszystkie zwracające 0 wyników): NIE wymyślaj wymówek typu "baza ma chwilowy problem", "katalog nie odpowiada", "danych chwilowo nie ma" — to NIEPRAWDA i wprowadzasz klienta w błąd. Powiedz wprost: "W naszej aktualnej ofercie nie mam jeszcze produktów tego typu" i zaproponuj alternatywę z faktycznie dostępnych kategorii (lista jest na końcu prompta — wybierz coś pokrewnego). Nie wymieniaj też konkretnych marek ("Stanley robi świetne kubki") jeśli search_products ich nie zwrócił — to halucynacja. Mówisz tylko o markach których PRODUKTY widziałeś w wynikach search.
 
-5. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
+5. Każde wywołanie search_products zwraca pole "new_to_user" — liczbę produktów które są nowe dla klienta (nie zostały pokazane wcześniej w tej rozmowie). Jeśli new_to_user wynosi 0, oznacza to że WSZYSTKIE wyniki to powtórki — NIE komentuj klientowi "oto kolejne propozycje" ani podobnie, bo on widzi te same karty co przed chwilą. W takim wypadku albo spróbuj innego filtra/słowa, albo wprost powiedz że to wszystko co mamy w tej kategorii. Jeśli new_to_user > 0 ale mniejsze niż count — w komentarzu mów tylko o nowych produktach, nie o całości.
+
+6. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
 
 GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor). Klientowi mówisz że "dodajesz do zapytania", nigdy "do wyceny".
 GDY KLIENT PYTA "co mam w zapytaniu" / "co mam w wycenie" / "co mam wybrane" — używasz get_quote.
@@ -693,6 +695,11 @@ export async function POST(req: Request) {
         const conversation: MessageParam[] = [...messages];
         let safety = 0;
 
+        // Track produktów już pokazanych klientowi w tej rundzie SSE.
+        // Gdy AI woła search_products wielokrotnie i wyniki się pokrywają,
+        // nie chcemy dublować tej samej karty produktu w czacie.
+        const shownProductIds = new Set<string>();
+
         while (safety < 6) {
           safety++;
 
@@ -734,8 +741,27 @@ export async function POST(req: Request) {
                   block.input as Parameters<typeof executeSearchProducts>[0]
                 );
 
-                send({ type: 'products', products: fullResult.products });
+                // Dedupe: filtrujemy produkty już pokazane klientowi w tej rundzie.
+                const newProducts = fullResult.products.filter(
+                  (p) => !shownProductIds.has(p.id)
+                );
+                newProducts.forEach((p) => shownProductIds.add(p.id));
 
+                if (newProducts.length < fullResult.products.length) {
+                  console.log(
+                    `[search_products] dedupe: ${fullResult.products.length} returned, ${newProducts.length} new (${
+                      fullResult.products.length - newProducts.length
+                    } duplicates filtered)`
+                  );
+                }
+
+                if (newProducts.length > 0) {
+                  send({ type: 'products', products: newProducts });
+                }
+
+                // AI dostaje pełną listę (z duplikatami) plus info ile było nowych
+                // dla klienta — żeby nie komentował "kolejnych propozycji" gdy wszystko
+                // już zostało pokazane.
                 const aiResult = {
                   products: fullResult.products.map((p) => ({
                     id: p.id,
@@ -750,6 +776,7 @@ export async function POST(req: Request) {
                     colors: p.colors.map((c) => ({ name: c.name, hex: c.hex })),
                   })),
                   count: fullResult.count,
+                  new_to_user: newProducts.length,
                 };
 
                 toolResults.push({
