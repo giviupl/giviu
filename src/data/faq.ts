@@ -325,7 +325,7 @@ export const FAQ_BY_CATEGORY: Record<string, CategoryFAQ> = {
     items: [
       {
         question: "Jakie marki notatników oferujecie?",
-        answer: "Oferujemy notatniki premium marek Moleskine, Leuchtturm1917 oraz własne linie produktów w różnych przedziałach cenowych."
+        answer: "Oferujemy notatniki premium marek Moleskine i Karst — notatniki premium z możliwością personalizacji (tłoczenie, grawer, sitodruk)."
       },
       {
         question: "Jakie metody znakowania są dostępne dla notatników?",

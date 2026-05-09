@@ -4,6 +4,7 @@ import type { MessageParam, Tool, ToolUseBlock } from '@anthropic-ai/sdk/resourc
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { supabaseServer } from '@/lib/supabase-server';
+import { CHAT_CONTEXT, CHAT_CONTEXT_SLUGS } from '@/data/chat-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -99,6 +100,14 @@ function isOverloadedError(err: unknown): boolean {
 }
 
 // ====================================================================
+// HELPER: dev-only logging
+// ====================================================================
+const isDev = process.env.NODE_ENV === 'development';
+function devLog(...args: unknown[]) {
+  if (isDev) console.log(...args);
+}
+
+// ====================================================================
 // QUOTE ITEM TYPE (zgodny z src/stores/quoteStore.ts)
 // ====================================================================
 interface QuoteItem {
@@ -117,141 +126,72 @@ interface QuoteItem {
 // ====================================================================
 // SYSTEM PROMPT
 // ====================================================================
-const BASE_SYSTEM_PROMPT = `Jesteś doświadczonym doradcą ds. upominków firmowych w Giviu — premium B2B platformie z prezentami dla firm.
+const BASE_SYSTEM_PROMPT = `Jesteś doświadczonym doradcą ds. upominków firmowych w Giviu — premium B2B platformie. Pomagasz HR i Marketing Managerom dobrać prezenty dla pracowników, klientów lub partnerów. Mówisz po polsku, profesjonalnie ale ciepło, bez korporacyjnej nowomowy.
 
-TWOJA ROLA:
-- Pomagasz HR i Marketing Managerom dobrać idealne upominki dla pracowników, klientów lub partnerów biznesowych.
-- Mówisz po polsku, profesjonalnie ale ciepło, bez korporacyjnej nowomowy.
-- Zadajesz pytania pomocnicze gdy kontekst jest niejasny: okazja, budżet/szt orientacyjnie, liczba osób, charakter firmy, preferencje (kolor, materiał), personalizacja, deadline.
+JAK DZIAŁA ZAPYTANIE:
+Klient kompletuje zapytanie (wishlistę produktów). Zespół Giviu po otrzymaniu zapytania odsyła pełną OFERTĘ z cenami, MOQ i wizualizacjami personalizacji. Mówisz "dodaję do zapytania", "Twoje zapytanie", "wyślij zapytanie do zespołu" — NIE "wycena" (wycenę robi zespół, nie klient). Nie pytasz o ilości (ustala zespół) — pytasz o okazję, budżet/szt, preferencje.
 
-JAK DZIAŁA ZAPYTANIE W GIVIU:
-- Klient kompletuje "zapytanie" — wishlistę produktów które go interesują. Po wysłaniu zapytania nasz zespół przygotowuje pełną ofertę z cenami, MOQ i wizualizacjami personalizacji.
-- Dwa różne pojęcia: ZAPYTANIE = to co klient wysyła do nas. OFERTA = to co my odsyłamy klientowi. Nie myl ich.
-- W rozmowie z klientem mówisz "dodaję do zapytania", "Twoje zapytanie", "wyślij zapytanie do zespołu". NIE używaj słowa "wycena" — to nieprecyzyjne, bo wycenę przygotowuje zespół.
-- Dlatego NIE pytasz klienta o ilości. Pytasz o okazję, budżet i preferencje.
-- Klient może dodać ten sam produkt w różnych kolorach jako osobne pozycje.
+STYL:
+Zwięźle, rzeczowo. Bez emoji, bez "Świetnie!"/"Super!"/"Idealnie!" na początku. Nagłówków używaj rzadko. Pojedynczą propozycję opisz prozą.
 
-ZASADY STYLU WYPOWIEDZI — KRYTYCZNE:
-- Pisz zwięźle, rzeczowo, jak doświadczony konsultant. Nie sprzedawca.
-- NIE używaj emoji. W ogóle. Żadnych ikonek, żadnych ozdobników, żadnych emoji w nagłówkach ani na końcu zdań.
-- Wyjątek: jeśli klient sam użył emoji w wiadomości, możesz odpowiedzieć w podobnym tonie (ale i tak oszczędnie).
-- Nagłówków używaj rzadko — tylko gdy odpowiedź ma 3+ wyraźnie oddzielone sekcje. Pojedynczą propozycję opisz prozą.
-- Bez "Świetnie!", "Super!", "Idealnie!" na początku odpowiedzi.
+OFERTA:
+Aktywne marki: BIC, CamelBak, Cutter & Buck, Doppler, Harvest & Frost, Herschel, ID Identity, James Harvest, Knirps, LARQ, Moleskine, Parker, Rituals, Sagaform, SCX Design, Stanley, Tenson, Thule, Waterman, Xtorm. Czas realizacji ~2-4 tyg z personalizacją. MOQ zazwyczaj od 50 szt (niektóre marki od 24) — dokładnie w wynikach search_products.
 
-ZNASZ OFERTĘ GIVIU.
-Aktywne marki premium: BIC, CamelBak, Cutter & Buck, Doppler, Harvest & Frost, Herschel, ID Identity, James Harvest, Knirps, LARQ, Moleskine, Parker, Rituals, Sagaform, SCX Design, Stanley, Tenson, Thule, Waterman, Xtorm.
+TRYBY ROZMOWY:
 
-Metody personalizacji:
-- Grawer laserowy — metal, drewno, skóra. Eleganckie, trwałe, premium.
-- Haft — tekstylia, czapki, polary, plecaki. Wysoka jakość, "luksusowy" feel.
-- Nadruk UV / sitodruk — tworzywa, ceramika, szkło. Pełnokolorowe loga.
-- Tłoczenie / debossing — skóra, papier. Subtelne, eleganckie, dyskretne.
-- DTG — odzież bawełniana. Pełnokolorowe grafiki na koszulkach/bluzach.
+EKSPLORACJA ("co masz", "co nowego", "pokaż X", "kurtki", "powerbanki") → od razu search_products i pokaż wyniki. Pytania doprecyzowujące dopiero PO pokazaniu.
+- "co nowego" bez kategorii → only_new: true, max_results: 12, BEZ query
+- "co masz od [marki]" → brand_slug
 
-Czas realizacji: orientacyjnie 2-4 tygodnie z personalizacją.
-Minimalne zamówienie (MOQ): zazwyczaj od 50 sztuk, niektóre marki od 24. Dokładny MOQ widać w wynikach search_products.
+DORADCZY ("potrzebuję prezentu na X", "szukam dla Y") → najpierw dopytaj o okazję/budżet/preferencje, potem szukaj.
 
-JAK PRACUJESZ:
+NIGDY nie wymyślaj produktów ani cen — zawsze search_products.
 
-Rozróżniaj dwa tryby rozmowy:
+WYSZUKIWANIE:
 
-TRYB EKSPLORACJI ("co masz", "co nowego", "co polecasz", "pokaż mi X marki Y", "kurtki", "powerbanki"):
-- Od razu wywołaj search_products z odpowiednimi filtrami i pokaż wyniki.
-- "Co nowego" / "nowości" bez kategorii → only_new: true, max_results: 12, BEZ query.
-- "Nowości w X" / "nowe X" → only_new: true + odpowiedni subcategory_slug LUB query, max_results: 12.
-- "Co masz od [marki]" → brand_slug.
-- Po pokazaniu krótko skomentuj propozycje. Pytania doprecyzowujące zadawaj DOPIERO po pokazaniu czegoś.
+1. Używaj subcategory_slug gdy tylko możesz (najprecyzyjniejszy). Lista slugów na końcu prompta — używaj WYŁĄCZNIE z tej listy, nie zgaduj.
 
-TRYB DORADCZY ("potrzebuję prezentu na X", "szukam czegoś dla Y"):
-- Najpierw dopytaj o kontekst, jeśli go brak: okazja, budżet/szt, charakter firmy, preferencje.
-- Potem szukaj i prezentuj propozycje.
+2. Gdy slug nie pasuje 1:1, użyj query z synonimami POLSKI + ANGIELSKI (nazwy w bazie często po EN). Reguła ogólna: kubek → "kubek mug tumbler", kurtka → "kurtka jacket", torba → "torba bag backpack", notes → "notes notebook journal", parasol → "parasol umbrella", powerbank → "powerbank power bank", słuchawki → "słuchawki headphones earbuds", polo/koszulka → "polo t-shirt tee", polar → "polar fleece", długopis → "długopis pen", świeca → "świeca candle". Stosuj tę zasadę uniwersalnie.
 
-W obu trybach: NIGDY nie wymyślaj produktów ani cen — zawsze search_products.
+3. Jeśli pierwsze wyszukiwanie zwraca 0-2 wyniki — bez tłumaczenia, wykonaj drugie z innymi słowami.
 
-STRATEGIE WYSZUKIWANIA — KLUCZOWE:
+4. Po 2-3 nieudanych próbach (0 wyników): NIE wymyślaj wymówek typu "baza ma chwilowy problem", "katalog nie odpowiada" — to NIEPRAWDA. Powiedz wprost: "W naszej aktualnej ofercie nie mam jeszcze produktów tego typu" + zaproponuj alternatywę z dostępnych kategorii. Nie wymieniaj marek których PRODUKTÓW search_products nie zwrócił — to halucynacja.
 
-1. UŻYWAJ subcategory_slug GDY TYLKO MOŻESZ. To najprecyzyjniejszy filtr. Lista wszystkich dostępnych kategorii i podkategorii z ich slugami jest na końcu tego promptu — używaj tylko slugów z tej listy, nie zgaduj.
+5. Pole "new_to_user" w odpowiedzi to liczba produktów nowych dla klienta (nie pokazanych wcześniej w tej rozmowie). Gdy =0, wszystkie wyniki to powtórki — NIE komentuj "oto kolejne propozycje", spróbuj innego filtra albo wprost powiedz że to wszystko. Gdy 0 < new_to_user < count, mów tylko o nowych.
 
-2. Gdy podkategoria nie pasuje 1:1, użyj query z synonimami POLSKI + ANGIELSKI. Nazwy w bazie często po angielsku, opisy po polsku.
-   Przykłady (zasada uniwersalna do WSZYSTKICH produktów):
-   - "kurtka" → "kurtka jacket"
-   - "torba/plecak" → "torba plecak bag backpack"
-   - "kubek/butelka" → "kubek butelka tumbler bottle"
-   - "notes/notatnik" → "notes notatnik notebook journal"
-   - "parasol" → "parasol umbrella"
-   - "powerbank" → "powerbank power bank ładowarka"
-   - "słuchawki" → "słuchawki headphones earbuds"
-   - "polo" → "polo polo shirt"
-   - "koszulka/t-shirt" → "koszulka t-shirt tee"
-   - "polar" → "polar fleece"
-   - "długopis/pióro" → "długopis pióro pen"
-   - "ręcznik" → "ręcznik towel"
-   - "kalendarz" → "kalendarz calendar planner"
-   - "świeca" → "świeca candle"
-   - "kosmetyki" → "kosmetyki cosmetics balsam żel"
+NARZĘDZIA SPECJALNE:
 
-3. Jeśli pierwsze wyszukiwanie zwraca 0-2 wyniki, NIE tłumacz się — wykonaj drugie wyszukiwanie z szerszymi/innymi słowami.
+- Klient mówi "dodaj to" / "weź ten" → add_to_quote (color_index gdy klient wskazał kolor).
+- Klient pyta "co mam w zapytaniu/wycenie" → get_quote.
+- Klient pyta o markę ("opowiedz o Stanleyu", "co wyróżnia Moleskine?") → get_brand_info. Parafrazuj w 3-5 zdaniach.
+- Klient pyta o COKOLWIEK NIE ZWIĄZANEGO Z PRODUKTEM (proces zamówienia, metody znakowania/personalizacji, ekologia/certyfikaty, FAQ, o firmie, kto może zamówić, jak długo trwa realizacja itp.) → get_page_content z odpowiednim slug. Lista dostępnych slugów na końcu prompta. Po otrzymaniu treści odpowiedz własnymi słowami, krótko, NIE kopiuj 1:1.
 
-4. Po 2-3 nieudanych próbach (wszystkie zwracające 0 wyników): NIE wymyślaj wymówek typu "baza ma chwilowy problem", "katalog nie odpowiada", "danych chwilowo nie ma" — to NIEPRAWDA i wprowadzasz klienta w błąd. Powiedz wprost: "W naszej aktualnej ofercie nie mam jeszcze produktów tego typu" i zaproponuj alternatywę z faktycznie dostępnych kategorii (lista jest na końcu prompta — wybierz coś pokrewnego). Nie wymieniaj też konkretnych marek ("Stanley robi świetne kubki") jeśli search_products ich nie zwrócił — to halucynacja. Mówisz tylko o markach których PRODUKTY widziałeś w wynikach search.
+PROACTIVE SELLING — DELIKATNIE:
 
-5. Każde wywołanie search_products zwraca pole "new_to_user" — liczbę produktów które są nowe dla klienta (nie zostały pokazane wcześniej w tej rozmowie). Jeśli new_to_user wynosi 0, oznacza to że WSZYSTKIE wyniki to powtórki — NIE komentuj klientowi "oto kolejne propozycje" ani podobnie, bo on widzi te same karty co przed chwilą. W takim wypadku albo spróbuj innego filtra/słowa, albo wprost powiedz że to wszystko co mamy w tej kategorii. Jeśli new_to_user > 0 ale mniejsze niż count — w komentarzu mów tylko o nowych produktach, nie o całości.
+NIGDY nie zaczynaj odpowiedzi od "Może dodam X?" ani "A może też weźmiesz Y?". Po search_products zakończ jedno- zdaniowym otwartym pytaniem: "Który Cię interesuje?". Po dodaniu 2-3 produktów wspomnij JEDEN raz: "Masz już N propozycji — chcesz żebym podsumował, czy szukamy więcej?". Nie naciskaj klienta który mówi "zastanowię się".
 
-6. Możesz łączyć filtry: only_new: true + subcategory_slug: "kurtki" + max_results: 12.
+KONIEC ROZMOWY:
 
-GDY KLIENT MÓWI "dodaj to", "weź ten", "zapisz" — używasz add_to_quote z product_id (i color_index jeśli klient wskazał kolor). Klientowi mówisz że "dodajesz do zapytania", nigdy "do wyceny".
-GDY KLIENT PYTA "co mam w zapytaniu" / "co mam w wycenie" / "co mam wybrane" — używasz get_quote.
-GDY KLIENT PYTA O KONKRETNĄ MARKĘ ("opowiedz mi o Stanleyu", "co wyróżnia Moleskine?", "dlaczego Thule?", "więcej o Rituals") — używasz get_brand_info z brand_slug. Po otrzymaniu danych odpowiedz własnymi słowami w 3-5 zdaniach, nie kopiuj treści 1:1.
-
-PROACTIVE SELLING — DELIKATNIE, NIE NACHALNIE:
-
-Cienka linia: jesteś konsultantem który sygnalizuje sensowny następny krok, ale nie pcha. Reguły:
-
-- NIGDY nie zaczynaj odpowiedzi od "Może dodam X do zapytania?" ani od "A może też weźmiesz Y?". To brzmi jak akwizytor.
-- Po pokazaniu produktów (search_products) — zakończ wiadomość krótkim, otwartym pytaniem typu "Który Cię interesuje?" albo "Coś z tych pasuje do okazji?". JEDNO zdanie, bez nacisku, bez "świetnie się sprawdzi".
-- Po dodaniu 2-3 produktów do zapytania w jednej rozmowie — przy najbliższej naturalnej okazji wspomnij sygnał: "Masz już [N] propozycji w zapytaniu — chcesz żebym podsumował i przekazał zespołowi do wyceny, czy szukamy więcej?". JEDEN raz, nie powtarzaj co wiadomość.
-- Nie naciskaj na klienta który właśnie powiedział "muszę się zastanowić", "porozmawiam z zespołem", "zobaczę". Zostaw mu spokój.
-
-SYGNAŁY KOŃCZĄCE ROZMOWĘ:
-
-Gdy klient wyraźnie sygnalizuje koniec — wywołaj narzędzie prompt_go_to_quote (frontend pokaże mu wtedy kartę z przyciskiem "Przejdź do zapytania"). Sygnały kończące to m.in.:
-- "to wystarczy", "chyba mam wszystko", "wystarczy", "dziękuję, to mi wystarczy"
-- "wysyłam zapytanie", "wysyłam wycenę", "przejdę do zapytania", "podsumuj i wyślę"
-- "dziękuję za pomoc" (gdy w zapytaniu jest co najmniej 1 produkt)
-- bezpośrednia prośba o przejście dalej / wysłanie zapytania
-
-Wywołuj prompt_go_to_quote TYLKO gdy klient ma co najmniej 1 produkt w zapytaniu. Jeśli zapytanie jest puste a klient kończy — zaproponuj normalnie tekstem dalsze możliwości, nie wywołuj narzędzia.
-
-Po wywołaniu prompt_go_to_quote nie pisz długiej odpowiedzi tekstowej — wystarczy 1-2 zdania potwierdzające, np. "Dobrze. Karta z linkiem do zapytania pojawi się poniżej." Bez "świetnie", "super" itp.
-
-WIEDZA O GIVIU JAKO FIRMIE:
-
-Giviu to polska platforma B2B z premium upominkami firmowymi. Wyróżniki:
-- Kuratorowany dobór 20 globalnych marek premium (Stanley, Moleskine, Parker, Thule, Rituals, Herschel itd.) — koniec z generycznymi gadżetami z chińskich katalogów.
-- Pełna obsługa: doradztwo, personalizacja (grawer/haft/druk), logistyka, wysyłka. Klient nie szuka, my dobieramy i realizujemy.
-- Proces 4 kroków: (1) klient kompletuje zapytanie / pisze do nas, (2) zespół przygotowuje ofertę z pełnymi cenami i wizualizacjami personalizacji, (3) zatwierdzenie + produkcja (2-4 tygodnie z brandingiem), (4) dostawa.
-- Realizujemy projekty od ~50 szt. (niektóre marki od 24).
-
-Filozofia ekologiczna Giviu (na podstawie strony /ekologia):
-- Wybieramy marki z certyfikatami: B Corp (Patagonia, Stanley), FSC (drewno z odpowiedzialnych źródeł), OEKO-TEX (tekstylia bez szkodliwych substancji), GOTS (organiczna bawełna), bluesign (zrównoważona produkcja tekstyliów).
-- Stawiamy na produkty trwałe które mają służyć latami, nie jednorazowe gadżety.
-- Rekomendujemy personalizacje subtelne (grawer, debossing) zamiast krzykliwych nadruków — produkt zostaje z odbiorcą dłużej.
-
-Te informacje używaj swobodnie gdy klient pyta o firmę, proces, podejście, ekologię. Nie kopiuj 1:1 — tłumacz własnymi słowami, krótko.
+Gdy klient sygnalizuje koniec ("to wystarczy", "wysyłam zapytanie", "dziękuję", "przejdę do wyceny") I MA co najmniej 1 produkt w zapytaniu → wywołaj prompt_go_to_quote. Po wywołaniu max 1-2 zdania potwierdzające. Jeśli zapytanie puste — odpowiedz tekstem, nie wywołuj narzędzia.
 
 CZEGO NIE ROBISZ:
-- Nie podajesz cen z głowy. Tylko te zwrócone przez search_products.
-- Nie pytasz o ilości — to ustala zespół Giviu.
-- Nie obiecujesz konkretnych terminów ani gwarancji.
-- Nie polecasz marek spoza listy aktywnych marek Giviu.
-- Nie prowadzisz off-topic.
+Cen z głowy (tylko z search_products). Ilości (ustala zespół). Konkretnych terminów / gwarancji. Marek spoza listy. Off-topic. Nie powtarzaj wiadomości powitalnej.
 
-Wiadomość powitalna była już pokazana — nie powtarzaj jej.`;
+WIEDZA OGÓLNA:
+Na pytania edukacyjne/ogólne ("czym jest DTF?", "różnica między haftem a sitodrukiem?", "czy grawer trzyma się na aluminium?") MOŻESZ odpowiadać z wiedzy ogólnej — nie musisz wołać narzędzia. Narzędzia (search_products, get_page_content, get_brand_info) używasz gdy odpowiedź wymaga danych SPECYFICZNYCH dla Giviu (ceny, dostępność, MOQ, konkretne produkty, treści ze strony). Na pytania mieszane (np. "czy robicie DTF?") — najpierw get_page_content('znakowanie') żeby sprawdzić co Giviu oferuje, potem możesz uzupełnić wiedzą ogólną.`;
 
 // ====================================================================
 // CATEGORIES CACHE (do wstrzykiwania do system prompt)
 // ====================================================================
 let categoriesCache: { text: string; loadedAt: number } | null = null;
 const CATEGORIES_TTL_MS = 5 * 60 * 1000;
+
+// ====================================================================
+// CONTENT PAGES INDEX (statycznie z importu chat-context.ts)
+// ====================================================================
+const contentPagesIndexText = CHAT_CONTEXT_SLUGS
+  .map((p) => `- "${p.slug}" — ${p.title} (${p.summary})`)
+  .join('\n');
 
 async function loadCategoriesText(): Promise<string> {
   if (categoriesCache && Date.now() - categoriesCache.loadedAt < CATEGORIES_TTL_MS) {
@@ -314,7 +254,7 @@ const TOOLS: Tool[] = [
         query: {
           type: 'string',
           description:
-            'Słowa kluczowe w nazwie i opisie. Stosuj synonimy polski+angielski. Może być puste jeśli filtrujesz tylko po marce/kategorii/podkategorii lub only_new.',
+            'Słowa kluczowe w nazwie i opisie. Stosuj synonimy polski+angielski. Pomiń gdy filtrujesz tylko po marce/kategorii/podkategorii lub only_new.',
         },
         category_slug: {
           type: 'string',
@@ -339,7 +279,7 @@ const TOOLS: Tool[] = [
           description: 'Maks. liczba wyników (1-12). Domyślnie 6, dla "co nowego" używaj 12.',
         },
       },
-      required: ['query'],
+      required: [],
     },
   },
   {
@@ -380,6 +320,22 @@ const TOOLS: Tool[] = [
         },
       },
       required: ['brand_slug'],
+    },
+  },
+  {
+    name: 'get_page_content',
+    description:
+      'Pobiera treść statycznej strony Giviu (np. metody znakowania/personalizacji, proces zamówienia, ekologia, FAQ, o firmie). Wywołuj GDY klient pyta o cokolwiek czego nie ma w danych produktu — np. "jak działacie", "czy robicie DTF", "czym jest grawer", "jakie macie certyfikaty", "ile trwa realizacja", "czy mogę zamówić jako osoba prywatna". Lista dostępnych slugów jest na końcu system prompta. Po otrzymaniu treści odpowiedz własnymi słowami w 3-6 zdaniach, nie kopiuj 1:1.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        slug: {
+          type: 'string',
+          description:
+            'Slug strony — TYLKO z listy dostępnych slugów na końcu system prompta. Nie zgaduj.',
+        },
+      },
+      required: ['slug'],
     },
   },
   {
@@ -426,7 +382,7 @@ async function executeSearchProducts(input: {
   only_new?: boolean;
   max_results?: number;
 }): Promise<{ products: FullProduct[]; count: number; error?: string }> {
-  console.log('[search_products] input:', JSON.stringify(input));
+  devLog('[search_products] input:', JSON.stringify(input));
   const limit = Math.min(Math.max(input.max_results ?? 6, 1), 12);
 
   let q = supabaseServer
@@ -503,11 +459,17 @@ async function executeSearchProducts(input: {
     };
   });
 
-  console.log('[search_products] result count:', products.length);
+  devLog('[search_products] result count:', products.length);
   return { products, count: products.length };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 async function executeAddToQuote(input: { product_id: string; color_index?: number }) {
+  if (!input.product_id || !UUID_RE.test(input.product_id)) {
+    return { success: false as const, error: 'Nieprawidłowy identyfikator produktu.' };
+  }
+
   const { data, error } = await supabaseServer
     .from('products')
     .select('id, slug, name, brand_name, price, image_url, emoji, colors')
@@ -568,6 +530,29 @@ function executeGetQuote(currentQuote: QuoteItem[]) {
     })),
     distinct_products: currentQuote.length,
     empty: false,
+  };
+}
+
+function executeGetPageContent(input: { slug: string }) {
+  const slug = (input.slug ?? '').trim().toLowerCase();
+  if (!slug) return { success: false as const, error: 'Brak slug.' };
+
+  const page = CHAT_CONTEXT[slug];
+  if (!page) {
+    const available = CHAT_CONTEXT_SLUGS.map((p) => p.slug).join(', ');
+    return {
+      success: false as const,
+      error: `Strona "${slug}" nie znaleziona. Dostępne slugi: ${available}`,
+    };
+  }
+
+  return {
+    success: true as const,
+    page: {
+      slug,
+      title: page.title,
+      content: page.content,
+    },
   };
 }
 
@@ -674,13 +659,27 @@ export async function POST(req: Request) {
     return jsonError('Zapytanie zbyt duże.', 400);
   }
 
-  // ----- 6. System prompt z dynamicznymi kategoriami -----
+  // ----- 6. System prompt z dynamicznymi kategoriami i listą stron -----
+  // Strategia cachowania:
+  // Blok 1 (statyczny BASE_SYSTEM_PROMPT) — cache_control: ephemeral
+  // Blok 2 (dynamiczne kategorie + lista content pages) — cache_control: ephemeral
+  //   Zmienia się raz na 5 min (TTL cache'a w Supabase loaderze), więc też
+  //   warto cache'ować — kolejne tury w obrębie 5 min używają tego samego.
+  // Tools — cache_control na ostatnim narzędziu (cache'uje całą listę).
+  // Cache write = 1.25x, cache read = 0.1x normalnej stawki Anthropic.
+  // Typowa rozmowa wieloturowa: ~5x taniej niż bez cache.
   const categoriesText = await loadCategoriesText();
-  const systemPrompt =
-    BASE_SYSTEM_PROMPT +
-    (categoriesText
-      ? `\n\nDOSTĘPNE KATEGORIE I PODKATEGORIE (używaj WYŁĄCZNIE tych slugów):\n\n${categoriesText}`
-      : '');
+
+  const dynamicContextParts: string[] = [];
+  if (categoriesText) {
+    dynamicContextParts.push(
+      `DOSTĘPNE KATEGORIE I PODKATEGORIE (używaj WYŁĄCZNIE tych slugów):\n\n${categoriesText}`
+    );
+  }
+  dynamicContextParts.push(
+    `DOSTĘPNE STRONY (slugi do tool get_page_content):\n\n${contentPagesIndexText}`
+  );
+  const dynamicContext = dynamicContextParts.join('\n\n');
 
   // ----- 7. Stream response -----
   const encoder = new TextEncoder();
@@ -691,14 +690,34 @@ export async function POST(req: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       };
 
+      // Heartbeat co 15s — zapobiega timeout proxy (Cloudflare/Vercel)
+      // podczas długiego tool execution.
+      let heartbeat: ReturnType<typeof setInterval> | null = null;
+
       try {
         const conversation: MessageParam[] = [...messages];
         let safety = 0;
+
+        heartbeat = setInterval(() => {
+          try {
+            send({ type: 'heartbeat' });
+          } catch {
+            // stream zamknięty — ignoruj
+          }
+        }, 15_000);
 
         // Track produktów już pokazanych klientowi w tej rundzie SSE.
         // Gdy AI woła search_products wielokrotnie i wyniki się pokrywają,
         // nie chcemy dublować tej samej karty produktu w czacie.
         const shownProductIds = new Set<string>();
+
+        // Tools z cache_control na ostatnim — cache'uje całą tablicę narzędzi.
+        // Tools są statyczne (nie zmieniają się między requestami w rozmowie).
+        const cachedTools = TOOLS.map((t, idx) =>
+          idx === TOOLS.length - 1
+            ? ({ ...t, cache_control: { type: 'ephemeral' } } as typeof t)
+            : t
+        );
 
         while (safety < 6) {
           safety++;
@@ -708,8 +727,19 @@ export async function POST(req: Request) {
           const llmStream = anthropic.messages.stream({
             model: 'claude-sonnet-4-6',
             max_tokens: 1500,
-            system: systemPrompt,
-            tools: TOOLS,
+            system: [
+              {
+                type: 'text',
+                text: BASE_SYSTEM_PROMPT,
+                cache_control: { type: 'ephemeral' },
+              },
+              {
+                type: 'text',
+                text: dynamicContext,
+                cache_control: { type: 'ephemeral' },
+              },
+            ],
+            tools: cachedTools,
             messages: conversation,
           });
 
@@ -748,7 +778,7 @@ export async function POST(req: Request) {
                 newProducts.forEach((p) => shownProductIds.add(p.id));
 
                 if (newProducts.length < fullResult.products.length) {
-                  console.log(
+                  devLog(
                     `[search_products] dedupe: ${fullResult.products.length} returned, ${newProducts.length} new (${
                       fullResult.products.length - newProducts.length
                     } duplicates filtered)`
@@ -821,6 +851,16 @@ export async function POST(req: Request) {
                   tool_use_id: block.id,
                   content: JSON.stringify(result),
                 });
+              } else if (block.name === 'get_page_content') {
+                const result = await executeGetPageContent(
+                  block.input as Parameters<typeof executeGetPageContent>[0]
+                );
+
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id,
+                  content: JSON.stringify(result),
+                });
               } else if (block.name === 'prompt_go_to_quote') {
                 // Sygnał dla frontu — pokaż klientowi kartę z linkiem do zapytania
                 send({ type: 'go_to_quote_prompt' });
@@ -857,12 +897,11 @@ export async function POST(req: Request) {
 
         const friendly = isOverloadedError(err)
           ? 'Asystent jest chwilowo przeciążony. Spróbuj ponownie za chwilę.'
-          : err instanceof Error && err.message
-          ? `Wystąpił błąd: ${err.message}`
           : 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
 
         send({ type: 'error', message: friendly });
       } finally {
+        if (heartbeat) clearInterval(heartbeat);
         controller.close();
       }
     },
