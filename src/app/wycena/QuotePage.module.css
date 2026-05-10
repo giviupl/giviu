@@ -114,175 +114,11 @@
   margin-top: 150px;
 }
 
-/* Quote Items */
+/* Quote Items — kontener listy kart QuoteProductCard */
 .quote-items {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-}
-
-.quote-item {
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.quote-item-row {
-  display: flex;
-  gap: var(--spacing-lg);
-  align-items: flex-start;
-}
-
-.quote-item-image {
-  width: 112px;
-  height: 112px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-}
-
-.quote-item-photo {
-  object-fit: contain;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-sm);
-}
-
-.quote-item-emoji {
-  font-size: var(--font-size-4xl);
-}
-
-.quote-item-info {
-  flex: 1;
-}
-
-.quote-item-name {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text);
-  margin: 0 0 4px 0;
-}
-
-.quote-item-brand {
-  font-size: var(--font-size-small);
-  color: var(--color-gray);
-  margin: 0 0 8px 0;
-}
-
-.quote-item-color {
-  font-size: var(--font-size-small);
-  color: var(--color-muted);
-  margin: 0 0 8px 0;
-}
-
-.quote-item-color strong {
-  color: var(--color-text);
-}
-
-.quote-item-price {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.quote-item-delete {
-  padding: 8px;
-  background: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--color-muted);
-  transition: color var(--transition-fast), background-color var(--transition-fast);
-  margin-top: 0;
-}
-
-@media (hover: hover) {
-  .quote-item-delete:hover {
-    background-color: transparent;
-    color: var(--color-error);
-  }
-}
-
-/* Quantities */
-.quote-quantities {
-  margin-top: 12px;
-  margin-left: 0;
-}
-
-.quote-quantities-label {
-  display: block;
-  font-size: var(--font-size-small);
-  font-weight: 500;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-}
-
-.quote-quantity-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-}
-
-.quote-quantity-input {
-  width: 120px;
-  height: 40px;
-  text-align: center;
-  font-size: var(--font-size-base);
-  background-color: var(--color-input);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-sm);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.quote-quantity-input:focus {
-  border-color: var(--color-primary);
-}
-
-.quote-quantity-input.error {
-  border-color: var(--color-error);
-  background-color: var(--color-white);
-}
-
-.quote-quantity-remove {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  color: var(--color-error);
-  transition: background-color var(--transition-fast);
-}
-
-@media (hover: hover) {
-  .quote-quantity-remove:hover {
-    background-color: var(--color-error-bg);
-  }
-}
-
-.quote-quantity-add {
-  padding: 8px 12px;
-  font-size: var(--font-size-small);
-  font-weight: 500;
-  color: var(--color-success);
-  background: none;
-  border: none;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-@media (hover: hover) {
-  .quote-quantity-add:hover {
-    background-color: rgba(34, 197, 94, 0.05);
-  }
 }
 
 /* Copy Toggle */
@@ -426,19 +262,6 @@
 
   .quote-page {
     padding: 0 0 60px;
-  }
-
-  .quote-item-row {
-    flex-wrap: wrap;
-  }
-
-  .quote-item-image {
-    width: 80px;
-    height: 80px;
-  }
-
-  .quote-quantities {
-    margin-left: 0;
   }
 
   .quote-actions {
@@ -963,18 +786,7 @@
 }
 
 
-/* Touch targets */
-@media (max-width: 1024px) {
-  .quote-quantity-remove {
-    width: 44px;
-    height: 44px;
-  }
-
-  .quote-quantity-input {
-    font-size: var(--font-size-body) !important;
-  }
-}
-
+/* Touch targets — pola tekstowe wycena-dane na mobile */
 @media (max-width: 1024px) {
   .wycena-dane-page input,
   .wycena-dane-page textarea {
