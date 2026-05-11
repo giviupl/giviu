@@ -303,7 +303,7 @@ const scrollThumbnails = (direction: "up" | "down") => {
       className={styles['thumbnails-arrow']}
       aria-label="Przewiń miniaturki w górę"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
       </svg>
     </button>
@@ -357,7 +357,7 @@ const scrollThumbnails = (direction: "up" | "down") => {
       className={styles['thumbnails-arrow']}
       aria-label="Przewiń miniaturki w dół"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
       </svg>
     </button>
