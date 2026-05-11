@@ -101,6 +101,37 @@ export default function ProductClient({ product, relatedProducts, brandGiftDescr
 
   // Ile elementów w galerii (zdjęcia lub emoji)
   const galleryCount = hasRealImages ? currentColorImages.length : views.length;
+  const thumbnailsRef = useRef<HTMLDivElement>(null);
+const [canScrollUp, setCanScrollUp] = useState(false);
+const [canScrollDown, setCanScrollDown] = useState(false);
+
+useEffect(() => {
+  const el = thumbnailsRef.current;
+  if (!el) return;
+
+  const updateScrollState = () => {
+    setCanScrollUp(el.scrollTop > 0);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+  };
+
+  updateScrollState();
+  el.addEventListener("scroll", updateScrollState, { passive: true });
+  window.addEventListener("resize", updateScrollState);
+  return () => {
+    el.removeEventListener("scroll", updateScrollState);
+    window.removeEventListener("resize", updateScrollState);
+  };
+}, [galleryCount, selectedColor]);
+
+const scrollThumbnails = (direction: "up" | "down") => {
+  const el = thumbnailsRef.current;
+  if (!el) return;
+  const SCROLL_AMOUNT = 118; // 110px thumb + 8px gap
+  el.scrollBy({
+    top: direction === "down" ? SCROLL_AMOUNT : -SCROLL_AMOUNT,
+    behavior: "smooth",
+  });
+};
 
   // Hydration fix + zapisz do ostatnio oglądanych + kategoria dla Headera
   useEffect(() => {
@@ -262,47 +293,76 @@ export default function ProductClient({ product, relatedProducts, brandGiftDescr
         {/* Hero Section */}
         <div className={styles['product-hero']}>
 
-          {/* Left - Thumbnails */}
-          <div
-            className={`${styles['product-thumbnails']} ${galleryCount > 5 ? styles['product-thumbnails-grid'] : ''}`}
-            role="group"
-            aria-label="Widoki produktu"
-          >
-            {hasRealImages ? (
-              // Prawdziwe zdjęcia jako thumbnails
-              currentColorImages.map((imgSrc, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImageIndex(idx)}
-                  className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
-                  aria-label={`Zdjęcie ${idx + 1}${selectedImageIndex === idx ? ' (aktywne)' : ''}`}
-                  aria-pressed={selectedImageIndex === idx}
-                >
-                  <Image
-                    src={imgSrc}
-                    alt={`${product.name} — widok ${idx + 1}`}
-                    width={200}
-                    height={200}
-                    className={styles['product-thumbnail-image']}
-                  />
-                </button>
-              ))
-            ) : (
-              // Fallback: emoji thumbnails
-              views.map((emoji, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImageIndex(idx)}
-                  className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
-                  style={{ backgroundColor: product.colors[selectedColor]?.hex ? `${product.colors[selectedColor].hex}20` : '#f3f4f6' }}
-                  aria-label={`Widok ${idx + 1}${selectedImageIndex === idx ? ' (aktywny)' : ''}`}
-                  aria-pressed={selectedImageIndex === idx}
-                >
-                  <span className={styles['product-thumbnail-emoji']}>{emoji}</span>
-                </button>
-              ))
-            )}
-          </div>
+{/* Left - Thumbnails with arrows */}
+<div className={styles['product-thumbnails-wrapper']}>
+  {galleryCount > 5 && (
+    <button
+      type="button"
+      onClick={() => scrollThumbnails('up')}
+      disabled={!canScrollUp}
+      className={styles['thumbnails-arrow']}
+      aria-label="Przewiń miniaturki w górę"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+  )}
+
+  <div
+    ref={thumbnailsRef}
+    className={styles['product-thumbnails']}
+    role="group"
+    aria-label="Widoki produktu"
+  >
+    {hasRealImages ? (
+      currentColorImages.map((imgSrc, idx) => (
+        <button
+          key={idx}
+          onClick={() => setSelectedImageIndex(idx)}
+          className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
+          aria-label={`Zdjęcie ${idx + 1}${selectedImageIndex === idx ? ' (aktywne)' : ''}`}
+          aria-pressed={selectedImageIndex === idx}
+        >
+          <Image
+            src={imgSrc}
+            alt={`${product.name} — widok ${idx + 1}`}
+            width={220}
+            height={220}
+            className={styles['product-thumbnail-image']}
+          />
+        </button>
+      ))
+    ) : (
+      views.map((emoji, idx) => (
+        <button
+          key={idx}
+          onClick={() => setSelectedImageIndex(idx)}
+          className={`${styles['product-thumbnail']} ${selectedImageIndex === idx ? styles.active : ''}`}
+          style={{ backgroundColor: product.colors[selectedColor]?.hex ? `${product.colors[selectedColor].hex}20` : '#f3f4f6' }}
+          aria-label={`Widok ${idx + 1}${selectedImageIndex === idx ? ' (aktywny)' : ''}`}
+          aria-pressed={selectedImageIndex === idx}
+        >
+          <span className={styles['product-thumbnail-emoji']}>{emoji}</span>
+        </button>
+      ))
+    )}
+  </div>
+
+  {galleryCount > 5 && (
+    <button
+      type="button"
+      onClick={() => scrollThumbnails('down')}
+      disabled={!canScrollDown}
+      className={styles['thumbnails-arrow']}
+      aria-label="Przewiń miniaturki w dół"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+  )}
+</div>
 
           {/* Center - Main Image */}
           <div className={styles['product-main-image-wrapper']}>

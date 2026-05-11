@@ -34,31 +34,62 @@
 }
 
 /* Thumbnails */
+/* Wrapper kolumny miniaturek (strzałki + lista) */
+.product-thumbnails-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: start;
+  height: 650px;
+  gap: 4px;
+}
+
+/* Strzałki góra/dół */
+.thumbnails-arrow {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  flex-shrink: 0;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .thumbnails-arrow:hover:not(:disabled) {
+    color: var(--color-primary);
+  }
+}
+
+.thumbnails-arrow:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Lista miniaturek — scroll wewnętrzny ukryty, sterowany strzałkami */
 .product-thumbnails {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  align-self: start;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Ukrycie natywnego scrollbara */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.product-thumbnails-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(5, 1fr);
-  grid-auto-flow: column;
-  gap: 4px;
-  align-self: stretch;
-}
-
-.product-thumbnails-grid .product-thumbnail {
-  width: 100px;
-  height: 100%;
-  aspect-ratio: unset;
+.product-thumbnails::-webkit-scrollbar {
+  display: none;
 }
 
 .product-thumbnail {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   border-radius: var(--radius-md);
   border: 2px solid transparent;
   background-color: var(--color-white);
@@ -847,13 +878,24 @@
     gap: var(--spacing-lg);
   }
 
+  .product-thumbnails-wrapper {
+    order: 2;
+    height: auto;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .thumbnails-arrow {
+    display: none;
+  }
+
   .product-thumbnails {
     flex-direction: row;
-    order: 2;
     justify-content: center;
-    max-height: none;
-    overflow-y: visible;
     overflow-x: auto;
+    overflow-y: visible;
+    max-height: none;
+    width: 100%;
   }
 
   .product-thumbnail {
