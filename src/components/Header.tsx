@@ -123,34 +123,34 @@ export default function Header() {
       <header role="banner" className={styles["header-wrapper"]}>
         {/* Górny pasek */}
         <div className={styles["header-top"]}>
-          {/* Logo */}
+          {/* Logo z efektem roll (GIVIU ↔ PREZENTUJ WARTOŚĆ) */}
           <h1 className={styles["header-logo"]}>
-          <Link
-  href="/"
-  aria-label="Giviu - Strona główna"
-  className={styles['header-logo-link']}
-  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
->
-  <svg className={styles['header-logo-signet']} viewBox="0 0 500 500" aria-hidden="true">
-    <g fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M 182.85 140.57 C 187.98 98.49 235.46 60.48 250.00 45.00 C 264.54 60.48 312.02 98.49 317.15 140.57"/>
-      <path d="M 333.33 152.32 C 374.93 144.19 425.75 177.61 444.97 186.65 C 434.74 205.26 413.26 262.17 374.83 280.04"/>
-      <path d="M 368.65 299.06 C 389.23 336.12 373.16 394.78 370.50 415.85 C 349.63 411.87 288.88 409.03 260.00 378.00"/>
-      <path d="M 240.00 378.00 C 211.12 409.03 150.37 411.87 129.50 415.85 C 126.84 394.78 110.77 336.12 131.35 299.06"/>
-      <path d="M 125.17 280.04 C 86.74 262.17 65.26 205.26 55.03 186.65 C 74.25 177.61 125.07 144.19 166.67 152.32"/>
-      <path d="M 317.15 140.57 C 326.75 246.43 229.67 175.90 333.33 152.32"/>
-      <path d="M 374.83 280.04 C 277.11 321.90 314.19 207.77 368.65 299.06"/>
-      <path d="M 260.00 378.00 C 190.00 298.00 310.00 298.00 240.00 378.00"/>
-      <path d="M 131.35 299.06 C 185.81 207.77 222.89 321.90 125.17 280.04"/>
-      <path d="M 166.67 152.32 C 270.33 175.90 173.25 246.43 182.85 140.57"/>
-    </g>
-  </svg>
-  <img
-    src="/giviu-logo.svg"
-    alt="Giviu"
-    className={styles['header-logo-img']}
-  />
-</Link>
+            <Link
+              href="/"
+              aria-label="Giviu - Strona główna"
+              className={styles["header-logo-link"]}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              <span className={styles["logo-roll"]}>
+                <span className={styles["logo-roll-default"]}>
+                  <img
+                    src="/giviu-logo.svg"
+                    alt="Giviu"
+                    className={styles["header-logo-img"]}
+                  />
+                </span>
+                <span
+                  className={styles["logo-roll-hover"]}
+                  aria-hidden="true"
+                >
+                  <img
+                    src="/prezentuj-wartosc.svg"
+                    alt=""
+                    className={styles["header-logo-img"]}
+                  />
+                </span>
+              </span>
+            </Link>
           </h1>
 
           {/* Desktop Navigation */}
@@ -392,4 +392,3 @@ export default function Header() {
     </>
   );
 }
-
