@@ -55,8 +55,8 @@
 
 .header-logo {
   /* Zmienne dla loga - dziedziczą dzieci. Edytuj wartości żeby zmienić rozmiar. */
-  --logo-height: 34px;   /* GIVIU + slot (wysokość headera dla loga) */
-  --pw-height: 34px;     /* PW osobno - możesz dać 28px, 32px, 36px, 40px... */
+  --logo-height: 35px;   /* GIVIU + slot (wysokość headera dla loga) */
+  --pw-height: 24px;     /* PW osobno - możesz dać 28px, 32px, 36px, 40px... */
   margin: 0;
 }
 
@@ -107,7 +107,7 @@
 /* Desktop: aktywuj animację roll */
 @media (min-width: 1025px) {
   .logo-roll {
-    width: calc(var(--pw-height, 40px) * 6.6);
+    width: calc(var(--pw-height, 40px) * 8.28);
     overflow: hidden;
   }
 
