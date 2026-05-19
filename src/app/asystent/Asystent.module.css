@@ -466,24 +466,6 @@
   }
 
 
-/* ====================== Disclaimer ====================== */
-  .disclaimer {
-    text-align: center;
-    font-size: 12px;
-    color: var(--color-gray, #595d66);
-    padding: 8px 16px 0;
-    margin: 0;
-    max-width: 860px;
-    margin-left: auto;
-    margin-right: auto;
-    opacity: 0.65;
-    line-height: 1.4;
-  }
-  
-  @media (max-width: 768px) {
-    .disclaimer { font-size: 11px; padding-top: 6px; }
-  }
-
 /* ====================== Mobile ====================== */
 @media (max-width: 768px) {
   .messagesScroll { padding: 16px 12px 4px; }
@@ -638,3 +620,16 @@
     width: 100%;
   }
 }
+
+/* ====================== Scroll anchor spacer ====================== */
+/* Wysuwa ostatnią wiadomość asystenta na górę viewportu podczas streamingu,
+   żeby tekst nie skakał wraz z rosnącą odpowiedzią. */
+   .messagesSpacer {
+    flex-shrink: 0;
+    min-height: 60vh;
+    pointer-events: none;
+  }
+
+  .messageItem {
+    scroll-margin-top: 32px;
+  }

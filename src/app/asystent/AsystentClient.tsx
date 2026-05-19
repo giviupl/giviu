@@ -1,16 +1,25 @@
-'use client';
+"use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { useQuoteStore } from '@/stores/quoteStore';
-import ChatMessage, { ChatMessageData, ChatBlock } from '@/components/asystent/ChatMessage';
-import { Product } from '@/components/ProductCard';
-import styles from './Asystent.module.css';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { useQuoteStore } from "@/stores/quoteStore";
+import ChatMessage, {
+  ChatMessageData,
+  ChatBlock,
+} from "@/components/asystent/ChatMessage";
+import { Product } from "@/components/ProductCard";
+import styles from "./Asystent.module.css";
 
 const WELCOME =
-  'Cześć! Jestem asystentem Giviu. Pomogę Ci dobrać idealne upominki firmowe. Powiedz mi, na jaką okazję szukasz, jaki masz budżet i ile osób chcesz obdarować, a zaproponuję najlepsze rozwiązanie.';
+  "Cześć! Jestem asystentem Giviu. Pomogę Ci dobrać idealne upominki firmowe. Powiedz mi, na jaką okazję szukasz, jaki masz budżet i ile osób chcesz obdarować, a zaproponuję najlepsze rozwiązanie.";
 
-const STORAGE_KEY = 'giviu-chat-history';
+const STORAGE_KEY = "giviu-chat-history";
 const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 dni
 
 // Frontendowe limity (mirror backendu — UX hint, nie zabezpieczenie)
@@ -27,8 +36,8 @@ function uid() {
 function makeWelcomeMessage(): ChatMessageData {
   return {
     id: uid(),
-    role: 'assistant',
-    blocks: [{ kind: 'text', text: WELCOME }],
+    role: "assistant",
+    blocks: [{ kind: "text", text: WELCOME }],
   };
 }
 
@@ -36,7 +45,7 @@ export default function AsystentClient() {
   const [messages, setMessages] = useState<ChatMessageData[]>([
     makeWelcomeMessage(),
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -52,7 +61,7 @@ export default function AsystentClient() {
   const abortRef = useRef<AbortController | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
-  const hasUserSent = messages.some((m) => m.role === 'user');
+  const hasUserSent = messages.some((m) => m.role === "user");
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const turnstileEnabled = Boolean(turnstileSiteKey);
 
@@ -62,18 +71,21 @@ export default function AsystentClient() {
       const el = asystentRef.current;
       if (el) {
         const top = el.getBoundingClientRect().top;
-        document.documentElement.style.setProperty('--header-height', `${top}px`);
+        document.documentElement.style.setProperty(
+          "--header-height",
+          `${top}px`,
+        );
       }
     };
     updateOffset();
-    window.addEventListener('resize', updateOffset);
-    return () => window.removeEventListener('resize', updateOffset);
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
   // ---------- Blokada scroll body ----------
   useEffect(() => {
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
@@ -108,12 +120,12 @@ export default function AsystentClient() {
   // ---------- Save history ----------
   useEffect(() => {
     if (!historyLoaded) return;
-    if (!messages.some((m) => m.role === 'user')) return;
+    if (!messages.some((m) => m.role === "user")) return;
     try {
       const cleaned = messages.map((m) => ({ ...m, isStreaming: false }));
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ messages: cleaned, savedAt: Date.now() })
+        JSON.stringify({ messages: cleaned, savedAt: Date.now() }),
       );
     } catch {
       // localStorage może być pełny / wyłączony
@@ -121,7 +133,7 @@ export default function AsystentClient() {
   }, [messages, historyLoaded]);
 
   // ---------- Smart auto-scroll ----------
-  // Auto-scroll TYLKO gdy klient jest blisko dołu (<100px). 
+  // Auto-scroll TYLKO gdy klient jest blisko dołu (<100px).
   // Jeśli sam scrollował w górę — nie wymuszamy zjazdu na dół.
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -133,44 +145,67 @@ export default function AsystentClient() {
   }, []);
 
   useEffect(() => {
-    if (!autoScroll) return;
+    if (!autoScroll || isStreaming || hasUserSent) return;
+    // Auto-scroll na dół tylko gdy nie ma jeszcze rozmowy (welcome screen).
+    // W trybie konwersacji pozycję kontroluje scroll anchor — żeby pytanie zostawało u góry.
     const el = scrollRef.current;
     if (el) {
-      // requestAnimationFrame zapewnia że scrollujemy po faktycznym renderze
       requestAnimationFrame(() => {
         el.scrollTop = el.scrollHeight;
       });
     }
-  }, [messages, autoScroll]);
+  }, [messages, autoScroll, isStreaming, hasUserSent]);
+
+  // Scroll anchor: po starcie streamingu raz scrolluje wiadomość asystenta do top viewportu.
+  // Dalej tekst rośnie wewnątrz wiadomości, container nie skacze.
+  useEffect(() => {
+    if (!isStreaming || !autoScroll) return;
+    const t = setTimeout(() => {
+      // Scrolluj do user message (przedostatnia wiadomość), nie do placeholdera asystenta.
+      // Wtedy klient widzi swoje pytanie u góry, a odpowiedź wjeżdża pod nim.
+      const userMsg = messages[messages.length - 2];
+      if (userMsg && userMsg.role === "user") {
+        const el = document.getElementById(`msg-${userMsg.id}`);
+        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
+    return () => clearTimeout(t);
+  }, [isStreaming]);
 
   // Po wysłaniu nowej wiadomości użytkownika — wymuszamy auto-scroll na ON
   // (resetuje sytuację gdy klient sam scrollował, a teraz znów chce być u dołu)
   const enableAutoScroll = useCallback(() => {
     setAutoScroll(true);
-    const el = scrollRef.current;
-    if (el) {
-      requestAnimationFrame(() => {
-        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-      });
+    // Scrolluj do najnowszej user message (zachowanie scroll anchora),
+    // nie na sam dół — bo dół to spacer 60vh, klient by zobaczył tylko pustkę.
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+    if (lastUserMsg) {
+      const el = document.getElementById(`msg-${lastUserMsg.id}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      const el = scrollRef.current;
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+        });
+      }
     }
-  }, []);
+  }, [messages]);
 
   // ---------- Auto-resize textarea ----------
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
-    el.style.height = 'auto';
+    el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [input]);
 
   // ---------- Helpers do mutowania ostatniej wiadomości assistanta ----------
-  const updateLastAssistant = (
-    fn: (blocks: ChatBlock[]) => ChatBlock[]
-  ) => {
+  const updateLastAssistant = (fn: (blocks: ChatBlock[]) => ChatBlock[]) => {
     setMessages((prev) => {
       const next = [...prev];
       const last = next[next.length - 1];
-      if (!last || last.role !== 'assistant') return prev;
+      if (!last || last.role !== "assistant") return prev;
       const nextBlocks = fn(last.blocks ?? []);
       next[next.length - 1] = { ...last, blocks: nextBlocks };
       return next;
@@ -181,10 +216,10 @@ export default function AsystentClient() {
     updateLastAssistant((blocks) => {
       const out = [...blocks];
       const lastBlock = out[out.length - 1];
-      if (lastBlock && lastBlock.kind === 'text') {
-        out[out.length - 1] = { kind: 'text', text: lastBlock.text + text };
+      if (lastBlock && lastBlock.kind === "text") {
+        out[out.length - 1] = { kind: "text", text: lastBlock.text + text };
       } else {
-        out.push({ kind: 'text', text });
+        out.push({ kind: "text", text });
       }
       return out;
     });
@@ -197,8 +232,8 @@ export default function AsystentClient() {
   const turnSeparator = () => {
     updateLastAssistant((blocks) => {
       const last = blocks[blocks.length - 1];
-      if (last && last.kind === 'text' && last.text.length > 0) {
-        return [...blocks, { kind: 'text', text: '' }];
+      if (last && last.kind === "text" && last.text.length > 0) {
+        return [...blocks, { kind: "text", text: "" }];
       }
       return blocks;
     });
@@ -207,18 +242,18 @@ export default function AsystentClient() {
   const toApiMessages = (msgs: ChatMessageData[]) => {
     return msgs
       .filter((m, idx) => {
-        if (idx === 0 && m.role === 'assistant') return false; // pomijamy welcome
+        if (idx === 0 && m.role === "assistant") return false; // pomijamy welcome
         return true;
       })
       .map((m) => {
-        if (m.role === 'user') {
-          return { role: 'user' as const, content: m.text ?? '' };
+        if (m.role === "user") {
+          return { role: "user" as const, content: m.text ?? "" };
         }
         const text = (m.blocks ?? [])
-          .filter((b): b is { kind: 'text'; text: string } => b.kind === 'text')
+          .filter((b): b is { kind: "text"; text: string } => b.kind === "text")
           .map((b) => b.text)
-          .join('');
-        return { role: 'assistant' as const, content: text };
+          .join("");
+        return { role: "assistant" as const, content: text };
       })
       .filter((m) => m.content.trim().length > 0);
   };
@@ -226,7 +261,10 @@ export default function AsystentClient() {
   // ---------- Reset rozmowy ----------
   const handleReset = () => {
     if (isStreaming) return;
-    if (!confirm('Rozpocząć nową rozmowę? Aktualna historia zostanie usunięta.')) return;
+    if (
+      !confirm("Rozpocząć nową rozmowę? Aktualna historia zostanie usunięta.")
+    )
+      return;
     if (abortRef.current) {
       abortRef.current.abort();
       abortRef.current = null;
@@ -238,7 +276,7 @@ export default function AsystentClient() {
     }
     setMessages([makeWelcomeMessage()]);
     setError(null);
-    setInput('');
+    setInput("");
     setAutoScroll(true);
   };
 
@@ -249,17 +287,21 @@ export default function AsystentClient() {
 
     // Walidacje frontendowe (UX, backend i tak sprawdzi)
     if (trimmed.length > FRONTEND_MAX_MESSAGE_LENGTH) {
-      setError(`Wiadomość za długa (max ${FRONTEND_MAX_MESSAGE_LENGTH} znaków).`);
+      setError(
+        `Wiadomość za długa (max ${FRONTEND_MAX_MESSAGE_LENGTH} znaków).`,
+      );
       return;
     }
     if (messages.length >= FRONTEND_MAX_MESSAGES) {
-      setError('Rozmowa zbyt długa. Kliknij ikonę odświeżania aby zacząć nową.');
+      setError(
+        "Rozmowa zbyt długa. Kliknij ikonę odświeżania aby zacząć nową.",
+      );
       return;
     }
 
     // Turnstile token check
     if (turnstileEnabled && !turnstileToken) {
-      setError('Trwa weryfikacja bezpieczeństwa, spróbuj ponownie za chwilę.');
+      setError("Trwa weryfikacja bezpieczeństwa, spróbuj ponownie za chwilę.");
       return;
     }
 
@@ -267,19 +309,19 @@ export default function AsystentClient() {
 
     const userMsg: ChatMessageData = {
       id: uid(),
-      role: 'user',
+      role: "user",
       text: trimmed,
     };
     const assistantMsg: ChatMessageData = {
       id: uid(),
-      role: 'assistant',
+      role: "assistant",
       blocks: [],
       isStreaming: true,
     };
 
     const nextMessages = [...messages, userMsg, assistantMsg];
     setMessages(nextMessages);
-    setInput('');
+    setInput("");
     setIsStreaming(true);
     // Klient właśnie wysłał wiadomość — chce widzieć odpowiedź na dole
     setAutoScroll(true);
@@ -290,11 +332,11 @@ export default function AsystentClient() {
     abortRef.current = ac;
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
+      const res = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          ...(turnstileToken ? { 'X-Turnstile-Token': turnstileToken } : {}),
+          "Content-Type": "application/json",
+          ...(turnstileToken ? { "X-Turnstile-Token": turnstileToken } : {}),
         },
         body: JSON.stringify({
           messages: apiMessages,
@@ -306,18 +348,18 @@ export default function AsystentClient() {
       // Obsługa błędów HTTP z czytelnymi komunikatami
       if (res.status === 429) {
         const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Przekroczono limit zapytań.');
+        throw new Error(errBody.error || "Przekroczono limit zapytań.");
       }
       if (res.status === 401) {
         const errBody = await res.json().catch(() => ({}));
         // Reset turnstile, klient prawdopodobnie potrzebuje nowego tokena
         turnstileRef.current?.reset();
         setTurnstileToken(null);
-        throw new Error(errBody.error || 'Weryfikacja nieudana.');
+        throw new Error(errBody.error || "Weryfikacja nieudana.");
       }
       if (res.status === 400) {
         const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Nieprawidłowe zapytanie.');
+        throw new Error(errBody.error || "Nieprawidłowe zapytanie.");
       }
       if (!res.ok || !res.body) {
         throw new Error(`Błąd serwera (${res.status})`);
@@ -325,19 +367,19 @@ export default function AsystentClient() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
 
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop() ?? '';
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
 
         for (const part of parts) {
           const line = part.trim();
-          if (!line.startsWith('data:')) continue;
+          if (!line.startsWith("data:")) continue;
           const json = line.slice(5).trim();
           if (!json) continue;
 
@@ -348,14 +390,14 @@ export default function AsystentClient() {
             continue;
           }
 
-          if (event.type === 'text_delta') {
+          if (event.type === "text_delta") {
             appendTextDelta(event.text as string);
-          } else if (event.type === 'products') {
+          } else if (event.type === "products") {
             appendBlock({
-              kind: 'products',
+              kind: "products",
               products: (event.products as Product[]) ?? [],
             });
-          } else if (event.type === 'add_to_quote') {
+          } else if (event.type === "add_to_quote") {
             const product = event.product as {
               id: string;
               slug: string;
@@ -387,12 +429,12 @@ export default function AsystentClient() {
               colorHex: color?.hex,
               colorImage: color?.image ?? undefined,
             });
-            const colorTxt = color ? ` (${color.name})` : '';
+            const colorTxt = color ? ` (${color.name})` : "";
             appendBlock({
-              kind: 'notice',
+              kind: "notice",
               text: `Dodano do zapytania: ${product.name}${colorTxt}`,
             });
-          } else if (event.type === 'quote_summary') {
+          } else if (event.type === "quote_summary") {
             const q = event.quote as {
               items: Array<{
                 product_id: string;
@@ -404,30 +446,30 @@ export default function AsystentClient() {
               empty: boolean;
             };
             appendBlock({
-              kind: 'quote',
+              kind: "quote",
               items: q.items,
               empty: q.empty,
             });
-          } else if (event.type === 'go_to_quote_prompt') {
-            appendBlock({ kind: 'go_to_quote_prompt' });
-          } else if (event.type === 'turn_separator') {
+          } else if (event.type === "go_to_quote_prompt") {
+            appendBlock({ kind: "go_to_quote_prompt" });
+          } else if (event.type === "turn_separator") {
             turnSeparator();
-          } else if (event.type === 'error') {
-            setError((event.message as string) ?? 'Błąd');
-          } else if (event.type === 'done') {
+          } else if (event.type === "error") {
+            setError((event.message as string) ?? "Błąd");
+          } else if (event.type === "done") {
             // finish
           }
         }
       }
     } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
-      setError((e as Error).message ?? 'Błąd połączenia');
+      if ((e as Error).name === "AbortError") return;
+      setError((e as Error).message ?? "Błąd połączenia");
     } finally {
       setIsStreaming(false);
       setMessages((prev) => {
         const next = [...prev];
         const last = next[next.length - 1];
-        if (last && last.role === 'assistant') {
+        if (last && last.role === "assistant") {
           next[next.length - 1] = { ...last, isStreaming: false };
         }
         return next;
@@ -443,14 +485,15 @@ export default function AsystentClient() {
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
     }
   };
 
   // Floating "↓ Najnowsze" button — widoczny tylko gdy klient jest w górze a coś nowego się dzieje
-  const showScrollToBottomButton = !autoScroll && (isStreaming || messages.length > 1);
+  const showScrollToBottomButton =
+    !autoScroll && (isStreaming || messages.length > 1);
 
   return (
     <div ref={asystentRef} className={styles.asystent}>
@@ -464,9 +507,9 @@ export default function AsystentClient() {
             onError={() => setTurnstileToken(null)}
             onExpire={() => setTurnstileToken(null)}
             options={{
-              size: 'invisible',
-              theme: 'light',
-              appearance: 'interaction-only',
+              size: "invisible",
+              theme: "light",
+              appearance: "interaction-only",
             }}
           />
         </div>
@@ -506,8 +549,13 @@ export default function AsystentClient() {
       >
         <div className={styles.messagesContainer}>
           {messages.map((m) => (
-            <ChatMessage key={m.id} message={m} />
+            <div key={m.id} id={`msg-${m.id}`} className={styles.messageItem}>
+              <ChatMessage message={m} />
+            </div>
           ))}
+          {hasUserSent && (
+            <div className={styles.messagesSpacer} aria-hidden="true" />
+          )}
           {error ? <div className={styles.errorBanner}>{error}</div> : null}
         </div>
       </div>
@@ -543,7 +591,7 @@ export default function AsystentClient() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder={hasUserSent ? '' : 'Napisz wiadomość...'}
+            placeholder={hasUserSent ? "" : "Napisz wiadomość..."}
             rows={1}
             disabled={isStreaming}
             maxLength={FRONTEND_MAX_MESSAGE_LENGTH + 100}
@@ -562,7 +610,8 @@ export default function AsystentClient() {
           </button>
         </div>
         <p className={styles.disclaimer}>
-          Asystent AI może popełniać błędy. Ostateczne warunki ustala zespół Giviu.
+          Asystent AI może popełniać błędy. Ostateczne warunki ustala zespół
+          Giviu.
         </p>
       </div>
     </div>

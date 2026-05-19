@@ -55,7 +55,7 @@
 
 .header-logo {
   /* Zmienne dla loga - dziedziczą dzieci. Edytuj wartości żeby zmienić rozmiar. */
-  --logo-height: 35px;   /* GIVIU + slot (wysokość headera dla loga) */
+  --logo-height: 40px;   /* GIVIU + slot (wysokość headera dla loga) */
   --pw-height: 24px;     /* PW osobno - możesz dać 28px, 32px, 36px, 40px... */
   margin: 0;
 }
