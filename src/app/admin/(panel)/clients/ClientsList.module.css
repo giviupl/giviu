@@ -1,0 +1,164 @@
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.searchInput {
+  flex: 1;
+  max-width: 480px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background-color: var(--color-white);
+  color: var(--color-text);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.clearLink {
+  font-size: var(--font-size-small);
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.clearLink:hover {
+  color: var(--color-error);
+}
+
+.empty {
+  background-color: var(--color-white);
+  border: 1px dashed var(--color-border-medium);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3xl);
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.tableWrap {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: var(--color-surface);
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: var(--font-size-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border-medium);
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--font-size-small);
+  vertical-align: middle;
+}
+
+.row:last-child td {
+  border-bottom: none;
+}
+
+.row:hover {
+  background-color: var(--color-surface);
+}
+
+.companyLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.companyName {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.companyLink:hover .companyName {
+  text-decoration: underline;
+}
+
+.contactSub {
+  font-size: var(--font-size-2xs);
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+.emailLink {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.emailLink:hover {
+  color: var(--color-primary);
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+}
+
+.numCol {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.actionLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+}
+
+.actionLink:hover {
+  text-decoration: underline;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.deleteBtn:hover {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-sm);
+}

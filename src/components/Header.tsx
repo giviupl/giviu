@@ -118,6 +118,8 @@ export default function Header() {
     };
   }, [mobileMenuOpen]);
 
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <>
       <header role="banner" className={styles["header-wrapper"]}>
