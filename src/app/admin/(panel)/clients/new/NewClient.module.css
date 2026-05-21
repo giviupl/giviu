@@ -96,6 +96,32 @@
   justify-content: flex-end;
 }
 
+/* NIP check */
+.nipChecking {
+  font-size: var(--font-size-2xs);
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.nipExists {
+  padding: 10px 12px;
+  background-color: var(--color-error-bg);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-small);
+  color: var(--color-error);
+}
+
+.nipExistsLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.nipExistsLink:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
   .row {
     grid-template-columns: 1fr;

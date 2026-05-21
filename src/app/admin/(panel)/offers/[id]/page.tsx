@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase-server';
+import OfferEditor from './OfferEditor';
 import styles from '../../admin.module.css';
 
 interface PageProps {
@@ -11,19 +12,47 @@ export default async function OfferEditPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = supabaseServer;
 
-  const { data: offer } = await supabase
-    .from('offers')
-    .select('*, offer_items(*)')
-    .eq('id', id)
-    .single();
+  const [{ data: offer }, { data: items }] = await Promise.all([
+    supabase.from('offers').select('*').eq('id', id).single(),
+    supabase
+      .from('offer_items')
+      .select('*')
+      .eq('offer_id', id)
+      .order('sort_order', { ascending: true }),
+  ]);
 
   if (!offer) notFound();
+
+  // Jeśli już wybrany klient, pobierz jego kontakty
+  let contacts: Array<{
+    id: string;
+    name: string;
+    position: string | null;
+    email: string | null;
+    phone: string | null;
+    is_primary: boolean | null;
+  }> = [];
+  if (offer.client_id) {
+    const { data: c } = await supabase
+      .from('client_contacts')
+      .select('id, name, position, email, phone, is_primary')
+      .eq('client_id', offer.client_id)
+      .order('is_primary', { ascending: false });
+    contacts = c || [];
+  }
 
   return (
     <>
       <header className={styles.pageHeader}>
         <div>
-          <Link href="/admin/offers" style={{ color: 'var(--color-muted)', fontSize: 'var(--font-size-small)', textDecoration: 'none' }}>
+          <Link
+            href="/admin/offers"
+            style={{
+              color: 'var(--color-muted)',
+              fontSize: 'var(--font-size-small)',
+              textDecoration: 'none',
+            }}
+          >
             ← Wszystkie oferty
           </Link>
           <h1 className={styles.pageTitle} style={{ marginTop: 8 }}>
@@ -32,23 +61,7 @@ export default async function OfferEditPage({ params }: PageProps) {
         </div>
       </header>
 
-      <div
-        style={{
-          background: 'var(--color-white)',
-          border: '1px dashed var(--color-border-medium)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--spacing-3xl)',
-          textAlign: 'center',
-          color: 'var(--color-muted)',
-        }}
-      >
-        <p style={{ fontSize: 'var(--font-size-lg)', marginBottom: 8 }}>🚧 Kreator oferty</p>
-        <p>Tura 2 — buduję dane klienta, pozycje produktów i kalkulator.</p>
-        <p style={{ fontSize: 'var(--font-size-small)', marginTop: 16 }}>
-          ID: <code>{offer.id}</code> · Status: <code>{offer.status}</code> · Pozycji:{' '}
-          <code>{(offer.offer_items as unknown[])?.length ?? 0}</code>
-        </p>
-      </div>
+      <OfferEditor offer={offer} initialItems={items || []} initialContacts={contacts} />
     </>
   );
 }
