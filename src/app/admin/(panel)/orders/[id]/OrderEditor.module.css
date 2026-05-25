@@ -1116,3 +1116,358 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ============================================
+   B2: Order-specific styles (statusy, grids, link do oferty)
+   ============================================ */
+
+/* Status badge dla zamówień (przy dropdown) */
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status_gray { background-color: #e5e7eb; color: #4b5563; }
+.status_blue { background-color: #dbeafe; color: #1e40af; }
+.status_green { background-color: #d1fae5; color: #065f46; }
+.status_orange { background-color: #fed7aa; color: #9a3412; }
+.status_red { background-color: #fee2e2; color: #991b1b; }
+
+.statusPickerWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Grids - terminy + notatki */
+.datesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md) var(--spacing-lg);
+}
+
+@media (max-width: 900px) {
+  .datesGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 500px) {
+  .datesGrid { grid-template-columns: 1fr; }
+}
+
+.notesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 700px) {
+  .notesGrid { grid-template-columns: 1fr; }
+}
+
+.readonlyDate {
+  padding: 8px 12px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* Link do oferty źródłowej w status barze */
+.offerLink {
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  margin-left: var(--spacing-md);
+}
+
+.offerLink:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   B3: SEKCJA POD-POZYCJI KOSZTOWYCH
+   ============================================ */
+
+.expandCostsBtn {
+  margin-top: var(--spacing-md);
+  padding: 8px 14px;
+  background: none;
+  border: 1px dashed var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+  align-self: flex-start;
+}
+
+.expandCostsBtn:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.costsSection {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--color-border-light);
+}
+
+.costsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.costsTitle {
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.costsCount {
+  font-weight: 400;
+  color: var(--color-muted);
+  font-size: var(--font-size-2xs);
+  margin-left: 4px;
+}
+
+.costsEmpty {
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+  font-style: italic;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.costsTableWrap {
+  overflow-x: auto;
+  margin-bottom: var(--spacing-sm);
+}
+
+.costsTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+  font-size: var(--font-size-small);
+}
+
+.costsTable thead th {
+  text-align: left;
+  font-weight: 500;
+  font-size: var(--font-size-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--color-border-light);
+  white-space: nowrap;
+  background-color: var(--color-surface);
+}
+
+.costsNumColHead {
+  text-align: right !important;
+}
+
+.costsTable tbody td {
+  padding: 5px 6px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.costsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.costRow:hover {
+  background-color: var(--color-surface);
+}
+
+.costsNumCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap;
+  padding-right: 10px !important;
+}
+
+/* Wartości pod-pozycji są kosztem — wyświetlamy z minusem na czerwono */
+.costsNegative {
+  color: #b91c1c;
+}
+
+.costsActionCell {
+  text-align: center;
+  width: 36px;
+}
+
+.costsDeleteBtn {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.costsDeleteBtn:hover:not(:disabled) {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+/* Cost input - kompaktowy */
+.costInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.costInput {
+  width: 100%;
+  min-width: 70px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-small);
+  background-color: var(--color-white);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.costInput[type="number"] {
+  text-align: right;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.costInput[type="number"]::-webkit-outer-spin-button,
+.costInput[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.costInputWithSuffix {
+  padding-right: 26px;
+}
+
+.costInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.costInputSuffix {
+  position: absolute;
+  right: 8px;
+  font-size: var(--font-size-2xs);
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.costSelect {
+  padding: 5px 8px;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-small);
+  background-color: var(--color-white);
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 130px;
+  max-width: 180px;
+}
+
+.costSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Inline add supplier */
+.costInlineAddWrap {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.costInlineAddOk,
+.costInlineAddCancel {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-white);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.costInlineAddOk {
+  color: var(--color-success);
+}
+
+.costInlineAddOk:hover:not(:disabled) {
+  background-color: #d1fae5;
+  border-color: var(--color-success);
+}
+
+.costInlineAddOk:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.costInlineAddCancel {
+  color: var(--color-muted);
+}
+
+.costInlineAddCancel:hover {
+  background-color: var(--color-surface);
+}
+
+/* + Dodaj koszt */
+.addCostBtn {
+  padding: 6px 12px;
+  background: none;
+  border: 1px dashed var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.addCostBtn:hover:not(:disabled) {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.addCostBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Stopka — nowy blok "Koszty" */
+.totalsCost .totalsValue {
+  color: #b91c1c;
+}
+
+/* Wartość "Łączny koszt" w kafelku pozycji */
+.calcResultCost {
+  color: #b91c1c !important;
+}

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { updateOfferAction, deleteOfferItemAction } from './actions';
+import Link from 'next/link';
+import { updateOfferAction } from './actions';
 import ClientSelector from './ClientSelector';
 import ProductSearch from './ProductSearch';
-import OfferItemCard from './OfferItemCard';
+import OfferItemGroup from './OfferItemGroup';
 import styles from './OfferEditor.module.css';
 
 const STATUS_OPTIONS = [
@@ -66,6 +67,21 @@ interface Contact {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+// Grupowanie pozycji po (product_id, product_color_name)
+// Pozycje manualne (product_id = null) NIE są grupowane — każda osobno.
+function groupItems(items: OfferItem[]): OfferItem[][] {
+  const groups = new Map<string, OfferItem[]>();
+  items.forEach((item) => {
+    const key = item.product_id
+      ? `prod:${item.product_id}|color:${item.product_color_name || ''}`
+      : `manual:${item.id}`;
+    const existing = groups.get(key);
+    if (existing) existing.push(item);
+    else groups.set(key, [item]);
+  });
+  return Array.from(groups.values());
+}
+
 export default function OfferEditor({
   offer,
   initialItems,
@@ -115,28 +131,21 @@ export default function OfferEditor({
   }, [formData]);
 
   const handleItemUpdate = (itemId: string, updates: Partial<OfferItem>) => {
-    setItems((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, ...updates } : i)),
-    );
-  };
-
-  const handleDeleteItem = async (itemId: string) => {
-    if (!confirm('Usunąć tę pozycję z oferty?')) return;
-    const result = await deleteOfferItemAction(itemId, offer.id);
-    if (result.ok) {
-      setItems((prev) => prev.filter((i) => i.id !== itemId));
-    }
+    setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, ...updates } : i)));
   };
 
   const handleItemAdded = (newItem: OfferItem) => {
     setItems((prev) => [...prev, newItem]);
   };
 
+  const handleItemsDeleted = (ids: string[]) => {
+    setItems((prev) => prev.filter((i) => !ids.includes(i.id)));
+  };
+
   const handleClientChanged = (
     updatedOffer: Partial<Offer>,
     newContacts: Contact[],
   ) => {
-    // Server już zapisał, tutaj tylko aktualizujemy lokalny stan na potrzeby UI
     if (updatedOffer.client_id !== undefined) {
       offer.client_id = updatedOffer.client_id;
       offer.client_company = updatedOffer.client_company ?? null;
@@ -153,6 +162,9 @@ export default function OfferEditor({
   const totalGross = items.reduce((s, i) => s + Number(i.total_price_gross || 0), 0);
   const totalVat = totalGross - totalNet;
   const totalProfit = items.reduce((s, i) => s + Number(i.profit_total || 0), 0);
+
+  // Grupowanie wariantów
+  const groups = groupItems(items);
 
   return (
     <div className={styles.editor}>
@@ -183,10 +195,20 @@ export default function OfferEditor({
           />
         </div>
 
-        <div className={styles.saveIndicator}>
-          {status === 'saving' && <span className={styles.statusSaving}>Zapisywanie…</span>}
-          {status === 'saved' && <span className={styles.statusSaved}>✓ Zapisano</span>}
-          {status === 'error' && <span className={styles.statusError}>⚠ Błąd zapisu</span>}
+        <div className={styles.statusBarRight}>
+          <div className={styles.saveIndicator}>
+            {status === 'saving' && <span className={styles.statusSaving}>Zapisywanie…</span>}
+            {status === 'saved' && <span className={styles.statusSaved}>✓ Zapisano</span>}
+            {status === 'error' && <span className={styles.statusError}>⚠ Błąd zapisu</span>}
+          </div>
+          {items.length > 0 && (
+            <Link
+              href={`/admin/offers/${offer.id}/convert`}
+              className={styles.convertBtn}
+            >
+              Konwertuj na zamówienie →
+            </Link>
+          )}
         </div>
       </div>
 
@@ -209,22 +231,28 @@ export default function OfferEditor({
       {/* POZYCJE */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          Pozycje <span className={styles.count}>({items.length})</span>
+          Pozycje{' '}
+          <span className={styles.count}>
+            ({groups.length} {groups.length === 1 ? 'pozycja' : 'pozycji'}
+            {items.length > groups.length ? `, ${items.length} wariantów` : ''})
+          </span>
         </h2>
 
-        {items.length === 0 && (
+        {groups.length === 0 && (
           <p className={styles.emptyText}>
             Brak pozycji. Wyszukaj produkt poniżej albo dodaj ręcznie.
           </p>
         )}
 
         <div className={styles.itemsList}>
-          {items.map((item) => (
-            <OfferItemCard
-              key={item.id}
-              item={item}
-              onUpdate={(updates) => handleItemUpdate(item.id, updates)}
-              onDelete={() => handleDeleteItem(item.id)}
+          {groups.map((group) => (
+            <OfferItemGroup
+              key={group[0].id}
+              items={group}
+              offerId={offer.id}
+              onVariantAdded={handleItemAdded}
+              onItemUpdate={handleItemUpdate}
+              onItemsDeleted={handleItemsDeleted}
             />
           ))}
         </div>

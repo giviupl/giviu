@@ -1,0 +1,148 @@
+/* src/components/admin/ConfirmDialog.module.css */
+/* Giviu design system: #4f67b1 primary, #f5f3ee bg, #595d66 text, Rubik */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 41, 55, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(79, 103, 177, 0.05);
+  text-align: center;
+  font-family: 'Rubik', system-ui, sans-serif;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.iconWrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.icon {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.danger .iconWrapper { background: #fee2e2; color: #dc2626; }
+.warning .iconWrapper { background: #fef3c7; color: #d97706; }
+.info .iconWrapper { background: rgba(79, 103, 177, 0.12); color: #4f67b1; }
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.message {
+  font-size: 0.9375rem;
+  color: #595d66;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: center;
+}
+
+.cancelBtn,
+.confirmBtn {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancelBtn {
+  background: #f3f4f6;
+  color: #595d66;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.confirmBtn {
+  color: #ffffff;
+}
+
+.confirmBtn_danger { background: #dc2626; }
+.confirmBtn_danger:hover:not(:disabled) { background: #b91c1c; }
+
+.confirmBtn_warning { background: #d97706; }
+.confirmBtn_warning:hover:not(:disabled) { background: #b45309; }
+
+.confirmBtn_info { background: #4f67b1; }
+.confirmBtn_info:hover:not(:disabled) { background: #3f5391; }
+
+.cancelBtn:disabled,
+.confirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .dialog {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+  .actions {
+    flex-direction: column-reverse;
+  }
+}

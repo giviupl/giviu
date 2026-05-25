@@ -10,18 +10,18 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const STATUS_LABELS: Record<string, string> = {
+const OFFER_STATUS_LABELS: Record<string, string> = {
   draft: 'Robocza',
   sent: 'Wysłana',
   accepted: 'Zaakceptowana',
   rejected: 'Odrzucona',
   expired: 'Wygasła',
+};
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
   new: 'Nowe',
   in_production: 'W produkcji',
-  ready: 'Gotowe',
-  shipped: 'Wysłane',
-  delivered: 'Dostarczone',
-  completed: 'Zrealizowane',
+  completed: 'Zakończone',
   cancelled: 'Anulowane',
 };
 
@@ -139,7 +139,7 @@ export default async function ClientEditPage({ params }: PageProps) {
                         {offer.offer_number}
                       </Link>
                     </td>
-                    <td>{STATUS_LABELS[offer.status] || offer.status}</td>
+                    <td>{OFFER_STATUS_LABELS[offer.status] || offer.status}</td>
                     <td className={pageStyles.numCol}>
                       {total > 0
                         ? `${total.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
@@ -179,7 +179,7 @@ export default async function ClientEditPage({ params }: PageProps) {
                       {order.order_number}
                     </Link>
                   </td>
-                  <td>{STATUS_LABELS[order.status] || order.status}</td>
+                  <td>{ORDER_STATUS_LABELS[order.status] || order.status}</td>
                   <td className={pageStyles.numCol}>
                     {order.total_value
                       ? `${Number(order.total_value).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`

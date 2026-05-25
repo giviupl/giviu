@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useQuoteStore } from "@/stores/quoteStore";
 import InspirationCarouselSimple from "@/components/InspirationCarouselSimple";
+import { submitInquiryAction } from "./actions";
 
 interface CustomerData {
   firstName: string;
@@ -119,11 +120,51 @@ export default function WycenaDanePage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsSuccess(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Mapowanie itemów ze store na payload dla server action.
+      // QuoteItem ma: id (= product_id), colorIndex, quantities (string[])
+      // Niestety nie ma name/hex koloru ani danych produktu w store —
+      // serwer dograwa je z bazy products przy konwersji.
+      // Color name/hex próbujemy wziąć z itemu jeśli store je trzyma.
+      const itemsPayload = items.map((item) => {
+        const it = item as unknown as {
+          id: string;
+          colorIndex?: number;
+          colorName?: string;
+          colorHex?: string;
+          quantities?: string[];
+        };
+        return {
+          productId: it.id,
+          colorName: it.colorName || null,
+          colorHex: it.colorHex || null,
+          quantities: Array.isArray(it.quantities) ? it.quantities : [],
+        };
+      });
+
+      const result = await submitInquiryAction({
+        firstName: customerData.firstName,
+        lastName: customerData.lastName,
+        company: customerData.company,
+        phone: customerData.phone,
+        email: customerData.email,
+        nip: customerData.nip || undefined,
+        addressStreet: customerData.address || undefined,
+        addressCity: customerData.city || undefined,
+        addressPostalCode: customerData.postalCode || undefined,
+        notes: customerData.notes || undefined,
+        items: itemsPayload,
+      });
+
+      if (result.ok) {
+        setIsSuccess(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        console.error("Błąd zapisu zapytania:", result.error);
+        alert(`Nie udało się wysłać zapytania: ${result.error}`);
+      }
     } catch (error) {
       console.error("Błąd wysyłki:", error);
+      alert("Wystąpił błąd podczas wysyłki. Spróbuj ponownie.");
     } finally {
       setIsLoading(false);
     }

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { CATEGORIES, NAV_LINKS } from "@/data/navigation";
 import { useQuoteStore } from "@/stores/quoteStore";
 import styles from "./Header.module.css";
+import HeaderSearch from '@/components/HeaderSearch/HeaderSearch';
 
 function QuoteBadge() {
   const [count, setCount] = useState(0);
@@ -154,6 +155,20 @@ export default function Header() {
               </span>
             </Link>
           </h1>
+
+                    {/* Search bar — desktop only (mobile ukryty) */}
+                    <div
+  style={{
+    flex: "0 1 480px",      // 100% większy niż 240px
+    minWidth: 0,
+    marginLeft: "24px",     // wypycha search w prawo (bliżej INSPIRACJE)
+    marginRight: "24px",    // taki sam odstęp od INSPIRACJE jak był od logo
+  }}
+  className="header-search-desktop"
+>
+  <HeaderSearch />
+</div>
+
 
           {/* Desktop Navigation */}
           <nav

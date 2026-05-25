@@ -1,12 +1,14 @@
 'use client';
 
+// Mirror ProductSearch z ofert, ale dla zamówień (addOrderItemAction).
+
 import { useState, useEffect, useRef, useTransition } from 'react';
 import {
   searchProductsAction,
-  addOfferItemAction,
   getBrandsAndCategoriesAction,
-} from './actions';
-import styles from './OfferEditor.module.css';
+} from '../../offers/[id]/actions';
+import { addOrderItemAction } from '../actions';
+import styles from './OrderEditor.module.css';
 
 interface ProductColor {
   name: string;
@@ -37,37 +39,32 @@ interface CategoryOption {
   name: string;
 }
 
-interface NewItemFromAdd {
+interface NewOrderItemFromAdd {
   id: string;
   product_id: string | null;
   product_name: string;
   product_brand: string | null;
-  product_description: string | null;
-  product_image_url: string | null;
+  product_code: string | null;
   product_color_name: string | null;
   product_color_hex: string | null;
-  product_code: string | null;
   quantity: number;
+  unit_price: number;
+  total_price: number;
   purchase_price: number;
-  margin_percent: number;
   extra_costs_per_unit: number;
   transport_cost_total: number;
   vat_rate: number;
-  unit_price: number;
-  total_price: number;
   unit_price_gross: number;
   total_price_gross: number;
-  profit_per_unit: number;
-  profit_total: number;
   sort_order: number;
 }
 
 interface Props {
-  offerId: string;
-  onItemAdded: (item: NewItemFromAdd) => void;
+  orderId: string;
+  onItemAdded: (item: NewOrderItemFromAdd) => void;
 }
 
-export default function ProductSearch({ offerId, onItemAdded }: Props) {
+export default function OrderProductSearch({ orderId, onItemAdded }: Props) {
   const [query, setQuery] = useState('');
   const [brandId, setBrandId] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
@@ -79,11 +76,10 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
   const [searching, setSearching] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [showManualForm, setShowManualForm] = useState(false);
-  const [manualData, setManualData] = useState({ name: '', description: '' });
+  const [manualData, setManualData] = useState({ name: '', code: '' });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Pobierz marki + kategorie raz przy mount
   useEffect(() => {
     getBrandsAndCategoriesAction().then((data) => {
       setBrands(data.brands);
@@ -91,7 +87,6 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
     });
   }, []);
 
-  // Search z debounce — odpala się przy zmianie query LUB filtrów
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -124,20 +119,20 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
     setErrorMsg(null);
 
     startTransition(async () => {
-      const result = await addOfferItemAction(offerId, {
+      const result = await addOrderItemAction(orderId, {
         product_id: product.id,
         product_name: product.name,
         product_brand: product.brand_name,
-        product_description: product.description || undefined,
-        product_image_url: colorImage || product.image_url || undefined,
+        product_code: product.code || undefined,
         product_color_name: chosenColor?.name,
         product_color_hex: chosenColor?.hex,
-        product_code: product.code || undefined,
+        product_image_url: colorImage || product.image_url || undefined,
+        product_description: product.description || undefined,
         quantity: 1,
       });
 
       if (result.ok && result.item) {
-        onItemAdded(result.item as NewItemFromAdd);
+        onItemAdded(result.item as NewOrderItemFromAdd);
         setQuery('');
         setResults([]);
       } else {
@@ -153,17 +148,17 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
     }
     setErrorMsg(null);
     startTransition(async () => {
-      const result = await addOfferItemAction(offerId, {
+      const result = await addOrderItemAction(orderId, {
         product_id: null,
         product_name: manualData.name,
-        product_description: manualData.description || undefined,
+        product_code: manualData.code || undefined,
         quantity: 1,
       });
 
       if (result.ok && result.item) {
-        onItemAdded(result.item as NewItemFromAdd);
+        onItemAdded(result.item as NewOrderItemFromAdd);
         setShowManualForm(false);
-        setManualData({ name: '', description: '' });
+        setManualData({ name: '', code: '' });
       } else {
         setErrorMsg(result.error || 'Nie udało się dodać produktu');
       }
@@ -180,7 +175,7 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
   if (showManualForm) {
     return (
       <div className={styles.productSearch}>
-        <h4 className={styles.formTitle}>Dodaj produkt ręcznie</h4>
+        <h4 className={styles.formTitle}>Dodaj pozycję ręcznie</h4>
         <div className={styles.field}>
           <label className={styles.label}>Nazwa produktu *</label>
           <input
@@ -193,12 +188,12 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Opis</label>
-          <textarea
-            value={manualData.description}
-            onChange={(e) => setManualData({ ...manualData, description: e.target.value })}
-            className={styles.textarea}
-            rows={2}
+          <label className={styles.label}>Kod (opcjonalnie)</label>
+          <input
+            type="text"
+            value={manualData.code}
+            onChange={(e) => setManualData({ ...manualData, code: e.target.value })}
+            className={styles.input}
           />
         </div>
         {errorMsg && <p className={styles.searchHint} style={{ color: '#dc2626' }}>{errorMsg}</p>}
@@ -207,7 +202,7 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
             type="button"
             onClick={() => {
               setShowManualForm(false);
-              setManualData({ name: '', description: '' });
+              setManualData({ name: '', code: '' });
               setErrorMsg(null);
             }}
             className={styles.btnSecondary}
@@ -230,7 +225,6 @@ export default function ProductSearch({ offerId, onItemAdded }: Props) {
 
   return (
     <div className={styles.productSearch}>
-      {/* Search + filtry */}
       <div className={styles.productSearchHeader}>
         <input
           type="text"

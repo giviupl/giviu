@@ -322,3 +322,9 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+@media (max-width: 1024px) {
+  .header-search-desktop {
+    display: none;
+  }
+}

@@ -1,4 +1,5 @@
 import AdminSidebar from './_components/AdminSidebar';
+import { ConfirmProvider } from '@/components/admin/ConfirmProvider';
 import styles from './admin.module.css';
 
 export const metadata = {
@@ -12,9 +13,11 @@ export default function AdminPanelLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={styles.layout}>
-      <AdminSidebar />
-      <main className={styles.main}>{children}</main>
-    </div>
+    <ConfirmProvider>
+      <div className={styles.layout}>
+        <AdminSidebar />
+        <main className={styles.main}>{children}</main>
+      </div>
+    </ConfirmProvider>
   );
 }

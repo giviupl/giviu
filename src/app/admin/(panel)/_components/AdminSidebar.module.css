@@ -93,3 +93,28 @@
   background-color: var(--color-error-bg);
   color: var(--color-error);
 }
+
+/* ============================================
+   C1: Badge dla "Zapytania" — licznik nowych
+   ============================================ */
+.navLabel {
+  flex: 1;
+}
+
+.navBadge {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  min-width: 22px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+/* Specjalnie pomarańczowy badge dla "Zapytania" gdy są nowe — żeby się rzucał w oczy */
+.navItem[href="/admin/inquiries"] .navBadge {
+  background-color: #f97316;
+}
