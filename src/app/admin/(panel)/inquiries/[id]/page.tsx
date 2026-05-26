@@ -39,6 +39,15 @@ export default async function InquiryDetailPage({ params }: PageProps) {
     linkedClient = data;
   }
 
+  // Supabase z .select('*, products(...)') zwraca products jako tablicę,
+  // bo TS infer myśli "many", ale relacja FK jest 1:1.
+  // Spłaszczamy products: [{...}] → products: {...}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const normalizedItems = ((items || []) as any[]).map((item) => ({
+    ...item,
+    products: Array.isArray(item.products) ? item.products[0] : item.products,
+  }));
+
   return (
     <>
       <header className={styles.pageHeader}>
@@ -59,7 +68,7 @@ export default async function InquiryDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      <InquiryView inquiry={inquiry} items={items || []} linkedClient={linkedClient} />
+      <InquiryView inquiry={inquiry} items={normalizedItems} linkedClient={linkedClient} />
     </>
   );
 }

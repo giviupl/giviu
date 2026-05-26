@@ -47,6 +47,8 @@ interface NewOrderItemFromAdd {
   product_code: string | null;
   product_color_name: string | null;
   product_color_hex: string | null;
+  product_image_url: string | null;
+  product_description: string | null;
   quantity: number;
   unit_price: number;
   total_price: number;
