@@ -3,16 +3,28 @@
 import { supabaseServer } from '@/lib/supabase-server';
 
 // ============================================
-// HeaderSearch — własna implementacja (bypass searchProducts)
-// Rozszerza zakres search o category + subcategory + in-memory colors filter
-// Nie wymaga modyfikacji productSearch.ts (admin używa starej wersji)
+// HeaderSearch — autocomplete produktów dla giviu.pl
+// Architektura: full scan active products + in-memory STRICT match
+// (jeden query, JSONB colors[] uwzględniany od razu)
+//
+// STRICT matching: każde słowo musi pasować w którymkolwiek z 6 pól
+// lub w colors[].name. Bez soft fallback.
+//
+// Future: gdy baza > 10k produktów, refactor na Postgres FTS z polish
+// dictionary lub pgvector (Tura post-deploy).
 // ============================================
 
 const SELECT_FIELDS =
   'id, slug, name, brand_name, image_url, price, category, category_slug, subcategory, code, description, colors';
 
 const MAX_RESULTS = 8;
-const PER_WORD_LIMIT = 80;
+const SCAN_LIMIT = 1000;
+
+interface ProductColor {
+  name?: string;
+  hex?: string;
+  images?: string[];
+}
 
 interface ProductRow {
   id: string;
@@ -26,7 +38,7 @@ interface ProductRow {
   subcategory: string | null;
   code: string | null;
   description: string | null;
-  colors: unknown;
+  colors: ProductColor[] | null;
 }
 
 export interface HeaderSearchResult {
@@ -40,25 +52,23 @@ export interface HeaderSearchResult {
 }
 
 // ============================================
-// Util: czy produkt matchuje słowo
-// (sprawdza wszystkie tekstowe pola + nazwy kolorów)
+// Match: czy produkt zawiera dane słowo w jednym z pól?
 // ============================================
 function productMatchesWord(p: ProductRow, word: string): boolean {
   const w = word.toLowerCase();
-  const textBlob =
-    `${p.name} ${p.brand_name} ${p.code ?? ''} ${p.description ?? ''} ${p.category ?? ''} ${p.subcategory ?? ''}`.toLowerCase();
-  if (textBlob.includes(w)) return true;
+  if (!w) return false;
 
-  const colorsArr = Array.isArray(p.colors)
-    ? (p.colors as Array<{ name?: string }>)
-    : [];
-  return colorsArr.some((c) => (c.name ?? '').toLowerCase().includes(w));
+  const text =
+    `${p.name ?? ''} ${p.brand_name ?? ''} ${p.code ?? ''} ${p.description ?? ''} ${p.category ?? ''} ${p.subcategory ?? ''}`.toLowerCase();
+
+  if (text.includes(w)) return true;
+
+  const colors = Array.isArray(p.colors) ? p.colors : [];
+  return colors.some((c) => (c?.name ?? '').toLowerCase().includes(w));
 }
 
 function toResult(p: ProductRow): HeaderSearchResult {
-  const colorsArr = Array.isArray(p.colors)
-    ? (p.colors as Array<{ images?: string[] }>)
-    : [];
+  const colorsArr = Array.isArray(p.colors) ? p.colors : [];
   const firstColorImage = colorsArr[0]?.images?.[0] || null;
   return {
     id: p.id,
@@ -72,32 +82,7 @@ function toResult(p: ProductRow): HeaderSearchResult {
 }
 
 // ============================================
-// Pre-fetch produktów pasujących do JEDNEGO słowa
-// Po: name, brand_name, code, description, category, subcategory
-// (colors nie da się prosto w ILIKE bo JSONB — filtrujemy in-memory później)
-// ============================================
-async function fetchProductsForWord(word: string): Promise<ProductRow[]> {
-  const w = word.replace(/[%_,()]/g, ' ').trim();
-  if (!w) return [];
-
-  const { data, error } = await supabaseServer
-    .from('products')
-    .select(SELECT_FIELDS)
-    .eq('active', true)
-    .or(
-      `name.ilike.%${w}%,brand_name.ilike.%${w}%,description.ilike.%${w}%,code.ilike.%${w}%,category.ilike.%${w}%,subcategory.ilike.%${w}%`,
-    )
-    .limit(PER_WORD_LIMIT);
-
-  if (error) {
-    console.error('[fetchProductsForWord]', word, error);
-    return [];
-  }
-  return (data || []) as ProductRow[];
-}
-
-// ============================================
-// Search produktów dla autocomplete w headerze giviu.pl
+// Search produktów dla autocomplete w headerze
 // ============================================
 export async function searchHeaderProductsAction(
   query: string,
@@ -109,52 +94,28 @@ export async function searchHeaderProductsAction(
     .toLowerCase()
     .split(/\s+/)
     .filter((w) => w.length >= 2);
-
   if (words.length === 0) return [];
 
   try {
-    // Pre-fetch dla każdego słowa równolegle
-    const perWordResults = await Promise.all(words.map(fetchProductsForWord));
+    const { data, error } = await supabaseServer
+      .from('products')
+      .select(SELECT_FIELDS)
+      .eq('active', true)
+      .limit(SCAN_LIMIT);
 
-    // Union produktów (po id)
-    const allProducts = new Map<string, ProductRow>();
-    for (const result of perWordResults) {
-      for (const p of result) {
-        if (!allProducts.has(p.id)) allProducts.set(p.id, p);
-      }
+    if (error) {
+      console.error('[searchHeaderProductsAction]', error);
+      return [];
     }
 
-    if (allProducts.size === 0) return [];
+    const products = (data || []) as ProductRow[];
 
-    // 1 słowo: zwróć wszystko (limit 8)
-    if (words.length === 1) {
-      return Array.from(allProducts.values())
-        .slice(0, MAX_RESULTS)
-        .map(toResult);
-    }
+    // STRICT AND matching — każde słowo musi pasować
+    const matched = products.filter((p) =>
+      words.every((w) => productMatchesWord(p, w)),
+    );
 
-    // Wiele słów: każdy produkt musi matchować WSZYSTKIE słowa
-    // (w name/brand/code/description/category/subcategory/colors[].name)
-    const strict: ProductRow[] = [];
-    for (const p of allProducts.values()) {
-      const allMatch = words.every((w) => productMatchesWord(p, w));
-      if (allMatch) strict.push(p);
-    }
-
-    if (strict.length > 0) {
-      return strict.slice(0, MAX_RESULTS).map(toResult);
-    }
-
-    // Soft fallback: sortuj po liczbie matchowanych słów
-    const soft = Array.from(allProducts.values())
-      .map((p) => ({
-        product: p,
-        matchCount: words.filter((w) => productMatchesWord(p, w)).length,
-      }))
-      .filter((x) => x.matchCount > 0)
-      .sort((a, b) => b.matchCount - a.matchCount);
-
-    return soft.slice(0, MAX_RESULTS).map((x) => toResult(x.product));
+    return matched.slice(0, MAX_RESULTS).map(toResult);
   } catch (err) {
     console.error('[searchHeaderProductsAction]', err);
     return [];

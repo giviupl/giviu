@@ -22,11 +22,13 @@ interface Props {
   totalCount: number;
   currentPage: number;
   totalPages: number;
+  suggestions: { query: string; count: number }[];
 }
 
 // ============================================
 // SearchClient — UI dla /szukaj
-// URL state = source of truth, każda zmiana filtra/strony robi router.push
+// URL state = source of truth
+// "Did you mean?" w empty state (Algolia best practice)
 // ============================================
 export default function SearchClient({
   query,
@@ -38,13 +40,13 @@ export default function SearchClient({
   totalCount,
   currentPage,
   totalPages,
+  suggestions,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(query);
   const [isPending, startTransition] = useTransition();
 
-  // Build URL z aktualnych searchParams + nadpisaniami (null = usuń klucz)
   const buildUrl = (updates: Record<string, string | null>): string => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
@@ -61,7 +63,7 @@ export default function SearchClient({
         buildUrl({
           brand: brands.length ? brands.join(',') : null,
           color: colors.length ? colors.join(',') : null,
-          page: null, // reset paginacji przy zmianie filtra
+          page: null,
         }),
       );
     });
@@ -98,9 +100,24 @@ export default function SearchClient({
     });
   };
 
+  const goToSuggestion = (newQuery: string) => {
+    setSearchInput(newQuery);
+    startTransition(() => {
+      router.push(
+        buildUrl({
+          q: newQuery,
+          brand: null,
+          color: null,
+          page: null,
+        }),
+      );
+    });
+  };
+
   const hasActiveFilters =
     selectedBrands.length > 0 || selectedColors.length > 0;
-  const showFilters = query && (brandsWithCounts.length > 0 || colorsWithCounts.length > 0);
+  const showFilters =
+    query && (brandsWithCounts.length > 0 || colorsWithCounts.length > 0);
 
   return (
     <div className={styles['subcategory-container']}>
@@ -190,9 +207,33 @@ export default function SearchClient({
             {query
               ? hasActiveFilters
                 ? `Brak produktów dla „${query}" z wybranymi filtrami.`
-                : `Brak produktów dla „${query}". Spróbuj innej frazy.`
+                : `Brak produktów dla „${query}".`
               : 'Wpisz frazę powyżej, aby zacząć wyszukiwanie.'}
           </p>
+
+          {/* "Did you mean?" — sugestie pojedynczych słów które MAJĄ wyniki */}
+          {query && !hasActiveFilters && suggestions.length > 0 && (
+            <div className={searchStyles.suggestions}>
+              <p className={searchStyles.suggestionsLabel}>Spróbuj:</p>
+              <div className={searchStyles.suggestionsList}>
+                {suggestions.map((s) => (
+                  <button
+                    key={s.query}
+                    type="button"
+                    onClick={() => goToSuggestion(s.query)}
+                    className={searchStyles.suggestionBtn}
+                    disabled={isPending}
+                  >
+                    {s.query}{' '}
+                    <span className={searchStyles.suggestionCount}>
+                      ({s.count})
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {hasActiveFilters ? (
             <button
               onClick={clearAll}
@@ -201,7 +242,7 @@ export default function SearchClient({
             >
               Wyczyść filtry
             </button>
-          ) : query ? (
+          ) : query && suggestions.length === 0 ? (
             <Link href="/" className={styles['subcategory-back-btn']}>
               Wróć na stronę główną
             </Link>

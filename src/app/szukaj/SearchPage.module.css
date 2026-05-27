@@ -1,10 +1,9 @@
 /* ============================================
-   SearchPage — input edytowalny + paginacja
-   Style page-specific; layout (container/header/grid)
-   reuse z CategoryPages.module.css (subcategory-*)
+   SearchPage — input edytowalny + paginacja + suggestions
+   Layout (container/header/grid) reuse z CategoryPages.module.css
    ============================================ */
 
-/* Edytowalny input z aktualną frazą */
+/* Edytowalny input */
 .searchForm {
   display: flex;
   gap: 12px;
@@ -67,6 +66,60 @@
 .searchSubmit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* "Did you mean?" suggestions */
+.suggestions {
+  margin: var(--spacing-xl) 0;
+  text-align: center;
+}
+
+.suggestionsLabel {
+  font-size: var(--font-size-base);
+  color: var(--color-gray);
+  margin: 0 0 var(--spacing-md) 0;
+  font-weight: 500;
+}
+
+.suggestionsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.suggestionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1.5px solid var(--color-primary);
+  background: var(--color-white);
+  color: var(--color-primary);
+  border-radius: var(--radius-xl);
+  font-family: 'Rubik', sans-serif;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+@media (hover: hover) {
+  .suggestionBtn:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: var(--color-white);
+  }
+}
+
+.suggestionBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.suggestionCount {
+  font-size: var(--font-size-xs);
+  opacity: 0.75;
+  font-weight: 400;
 }
 
 /* Paginacja */
@@ -148,8 +201,11 @@
     font-size: 13px;
   }
 
-  /* Schowaj label "Poprzednia/Następna" na mobile, zostają tylko strzałki */
   .paginationLabel {
     display: none;
+  }
+
+  .suggestionsList {
+    padding: 0 var(--spacing-md);
   }
 }

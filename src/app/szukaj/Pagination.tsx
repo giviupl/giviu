@@ -7,10 +7,6 @@ interface Props {
   buildUrl: (page: number) => string;
 }
 
-// ============================================
-// Paginacja: 1 ... current-1 current current+1 ... last + prev/next
-// Pure component, render via <Link> (preload SSR przy hover)
-// ============================================
 export default function Pagination({
   currentPage,
   totalPages,
@@ -18,9 +14,8 @@ export default function Pagination({
 }: Props) {
   if (totalPages <= 1) return null;
 
-  // Build "smart" page numbers list z ellipsis
   const pages: (number | 'ellipsis-l' | 'ellipsis-r')[] = [];
-  const window = 1; // ile stron wokół aktualnej
+  const window = 1;
 
   pages.push(1);
 

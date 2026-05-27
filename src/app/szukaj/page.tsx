@@ -1,29 +1,32 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase-server';
 import SearchClient from './SearchClient';
 import styles from '@/styles/CategoryPages.module.css';
 
 // ============================================
 // /szukaj — server-side search page
-// URL: /szukaj?q=czarny+kubek&brand=stanley,camelbak&color=Czarny&page=2
+// URL: /szukaj?q=czarne+kubki&brand=stanley&color=Czarny&page=2
 //
 // Architektura:
-// - URL state = source of truth (shareable, back button)
-// - Fetch wszystkich matchów (limit 1000) raz, agregacje + paginacja in-memory
-// - Smart counts: brand counts uwzględniają color filter, color counts uwzględniają brand filter
-// - meta robots: noindex, follow (standard dla internal search)
+// - Full scan active products + in-memory STRICT match
+// - 6 pól tekstowych + colors[].name (JSONB)
+// - Bez soft fallback (Algolia/Bloomreach best practice)
+// - "Did you mean?" gdy multi-word zwraca zero
+// - meta robots: noindex, follow
+//
+// Future: Postgres FTS z polish dictionary lub pgvector (Tura post-deploy)
+// gdy baza przekroczy ~5k produktów lub trzeba lematyzacji "kubki" → "kubek"
 // ============================================
 
 const PAGE_SIZE = 24;
-const MATCH_LIMIT = 1000;
+const SCAN_LIMIT = 1000;
 
 const SELECT_FIELDS =
   'id, slug, name, brand_name, brand_id, code, price, category, category_slug, subcategory, subcategory_slug, description, colors, views, emoji, is_new, image_url';
 
 interface ProductColor {
-  name: string;
-  hex: string;
+  name?: string;
+  hex?: string;
   images?: string[];
 }
 
@@ -55,6 +58,22 @@ type SearchParamsPromise = Promise<{
 }>;
 
 // ============================================
+// Match: czy produkt zawiera słowo w 6 polach lub colors[].name
+// ============================================
+function productMatchesWord(p: ProductRow, word: string): boolean {
+  const w = word.toLowerCase();
+  if (!w) return false;
+
+  const text =
+    `${p.name ?? ''} ${p.brand_name ?? ''} ${p.code ?? ''} ${p.description ?? ''} ${p.category ?? ''} ${p.subcategory ?? ''}`.toLowerCase();
+
+  if (text.includes(w)) return true;
+
+  const colors = Array.isArray(p.colors) ? p.colors : [];
+  return colors.some((c) => (c?.name ?? '').toLowerCase().includes(w));
+}
+
+// ============================================
 // Metadata
 // ============================================
 export async function generateMetadata({
@@ -70,104 +89,46 @@ export async function generateMetadata({
   return {
     title,
     description: trimmed
-      ? `Wyniki wyszukiwania dla „${trimmed}" w katalogu Giviu — prezenty firmowe premium z personalizacją.`
+      ? `Wyniki wyszukiwania dla „${trimmed}" w katalogu Giviu — prezenty firmowe premium.`
       : 'Wyszukiwanie produktów w katalogu Giviu — prezenty firmowe premium.',
-    robots: { index: false, follow: true }, // noindex, follow — best practice dla internal search
+    robots: { index: false, follow: true },
     alternates: { canonical: '/szukaj' },
   };
 }
 
 // ============================================
-// Fetch produktów matchujących query
-// Multi-word: per-word ILIKE (6 pól) + intersect in-memory
-// 6 pól: name, brand_name, code, description, category, subcategory
-// + in-memory: colors[].name
+// Fetch wszystkie active products (single query, full scan)
 // ============================================
-async function fetchMatchingProducts(query: string): Promise<ProductRow[]> {
-  const q = query.trim();
-  if (q.length < 2) return [];
+async function fetchAllActiveProducts(): Promise<ProductRow[]> {
+  const { data, error } = await supabaseServer
+    .from('products')
+    .select(SELECT_FIELDS)
+    .eq('active', true)
+    .limit(SCAN_LIMIT);
 
-  const words = q
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length >= 2);
-  if (words.length === 0) return [];
-
-  // Helper: ILIKE search po 6 polach dla jednego słowa
-  const fetchForWord = async (word: string): Promise<ProductRow[]> => {
-    const w = word.replace(/[%_,()]/g, ' ').trim();
-    if (!w) return [];
-
-    const { data, error } = await supabaseServer
-      .from('products')
-      .select(SELECT_FIELDS)
-      .eq('active', true)
-      .or(
-        `name.ilike.%${w}%,brand_name.ilike.%${w}%,description.ilike.%${w}%,code.ilike.%${w}%,category.ilike.%${w}%,subcategory.ilike.%${w}%`,
-      )
-      .limit(MATCH_LIMIT);
-
-    if (error) {
-      console.error('[fetchMatchingProducts]', word, error);
-      return [];
-    }
-    return (data || []) as ProductRow[];
-  };
-
-  // 1 słowo — szybka ścieżka
-  if (words.length === 1) {
-    const single = await fetchForWord(words[0]);
-    // In-memory dopasowanie po colors[].name (na wypadek gdyby user szukał koloru)
-    const w = words[0];
-    if (single.length > 0) return single;
-    // Jeśli żaden produkt nie złapał — może użytkownik szuka koloru?
-    // Fetch wszystkie active, filtruj po colors[].name (ostatnia deska ratunku)
-    const { data: byColor } = await supabaseServer
-      .from('products')
-      .select(SELECT_FIELDS)
-      .eq('active', true)
-      .limit(MATCH_LIMIT);
-    return (byColor || []).filter((p) => {
-      const cs = Array.isArray(p.colors) ? (p.colors as ProductColor[]) : [];
-      return cs.some((c) => (c.name ?? '').toLowerCase().includes(w));
-    }) as ProductRow[];
+  if (error) {
+    console.error('[fetchAllActiveProducts]', error);
+    return [];
   }
+  return (data || []) as ProductRow[];
+}
 
-  // Wiele słów — fetch równolegle, union, intersect in-memory
-  const perWord = await Promise.all(words.map(fetchForWord));
-
-  const all = new Map<string, ProductRow>();
-  for (const result of perWord) {
-    for (const p of result) {
-      if (!all.has(p.id)) all.set(p.id, p);
-    }
-  }
-
-  const matchesWord = (p: ProductRow, w: string): boolean => {
-    const text =
-      `${p.name} ${p.brand_name} ${p.code ?? ''} ${p.description ?? ''} ${p.category ?? ''} ${p.subcategory ?? ''}`.toLowerCase();
-    if (text.includes(w)) return true;
-    const cs = Array.isArray(p.colors) ? p.colors : [];
-    return cs.some((c) => (c.name ?? '').toLowerCase().includes(w));
-  };
-
-  const strict = Array.from(all.values()).filter((p) =>
-    words.every((w) => matchesWord(p, w)),
-  );
-
-  // Soft fallback gdy strict pusty
-  if (strict.length === 0) {
-    return Array.from(all.values())
-      .map((p) => ({
-        product: p,
-        matchCount: words.filter((w) => matchesWord(p, w)).length,
-      }))
-      .filter((x) => x.matchCount > 0)
-      .sort((a, b) => b.matchCount - a.matchCount)
-      .map((x) => x.product);
-  }
-
-  return strict;
+// ============================================
+// "Did you mean?" — gdy multi-word zwraca zero,
+// sprawdź każde słowo osobno, zwróć te z wynikami
+// ============================================
+function buildSuggestions(
+  allProducts: ProductRow[],
+  words: string[],
+): Array<{ query: string; count: number }> {
+  if (words.length < 2) return [];
+  const results = words.map((word) => ({
+    query: word,
+    count: allProducts.filter((p) => productMatchesWord(p, word)).length,
+  }));
+  return results
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count);
 }
 
 // ============================================
@@ -184,18 +145,35 @@ export default async function SearchPage({
   const selectedColors = (params.color || '').split(',').filter(Boolean);
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1);
 
-  // Fetch all matches (raz, in-memory dalej)
-  const allMatches = q ? await fetchMatchingProducts(q) : [];
+  const words = q
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length >= 2);
 
-  // Smart aggregations:
-  // - brandCounts agreguje po color-filtered set (żeby pokazać dostępne marki dla wybranych kolorów)
-  // - colorCounts agreguje po brand-filtered set (analogicznie)
+  // Single fetch — pełna lista active products
+  const allActive = q ? await fetchAllActiveProducts() : [];
+
+  // STRICT AND match — każde słowo musi pasować
+  const allMatches =
+    q && words.length > 0
+      ? allActive.filter((p) => words.every((w) => productMatchesWord(p, w)))
+      : [];
+
+  // "Did you mean?" gdy multi-word zwraca zero
+  const suggestions =
+    q && allMatches.length === 0 && words.length > 1
+      ? buildSuggestions(allActive, words)
+      : [];
+
+  // Smart aggregations
   const colorFiltered =
     selectedColors.length === 0
       ? allMatches
       : allMatches.filter((p) => {
           const cs = Array.isArray(p.colors) ? p.colors : [];
-          return cs.some((c) => selectedColors.includes(c.name));
+          return cs.some(
+            (c) => c.name && selectedColors.includes(c.name),
+          );
         });
 
   const brandFiltered =
@@ -230,14 +208,14 @@ export default async function SearchPage({
     .map(([name, { hex, count }]) => ({ name, hex, count }))
     .sort((a, b) => a.name.localeCompare(b.name, 'pl'));
 
-  // Apply WSZYSTKIE filtry (brand AND color)
+  // Apply WSZYSTKIE filtry
   const finalFiltered = allMatches.filter((p) => {
     const brandOk =
       selectedBrands.length === 0 || selectedBrands.includes(p.brand_name);
     const cs = Array.isArray(p.colors) ? p.colors : [];
     const colorOk =
       selectedColors.length === 0 ||
-      cs.some((c) => selectedColors.includes(c.name));
+      cs.some((c) => c.name && selectedColors.includes(c.name));
     return brandOk && colorOk;
   });
 
@@ -262,6 +240,7 @@ export default async function SearchPage({
         totalCount={totalCount}
         currentPage={safePage}
         totalPages={totalPages}
+        suggestions={suggestions}
       />
     </main>
   );
