@@ -48,11 +48,12 @@
   -webkit-appearance: none;
 }
 
+/* Klik myszą — bez niebieskiej otoczki */
 .input:focus {
   border-color: var(--color-primary, #4f67b1);
-  box-shadow: 0 0 0 3px rgba(79, 103, 177, 0.18);
 }
 
+/* Nawigacja klawiaturą (Tab) — otoczka dla dostępności */
 .input::placeholder {
   color: var(--color-muted, #9ca3af);
 }

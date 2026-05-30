@@ -133,13 +133,16 @@ ul[role="list"] > li {
   outline-offset: 2px;
 }
 
-/* Inputs/textareas - border change instead of outline */
+/* Inputs/textareas/select — tylko zmiana border, bez otoczki */
+input:focus,
+textarea:focus,
+select:focus,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(79, 103, 177, 0.15);
+  box-shadow: none;
 }
 
 /* Buttons - outline ring */
@@ -1842,12 +1845,20 @@ textarea,
 }
 
 button:focus-visible,
-a:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Inputs — bez otoczki (border-color sygnalizuje focus) */
+input:focus,
+textarea:focus,
+select:focus,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
 }
 
 .product-card:focus-visible,

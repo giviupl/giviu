@@ -156,19 +156,10 @@ export default function Header() {
             </Link>
           </h1>
 
-                    {/* Search bar — desktop only (mobile ukryty) */}
-                    <div
-  style={{
-    flex: "0 1 480px",      // 100% większy niż 240px
-    minWidth: 0,
-    marginLeft: "24px",     // wypycha search w prawo (bliżej INSPIRACJE)
-    marginRight: "24px",    // taki sam odstęp od INSPIRACJE jak był od logo
-  }}
-  className="header-search-desktop"
->
-  <HeaderSearch />
-</div>
-
+          {/* Search bar — DESKTOP (inline w header-top, ukryty na mobile) */}
+          <div className={styles["search-desktop"]}>
+            <HeaderSearch />
+          </div>
 
           {/* Desktop Navigation */}
           <nav
@@ -280,6 +271,11 @@ export default function Header() {
 
         {/* Niebieska linia - dekoracyjna */}
         <div className={styles["header-accent-line"]} aria-hidden="true" />
+
+        {/* Search bar — MOBILE (osobny full-width rząd pod accent-line, ukryty na desktop) */}
+        <div className={styles["search-mobile"]}>
+          <HeaderSearch />
+        </div>
 
         {/* Kategorie - tylko desktop */}
         <nav

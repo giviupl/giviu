@@ -36,10 +36,7 @@
   -webkit-appearance: none;
 }
 
-.searchInput:focus {
-  box-shadow: 0 0 0 3px rgba(79, 103, 177, 0.18);
-}
-
+/* Nawigacja klawiaturą (Tab) — otoczka dla dostępności, klik myszą bez niej */
 .searchInput::placeholder {
   color: var(--color-muted);
 }

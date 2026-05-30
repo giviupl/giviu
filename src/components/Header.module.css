@@ -54,9 +54,8 @@
 }
 
 .header-logo {
-  /* Zmienne dla loga - dziedziczą dzieci. Edytuj wartości żeby zmienić rozmiar. */
-  --logo-height: 40px;   /* GIVIU + slot (wysokość headera dla loga) */
-  --pw-height: 24px;     /* PW osobno - możesz dać 28px, 32px, 36px, 40px... */
+  --logo-height: 40px;
+  --pw-height: 24px;
   margin: 0;
 }
 
@@ -67,12 +66,10 @@
   align-items: center;
 }
 
-/* GIVIU używa --logo-height */
 .logo-roll-default .header-logo-img {
   height: var(--logo-height, 40px);
 }
 
-/* PW używa --pw-height (osobno skalowane) */
 .logo-roll-hover .header-logo-img {
   height: var(--pw-height, 40px);
 }
@@ -82,11 +79,7 @@
   display: block;
 }
 
-/* ==================== LOGO ROLL ANIMATION (GIVIU ↔ PREZENTUJ WARTOŚĆ) ==================== */
-/* Aby zmienić rozmiar logo, ustaw --logo-height (np. w globals.css :root) */
-/* Aspect ratio PW SVG = 6.6:1 — slot width skaluje automatycznie */
-
-/* Mobile default: tylko GIVIU, bez animacji */
+/* ==================== LOGO ROLL ANIMATION ==================== */
 .logo-roll {
   position: relative;
   display: flex;
@@ -104,7 +97,6 @@
   display: none;
 }
 
-/* Desktop: aktywuj animację roll */
 @media (min-width: 1025px) {
   .logo-roll {
     width: calc(var(--pw-height, 40px) * 8.28);
@@ -143,7 +135,6 @@
   }
 }
 
-/* Szanuj prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .logo-roll-default,
   .logo-roll-hover {
@@ -156,7 +147,20 @@
   background-color: var(--color-primary);
 }
 
-/* Desktop nav */
+/* ==================== SEARCH BAR ==================== */
+/* Desktop: inline w header-top, ukryty na mobile */
+.search-desktop {
+  display: none;
+}
+
+/* Mobile: osobny full-width rząd pod accent-line, ukryty na desktop */
+.search-mobile {
+  display: block;
+  padding: 10px var(--spacing-lg);
+  background-color: var(--color-background);
+}
+
+/* ==================== Desktop nav ==================== */
 .desktop-nav {
   display: none;
   align-items: center;
@@ -228,10 +232,11 @@
   z-index: 30;
 }
 
-/* Mobile menu */
+/* Mobile menu — top dostosowany do wysokości headera z search barem
+   (header-top 80px + accent 2px + search ~60px = ~142px) */
 .mobile-menu {
   position: fixed;
-  top: 82px;
+  top: 144px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -284,12 +289,12 @@
   color: var(--color-primary);
 }
 
-/* Header spacer */
+/* Header spacer — mobile: header-top 80 + accent 2 + search ~60 = ~142 */
 .header-spacer {
-  height: 100px;
+  height: 144px;
 }
 
-/* Desktop overrides */
+/* ==================== Desktop overrides ==================== */
 @media (min-width: 1025px) {
   .desktop-nav {
     display: flex;
@@ -307,6 +312,21 @@
     padding: 0 120px;
   }
 
+  /* Search: pokaż inline w header-top */
+  .search-desktop {
+    display: block;
+    flex: 0 1 480px;
+    min-width: 0;
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+
+  /* Search: ukryj mobilny wariant */
+  .search-mobile {
+    display: none;
+  }
+
+  /* Desktop nie ma mobilnego search bara — spacer wraca do oryginału */
   .header-spacer {
     height: 168px;
   }
@@ -320,11 +340,5 @@
 
   .mobile-menu {
     padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-@media (max-width: 1024px) {
-  .header-search-desktop {
-    display: none;
   }
 }
