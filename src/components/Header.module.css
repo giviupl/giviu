@@ -244,6 +244,7 @@
   z-index: 40;
   padding: var(--spacing-xl);
   overflow-y: auto;
+  overscroll-behavior: contain;
   transition: transform 0.3s ease-in-out;
 }
 

@@ -139,31 +139,7 @@ export default function SearchClient({
             ? `Wyszukaj wśród naszej kolekcji premium prezentów firmowych. Doprecyzuj wynik przy pomocy filtrów poniżej.`
             : 'Wpisz frazę aby znaleźć produkty z naszej kolekcji.'}
         </p>
-
-        <form
-          onSubmit={handleSearchSubmit}
-          className={searchStyles.searchForm}
-          role="search"
-        >
-          <input
-            type="search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Szukaj produktów, marek, kategorii..."
-            className={searchStyles.searchInput}
-            disabled={isPending}
-            aria-label="Wyszukaj produkty"
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <button
-            type="submit"
-            className={searchStyles.searchSubmit}
-            disabled={isPending}
-          >
-            {isPending ? 'Szukam…' : 'Szukaj'}
-          </button>
-        </form>
+        
       </header>
 
       {showFilters && (
