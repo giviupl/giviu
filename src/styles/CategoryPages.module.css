@@ -653,9 +653,31 @@
   transform: scale(1.05);
 }
 
+:global(.category-banner-img) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+:global(.category-banner):hover :global(.category-banner-img) {
+  transform: scale(1.05);
+}
+
+:global(.category-banner-img) + :global(.category-banner-content)::before,
+:global(.category-banner-bg) + :global(.category-banner-content)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+
 :global(.category-banner-content) {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
