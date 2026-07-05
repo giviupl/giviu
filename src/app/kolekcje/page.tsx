@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 const COLLECTION_BANNERS = [
-  { title: 'Odzież', description: '...', slug: 'odziez', imageUrl: '/images/kolekcje/odziez.webp' },
-  { title: 'Kubki i Butelki', description: '...', slug: 'kubki-i-butelki', imageUrl: '/images/kolekcje/kubki-i-butelki.webp' },
-  { title: 'Elektronika', description: '...', slug: 'elektronika', imageUrl: '/images/kolekcje/elektronika.webp' },
+  { title: 'Odzież', description: 'Odzież premium dla Twojego zespołu', slug: 'odziez', imageUrl: '/images/kolekcje/odziez.webp' },
+  { title: 'Kubki i Butelki', description: 'Bidony, butelki i termosy premium', slug: 'kubki-i-butelki', imageUrl: '/images/kolekcje/kubki-i-butelki.webp' },
+  { title: 'Elektronika', description: 'Powerbanki, ładowarki i gadżety tech', slug: 'elektronika', imageUrl: '/images/kolekcje/elektronika.webp' },
   { title: 'Biuro i Notatniki', description: 'Notesy, długopisy i akcesoria biurowe', slug: 'biuro-i-notatniki' },
   { title: 'Plecaki i Torby', description: 'Plecaki, torby i akcesoria podróżne', slug: 'plecaki-i-torby' },
   { title: 'Dom i Wypoczynek', description: 'Świece, dyfuzory i produkty wellness', slug: 'dom-i-wypoczynek' },
@@ -32,7 +32,7 @@ export default function KolekcjePage() {
         </div>
         <div className={styles['collections-grid']}>
           {COLLECTION_BANNERS.map((banner) => (
-            <CategoryBanner key={banner.slug} title={banner.title} description={banner.description} slug={banner.slug} />
+            <CategoryBanner key={banner.slug} title={banner.title} description={banner.description} slug={banner.slug} imageUrl={banner.imageUrl} />
           ))}
         </div>
       </div>
