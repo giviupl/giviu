@@ -665,7 +665,9 @@
   transform: scale(1.05);
 }
 
-:global(.category-banner):hover :global(.category-banner-content) {
+:global(.category-banner):hover :global(.category-banner-label),
+:global(.category-banner):hover :global(.category-banner-title),
+:global(.category-banner):hover :global(.category-banner-desc) {
   color: #fff;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
