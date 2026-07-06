@@ -13,10 +13,10 @@ const COLLECTION_BANNERS = [
   { title: 'Odzież', description: 'Odzież premium dla Twojego zespołu', slug: 'odziez', imageUrl: '/images/kolekcje/odziez.webp' },
   { title: 'Kubki i Butelki', description: 'Bidony, butelki i termosy premium', slug: 'kubki-i-butelki', imageUrl: '/images/kolekcje/kubki-i-butelki.webp' },
   { title: 'Elektronika', description: 'Powerbanki, ładowarki i gadżety tech', slug: 'elektronika', imageUrl: '/images/kolekcje/elektronika.webp' },
-  { title: 'Biuro i Notatniki', description: 'Notesy, długopisy i akcesoria biurowe', slug: 'biuro-i-notatniki' },
-  { title: 'Plecaki i Torby', description: 'Plecaki, torby i akcesoria podróżne', slug: 'plecaki-i-torby' },
-  { title: 'Dom i Wypoczynek', description: 'Świece, dyfuzory i produkty wellness', slug: 'dom-i-wypoczynek' },
-  { title: 'Parasole', description: 'Parasole premium do personalizacji', slug: 'parasole' },
+  { title: 'Biuro i Notatniki', description: 'Notesy, długopisy i akcesoria biurowe', slug: 'biuro-i-notatniki', imageUrl: '/images/kolekcje/biuro-i-notatniki.webp' },
+  { title: 'Plecaki i Torby', description: 'Plecaki, torby i akcesoria podróżne', slug: 'plecaki-i-torby', imageUrl: '/images/kolekcje/plecaki-i-torby.webp' },
+  { title: 'Dom i Wypoczynek', description: 'Świece, dyfuzory i produkty wellness', slug: 'dom-i-wypoczynek', imageUrl: '/images/kolekcje/dom-i-wypoczynek.webp' },
+  { title: 'Parasole', description: 'Parasole premium do personalizacji', slug: 'parasole', imageUrl: '/images/kolekcje/parasole.webp' },
 ];
 
 export default function KolekcjePage() {
