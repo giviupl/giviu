@@ -700,6 +700,8 @@
   letter-spacing: 0.15em;
   color: #fff;
   margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
 }
 
 :global(.category-banner-title) {
@@ -707,6 +709,8 @@
   font-weight: 700;
   color: var(--color-white);
   margin: 0 0 12px 0;
+  position: relative;
+  z-index: 1;
 }
 
 :global(.category-banner-desc) {
@@ -714,6 +718,8 @@
   font-weight: 300;
   color: #fff;
   margin: 0 0 20px 0;
+  position: relative;
+  z-index: 1;
 }
 
 :global(.category-banner-link) {
@@ -723,6 +729,8 @@
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--color-white);
+  position: relative;
+  z-index: 1;
 }
 
 :global(.category-banner-link) svg {
