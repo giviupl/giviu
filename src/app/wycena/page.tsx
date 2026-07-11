@@ -21,12 +21,6 @@ export default function WycenaPage() {
     setIsHydrated(true);
   }, []);
 
-  useEffect(() => {
-    if (isHydrated && items.length > 0) {
-      firstQuantityRef.current?.focus();
-    }
-  }, [isHydrated, items.length]);
-
   const getQuantitiesFor = (item: QuoteItem) =>
     item.quantities && item.quantities.length > 0 ? item.quantities : [""];
 
