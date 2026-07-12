@@ -11,21 +11,20 @@ import HeaderSearch from '@/components/HeaderSearch/HeaderSearch';
 function QuoteBadge() {
   const [count, setCount] = useState(0);
   const [pulseKey, setPulseKey] = useState(0);
-
   useEffect(() => {
-    setCount(useQuoteStore.getState().getItemCount());
-
+    let prevCount = useQuoteStore.getState().getItemCount();
+    setCount(prevCount);
     const unsubscribe = useQuoteStore.subscribe(() => {
       const newCount = useQuoteStore.getState().getItemCount();
       setCount(newCount);
-      setPulseKey((prev) => prev + 1);
+      if (newCount !== prevCount) {
+        setPulseKey((prev) => prev + 1);
+        prevCount = newCount;
+      }
     });
-
     return () => unsubscribe();
   }, []);
-
   if (count === 0) return null;
-
   return (
     <span key={pulseKey} className="quote-badge quote-badge-pulse">
       {count}

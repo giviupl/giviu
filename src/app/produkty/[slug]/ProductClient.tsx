@@ -71,7 +71,7 @@ export default function ProductClient({ product, relatedProducts, brandGiftDescr
 
   const [selectedColor, setSelectedColor] = useState(getInitialColorIndex);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<TabType>('specyfikacja');
+  const [activeTab, setActiveTab] = useState<TabType>('opis');
   const [mounted, setMounted] = useState(false);
   const [inQuote, setInQuote] = useState(false);
   const [animationState, setAnimationState] = useState<AnimationState>('idle');
@@ -206,7 +206,7 @@ const scrollThumbnails = (direction: "up" | "down") => {
 
   const handleTabKeyDown = (e: React.KeyboardEvent) => {
     const tabs: TabType[] = [
-      ...(isLongDescription ? ['opis' as TabType] : []),
+      'opis' as TabType,
       'specyfikacja',
       'personalizacja',
       'dostawa',
@@ -545,9 +545,7 @@ const scrollThumbnails = (direction: "up" | "down") => {
         {/* Tabs Section */}
         <div className={styles['product-tabs-section']} ref={tabsRef}>
           <div className={styles['product-tabs']} role="tablist" aria-label="Informacje o produkcie" onKeyDown={handleTabKeyDown}>
-            {isLongDescription && (
-              <button role="tab" id="tab-opis" aria-selected={activeTab === 'opis'} aria-controls="tabpanel-opis" className={`${styles['product-tab']} ${activeTab === 'opis' ? styles.active : ''}`} onClick={() => setActiveTab('opis')} tabIndex={activeTab === 'opis' ? 0 : -1}>Opis</button>
-            )}
+          <button role="tab" id="tab-opis" aria-selected={activeTab === 'opis'} aria-controls="tabpanel-opis" className={`${styles['product-tab']} ${activeTab === 'opis' ? styles.active : ''}`} onClick={() => setActiveTab('opis')} tabIndex={activeTab === 'opis' ? 0 : -1}>Opis</button>
             <button role="tab" id="tab-specyfikacja" aria-selected={activeTab === 'specyfikacja'} aria-controls="tabpanel-specyfikacja" className={`${styles['product-tab']} ${activeTab === 'specyfikacja' ? styles.active : ''}`} onClick={() => setActiveTab('specyfikacja')} tabIndex={activeTab === 'specyfikacja' ? 0 : -1}>Specyfikacja</button>
             <button role="tab" id="tab-personalizacja" aria-selected={activeTab === 'personalizacja'} aria-controls="tabpanel-personalizacja" className={`${styles['product-tab']} ${activeTab === 'personalizacja' ? styles.active : ''}`} onClick={() => setActiveTab('personalizacja')} tabIndex={activeTab === 'personalizacja' ? 0 : -1}>Personalizacja</button>
             <button role="tab" id="tab-dostawa" aria-selected={activeTab === 'dostawa'} aria-controls="tabpanel-dostawa" className={`${styles['product-tab']} ${activeTab === 'dostawa' ? styles.active : ''}`} onClick={() => setActiveTab('dostawa')} tabIndex={activeTab === 'dostawa' ? 0 : -1}>Dostawa</button>
