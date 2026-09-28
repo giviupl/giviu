@@ -882,6 +882,7 @@
     height: auto;
     flex-direction: row;
     width: 100%;
+    overflow: hidden;
   }
 
   .thumbnails-arrow {
